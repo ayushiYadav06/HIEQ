@@ -6,7 +6,6 @@ const ProfileMiniNavbar = ({ email, phone, joinedDate, lastSeen }) => {
   return (
     <div
       className="
-        bg-light 
         border 
         rounded 
         px-3 px-md-4 
@@ -18,8 +17,11 @@ const ProfileMiniNavbar = ({ email, phone, joinedDate, lastSeen }) => {
         justify-content-between 
         gap-3
       "
+      style={{
+        background: "#EEEEEE",   // ⭐ UPDATED BACKGROUND COLOR
+      }}
     >
-      {/* LEFT */}
+      {/* LEFT SIDE */}
       <div className="d-flex flex-column gap-2 text-center text-md-start">
         <div className="d-flex align-items-center gap-2">
           <img src={MailIcon} width={18} height={18} alt="email" />
@@ -32,7 +34,7 @@ const ProfileMiniNavbar = ({ email, phone, joinedDate, lastSeen }) => {
         </div>
       </div>
 
-      {/* RIGHT */}
+      {/* RIGHT SIDE */}
       <div className="text-center text-md-end">
         <p className="mb-1 text-secondary">Joined on {joinedDate}</p>
         <p className="mb-0 fw-semibold" style={{ color: "#4CAF50" }}>

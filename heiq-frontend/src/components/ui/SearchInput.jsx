@@ -1,18 +1,14 @@
-import React from "react";
-
 const SearchInput = ({ placeholder }) => {
   return (
     <input
       placeholder={placeholder}
       style={{
-        width: "381.24px",
-        height: "35.21px",
+        width: "100%",
+        height: "35px",
         padding: "8px 12px",
         borderRadius: "6px",
-        border: "1px solid #DDDDDD", // Figma: 1px
+        border: "1px solid #DDD",
         outline: "none",
-        marginTop: "538.43px",       // Figma top offset
-        marginLeft: "104.37px",      // Figma left offset
         fontSize: "14px",
         background: "#FFFFFF",
       }}

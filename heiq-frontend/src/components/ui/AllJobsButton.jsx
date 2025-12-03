@@ -1,20 +1,15 @@
-import React from "react";
-
-const AllJobsButton = ({ value = "All Jobs", onChange }) => {
+const AllJobsButton = ({ value = "All Jobs" }) => {
   return (
     <select
-      onChange={onChange}
       style={{
-        width: "470px",
+        width: "100%",
         height: "35px",
-        border: "1px solid #DDDDDD",
+        border: "1px solid #DDD",
         borderRadius: "5px",
         padding: "6px 10px",
         fontSize: "14px",
         background: "#FFFFFF",
         outline: "none",
-        cursor: "pointer",
-        flexShrink: 0,
       }}
     >
       <option>{value}</option>

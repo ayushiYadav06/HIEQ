@@ -1,40 +1,42 @@
-import React from "react";
+import React, { useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const DateTabs = ({ selected, onChange }) => {
-  const options = ["Today", "This Week", "This Month"];
+  const [open, setOpen] = useState(false);
 
   return (
-    <div
-      className="date-tabs"
-      style={{
-        width: "313px",
-        height: "35px",
-        display: "flex",
-        border: "1px solid #999999",
-        borderRadius: "4px",
-        overflow: "hidden",
-        flexShrink: 0,
-      }}
-    >
-      {options.map((opt) => (
-        <div
-          key={opt}
-          onClick={() => onChange(opt)}
-          style={{
-            flex: 1,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            fontSize: "14px",
-            color: selected === opt ? "#000" : "#999",
-            background: selected === opt ? "#E6E6E6" : "#FFFFFF",
-            borderRight: "1px solid #999",
-          }}
-        >
-          {opt}
+    <div style={{ position: "relative" }}>
+      <div
+        onClick={() => setOpen(!open)}
+        style={{
+          width: "100%",
+          height: "35px",
+          border: "1px solid #999",
+          borderRadius: "5px",
+          padding: "6px 10px",
+          background: "#fff",
+          cursor: "pointer",
+          fontSize: "14px",
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        {selected.toDateString()}
+      </div>
+
+      {open && (
+        <div style={{ position: "absolute", zIndex: 50 }}>
+          <DatePicker
+            selected={selected}
+            onChange={(date) => {
+              onChange(date);
+              setOpen(false);
+            }}
+            inline
+          />
         </div>
-      ))}
+      )}
     </div>
   );
 };

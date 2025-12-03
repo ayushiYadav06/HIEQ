@@ -1,7 +1,7 @@
 import React from "react";
 import { colors } from "../../theme/colors";
 
-const Tabs = ({ active, setActive }) => {
+const Tabs = ({ active, setActive, tabs = [] }) => {
   return (
     <div
       className="tabs"
@@ -15,7 +15,7 @@ const Tabs = ({ active, setActive }) => {
         minWidth: "250px",
       }}
     >
-      {["Jobs", "Internships"].map((tab) => (
+      {tabs.map((tab) => (
         <button
           key={tab}
           onClick={() => setActive(tab)}

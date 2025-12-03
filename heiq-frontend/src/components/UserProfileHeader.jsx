@@ -1,48 +1,77 @@
 import React from "react";
 import { colors } from "../theme/colors";
+import UserImg from "../assets/user.jpg"; // ✅ your real image
 
-const UserProfileHeader = () => {
+const UserProfileHeader = ({
+  name = "NIVED P K",
+  email = "nivedp@gmail.com",
+  phone = "1234567890",
+  joinedDate = "20th May 2023",
+  lastSeen = "25 mins ago",
+  profileImage = UserImg,
+  onViewProfile,
+}) => {
   return (
     <div
       style={{
         background: "#fff",
-        padding: "20px",
-        borderRadius: "10px",
+        padding: "22px",
+        borderRadius: "12px",
         border: "1px solid #eee",
       }}
+      className="shadow-sm"
     >
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <div>
-          <p>📧 nivedp@gmail.com</p>
-          <p>📞 1234567890</p>
+      <div
+        className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-4"
+      >
+        {/* LEFT */}
+        <div className="text-center text-md-start">
+          <p className="mb-1">📧 {email}</p>
+          <p className="mb-0">📞 {phone}</p>
         </div>
 
-        <div style={{ textAlign: "center" }}>
+        {/* CENTER — IMAGE + NAME */}
+        <div className="text-center">
           <img
-            src="https://i.pravatar.cc/120"
+            src={profileImage}
             alt="profile"
-            style={{ width: "90px", height: "90px", borderRadius: "50%" }}
+            style={{
+              width: "110px",
+              height: "110px",
+              borderRadius: "50%",
+              objectFit: "cover",
+              border: "3px solid #e6e6e6",
+            }}
           />
-          <h3 style={{ marginTop: "5px" }}>NIVED P K</h3>
+
+          <h4 className="mt-2 fw-semibold">{name}</h4>
 
           <button
+            onClick={onViewProfile}
             style={{
               background: colors.primaryGreen,
-              marginTop: "1px",
-              padding: "5px 1px",
+              padding: "6px 14px",
               border: "none",
               color: "#fff",
               borderRadius: "6px",
               cursor: "pointer",
+              fontSize: "14px",
             }}
           >
             View Profile
           </button>
         </div>
 
-        <div style={{ textAlign: "right" }}>
-          <p>Joined on 20th May 2023</p>
-          <p style={{ color: colors.selected }}>● 25 mins ago</p>
+        {/* RIGHT SIDE */}
+        <div className="text-center text-md-end">
+          <p className="mb-1">Joined on {joinedDate}</p>
+
+          <p
+            className="mb-0 fw-semibold"
+            style={{ color: colors.primaryGreen }}
+          >
+            ● {lastSeen}
+          </p>
         </div>
       </div>
     </div>

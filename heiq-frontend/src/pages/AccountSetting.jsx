@@ -1,36 +1,29 @@
 import React, { useState } from "react";
+import { Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+
 import TopNavbar from "../components/layout/TopNavbar";
 import BackButton from "../components/layout/BackButton";
 import ProfileMiniNavbar from "../components/layout/ProfileMiniNavbar";
 import ProfileCenterBox from "../components/layout/ProfileCenterBox";
-import Tabs from "../components/ui/Tabs.jsx";
-import PersonalInformationBox from "../components/ui/PersonalInformationBox";
+import Tabs from "../components/ui/Tabs";
+
+import AccountStatusBox from "../components/ui/AccountStatusBox";
+import ChangePasswordBox from "../components/ui/ChangePasswordBox";
+import ResetPasswordBox from "../components/ui/ResetPasswordBox";
+import EmailVerificationBox from "../components/ui/EmailVerificationBox";
+
 import UserImage from "../assets/user.jpg";
-import { Container } from "react-bootstrap";
 
-const UserProfile = () => {
+const AccountSetting = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("Profile");
+  const [activeTab, setActiveTab] = useState("Account Settings");
 
-  const [formValues, setFormValues] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    gender: "Male",
-    dob: "",
-    summary: "",
-  });
-
-  const handleChange = (e) => {
-    setFormValues({ ...formValues, [e.target.name]: e.target.value });
-  };
-
-  // ⭐ TAB HANDLER
+  // ⭐ TAB REDIRECT
   const handleTabChange = (tab) => {
     setActiveTab(tab);
 
-    if (tab === "Account Settings") navigate("/Account-Setting");
+    if (tab === "Profile") navigate("/profile");
     if (tab === "Verify Documents") navigate("/Verify-Documents");
   };
 
@@ -44,7 +37,7 @@ const UserProfile = () => {
           <BackButton text="Back" />
         </div>
 
-        {/* TOP PROFILE INFO */}
+        {/* PROFILE MINI NAV + BOX */}
         <div className="position-relative mt-3" style={{ paddingBottom: "120px" }}>
           <ProfileMiniNavbar
             email="nivedp@gmail.com"
@@ -67,18 +60,25 @@ const UserProfile = () => {
           />
         </Container>
 
-        {/* PERSONAL INFORMATION */}
-        <Container fluid className="px-4">
-          <PersonalInformationBox
-            profileImage={UserImage}
-            values={formValues}
-            onChange={handleChange}
-            onUpload={() => alert("Upload clicked")}
+        {/* ACCOUNT SETTINGS BOXES */}
+        <Container fluid className="px-4 mt-4">
+
+          <AccountStatusBox
+            status="Active"
+            onDeactivate={() => alert("Deactivate User")}
+            onDelete={() => alert("Delete User")}
           />
+
+          <ChangePasswordBox onChangePassword={() => alert("Password Changed")} />
+
+          <ResetPasswordBox onResetPassword={() => alert("Reset Link Sent")} />
+
+          <EmailVerificationBox onVerifyEmail={() => alert("Verification Link Sent")} />
+
         </Container>
       </Container>
     </>
   );
 };
 
-export default UserProfile;
+export default AccountSetting;

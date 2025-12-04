@@ -1,18 +1,42 @@
+import React from "react";
+import SearchIcon from "../../assets/vector (5).png"; // your icon
+
 const SearchInput = ({ placeholder }) => {
   return (
-    <input
-      placeholder={placeholder}
+    <div
       style={{
         width: "100%",
         height: "35px",
-        padding: "8px 12px",
-        borderRadius: "6px",
+        display: "flex",
+        alignItems: "center",
         border: "1px solid #DDD",
-        outline: "none",
-        fontSize: "14px",
+        borderRadius: "6px",
         background: "#FFFFFF",
+        paddingLeft: "10px",
       }}
-    />
+    >
+      {/* ICON */}
+      <img
+        src={SearchIcon}
+        alt="search"
+        width={16}
+        height={16}
+        style={{ marginRight: "8px" }}
+      />
+
+      {/* INPUT FIELD */}
+      <input
+        placeholder={placeholder}
+        style={{
+          width: "100%",
+          height: "100%",
+          border: "none",
+          outline: "none",
+          fontSize: "14px",
+          background: "transparent",
+        }}
+      />
+    </div>
   );
 };
 

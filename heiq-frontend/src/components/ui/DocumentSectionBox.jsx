@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Form } from "react-bootstrap";
 
 import EyeIcon from "../../assets/Eye.png";
-import CloudIcon from "../../assets/download From Cloud.png";
+import CloudIcon from "../../assets/Cloud.png";
 
 // NEW ICONS
 import AadhaarIcon from "../../assets/Group.png"; 

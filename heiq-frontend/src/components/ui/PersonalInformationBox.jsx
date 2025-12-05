@@ -1,6 +1,6 @@
 import React from "react";
 import { Form, Row, Col } from "react-bootstrap";
-import CameraIcon from "../../assets/group 163.png";
+import CameraIcon from "../../assets/Group_163.png";
 
 const PersonalInformationBox = ({
   profileImage,
@@ -10,7 +10,6 @@ const PersonalInformationBox = ({
 }) => {
   return (
     <div className="bg-white rounded border p-4 mt-4">
-
       <h4 className="fw-semibold mb-4">1. Personal Information</h4>
 
       <Row>
@@ -127,7 +126,6 @@ const PersonalInformationBox = ({
           <p className="text-end text-muted mt-1">250 words limit</p>
         </Col>
       </Row>
-
     </div>
   );
 };

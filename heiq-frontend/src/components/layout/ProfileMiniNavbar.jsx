@@ -1,6 +1,6 @@
 import React from "react";
-import MailIcon from "../../assets/message.png";
-import CallIcon from "../../assets/vector 190.png";
+import MailIcon from "../../assets/Message.png";
+import CallIcon from "../../assets/Vector 190.png";
 
 const ProfileMiniNavbar = ({ email, phone, joinedDate, lastSeen }) => {
   return (
@@ -18,7 +18,7 @@ const ProfileMiniNavbar = ({ email, phone, joinedDate, lastSeen }) => {
         gap-3
       "
       style={{
-        background: "#EEEEEE",   // ⭐ UPDATED BACKGROUND COLOR
+        background: "#EEEEEE",   
       }}
     >
       {/* LEFT SIDE */}

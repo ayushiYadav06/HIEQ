@@ -1,14 +1,14 @@
 import React from "react";
 
 // NEW LOGO
-import Logo from "../../assets/vector (4).png";
+import Logo from "../../assets/Vector (4).png";
 
 // CUSTOM ICONS
-import NotificationIcon from "../../assets/vector.png";
-import DarkModeIcon from "../../assets/vector (1).png";
-import HelpIcon from "../../assets/vector (2).png";
+import NotificationIcon from "../../assets/Vector.png";
+import DarkModeIcon from "../../assets/Vector (1).png";
+import HelpIcon from "../../assets/Vector (2).png";
 import LogoutIcon from "../../assets/websymbol_logout.png";
-import MenuIcon from "../../assets/vector (3).png"; // menu icon
+import MenuIcon from "../../assets/Vector (3).png"; // menu icon
 
 const TopNavbar = ({ onLogout, onDarkMode, onHelp, onNotifications, onMenuClick }) => {
   return (

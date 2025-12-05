@@ -1,5 +1,5 @@
 import React from "react";
-import SearchIcon from "../../assets/vector_(5).png"; 
+import SearchIcon from "../../assets/Search.png"; 
 
 const SearchInput = ({ placeholder }) => {
   return (

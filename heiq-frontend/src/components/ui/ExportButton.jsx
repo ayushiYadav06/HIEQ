@@ -8,13 +8,13 @@ const ExportButton = ({ onClick }) => {
     <Button
       onClick={onClick}
       variant="success"
-      className="d-flex align-items-center gap-2 px-3 py-2 fw-semibold"
+      className="btn-lg d-flex align-items-center gap-5 px-5 fw-semibold"
     >
       <img
         src={ExcelIcon}
         alt="excel"
         className="img-fluid"
-        style={{ width: "10px", height: "20px" }}
+        style={{ width: "24px", height: "24px" }}
       />
       EXPORT
     </Button>

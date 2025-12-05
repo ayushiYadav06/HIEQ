@@ -2,7 +2,7 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 
 import StudentApplications from "./pages/AdminDash";
-import UserProfile from "./pages/UserProfile";
+import UserProfile from "./pages/userProfile";
 import Accountsetting from "./pages/AccountSetting";
 import VerifyDoc from "./pages/VerifyDoc";
 import Candidates from "./pages/Candidates";

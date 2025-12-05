@@ -16,7 +16,6 @@ const App = () => {
         <Route path="/Account-Setting" element={<Accountsetting />} />
         <Route path="/Verify-Documents" element={<VerifyDoc />} />
         <Route path="/admin/candidates" element={<Candidates />} />
-
       </Routes>
     </>
   );

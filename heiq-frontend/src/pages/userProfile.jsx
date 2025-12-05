@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import TopNavbar from "../components/layout/TopNavbar";
-import BackButton from "../components/layout/BackButton";
-import ProfileMiniNavbar from "../components/layout/ProfileMiniNavbar";
-import ProfileCenterBox from "../components/layout/ProfileCenterBox";
+import TopNavbar from "../components/layout/TopNavbar.jsx";
+import BackButton from "../components/layout/BackButton.jsx";
+import ProfileMiniNavbar from "../components/layout/ProfileMiniNavbar.jsx";
+import ProfileCenterBox from "../components/layout/ProfileCenterBox.jsx";
 import Tabs from "../components/ui/Tabs.jsx";
-import PersonalInformationBox from "../components/ui/PersonalInformationBox";
+import PersonalInformationBox from "../components/ui/PersonalInformationBox.jsx";
 import UserImage from "../assets/user.jpg";
 import { Container } from "react-bootstrap";
 
@@ -39,13 +39,15 @@ const UserProfile = () => {
       <TopNavbar />
 
       <Container fluid className="mt-3 px-0">
-
         <div className="d-flex justify-content-end pe-3">
           <BackButton text="Back" />
         </div>
 
         {/* TOP PROFILE INFO */}
-        <div className="position-relative mt-3" style={{ paddingBottom: "120px" }}>
+        <div
+          className="position-relative mt-3"
+          style={{ paddingBottom: "120px" }}
+        >
           <ProfileMiniNavbar
             email="nivedp@gmail.com"
             phone="1234567890"
@@ -53,8 +55,15 @@ const UserProfile = () => {
             lastSeen="25 mins ago"
           />
 
-          <div className="position-absolute start-50 translate-middle-x" style={{ top: "-30px" }}>
-            <ProfileCenterBox profileImage={UserImage} name="NIVED P K" hideButton />
+          <div
+            className="position-absolute start-50 translate-middle-x"
+            style={{ top: "-30px" }}
+          >
+            <ProfileCenterBox
+              profileImage={UserImage}
+              name="NIVED P K"
+              hideButton
+            />
           </div>
         </div>
 

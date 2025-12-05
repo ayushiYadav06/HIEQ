@@ -9,7 +9,7 @@ import ProfileCenterBox from "../components/layout/ProfileCenterBox";
 import Tabs from "../components/ui/Tabs";
 import DocumentSectionBox from "../components/ui/DocumentSectionBox";
 
-import UploadModal from "../components/Layout/UploadModal.jsx";  // ⬅ added
+import UploadModal from "../components/layout/UploadModal.jsx";  // ⬅ added
 import UserImage from "../assets/user.jpg";
 
 const VerifyDoc = () => {

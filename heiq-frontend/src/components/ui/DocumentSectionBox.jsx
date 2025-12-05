@@ -1,7 +1,7 @@
 import React from "react";
 import { Button, Form } from "react-bootstrap";
 
-import EyeIcon from "../../assets/eye.png";
+import EyeIcon from "../../assets/Eye.png";
 import CloudIcon from "../../assets/download From Cloud.png";
 
 // NEW ICONS

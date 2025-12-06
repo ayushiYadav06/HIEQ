@@ -3,6 +3,7 @@ import { Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
 import TopNavbar from "../components/layout/TopNavbar";
+import Sidebar from "../components/layout/Sidebar";   // <-- ADD THIS
 import BackButton from "../components/layout/BackButton";
 import ProfileMiniNavbar from "../components/layout/ProfileMiniNavbar";
 import ProfileCenterBox from "../components/layout/ProfileCenterBox";
@@ -19,6 +20,9 @@ const AccountSetting = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("Account Settings");
 
+  // ⭐ SIDEBAR STATE
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   // ⭐ TAB REDIRECT
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -29,15 +33,20 @@ const AccountSetting = () => {
 
   return (
     <>
-      <TopNavbar />
+      {/* SIDEBAR */}
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+      {/* TOP NAVBAR */}
+      <TopNavbar onMenuClick={() => setSidebarOpen(true)} />
 
       <Container fluid className="mt-3 px-0">
 
+        {/* BACK BUTTON */}
         <div className="d-flex justify-content-end pe-3">
           <BackButton text="Back" />
         </div>
 
-        {/* PROFILE MINI NAV + BOX */}
+        {/* PROFILE MINI NAV + FLOATING BOX */}
         <div className="position-relative mt-3" style={{ paddingBottom: "120px" }}>
           <ProfileMiniNavbar
             email="nivedp@gmail.com"
@@ -46,7 +55,10 @@ const AccountSetting = () => {
             lastSeen="25 mins ago"
           />
 
-          <div className="position-absolute start-50 translate-middle-x" style={{ top: "-30px" }}>
+          <div
+            className="position-absolute start-50 translate-middle-x"
+            style={{ top: "-30px" }}
+          >
             <ProfileCenterBox profileImage={UserImage} name="NIVED P K" hideButton />
           </div>
         </div>

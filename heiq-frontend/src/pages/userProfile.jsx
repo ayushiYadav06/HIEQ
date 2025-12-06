@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TopNavbar from "../components/layout/TopNavbar.jsx";
+import Sidebar from "../components/layout/Sidebar.jsx";   // ⭐ ADDED
 import BackButton from "../components/layout/BackButton.jsx";
 import ProfileMiniNavbar from "../components/layout/ProfileMiniNavbar.jsx";
 import ProfileCenterBox from "../components/layout/ProfileCenterBox.jsx";
@@ -12,6 +13,9 @@ import { Container } from "react-bootstrap";
 const UserProfile = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("Profile");
+
+  // ⭐ SIDEBAR STATE
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [formValues, setFormValues] = useState({
     name: "",
@@ -36,9 +40,15 @@ const UserProfile = () => {
 
   return (
     <>
-      <TopNavbar />
+      {/* ⭐ SIDEBAR */}
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+      {/* ⭐ TOP NAVBAR WITH MENU CLICK */}
+      <TopNavbar onMenuClick={() => setSidebarOpen(true)} />
 
       <Container fluid className="mt-3 px-0">
+
+        {/* BACK BUTTON */}
         <div className="d-flex justify-content-end pe-3">
           <BackButton text="Back" />
         </div>
@@ -85,6 +95,7 @@ const UserProfile = () => {
             onUpload={() => alert("Upload clicked")}
           />
         </Container>
+
       </Container>
     </>
   );

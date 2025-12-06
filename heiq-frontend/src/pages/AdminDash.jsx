@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 // Layout Components
 import TopNavbar from "../components/layout/TopNavbar";
+import Sidebar from "../components/layout/Sidebar";
 import BackButton from "../components/layout/BackButton";
 import ProfileMiniNavbar from "../components/layout/ProfileMiniNavbar";
 import ProfileCenterBox from "../components/layout/ProfileCenterBox";
@@ -24,10 +25,13 @@ const AdminDash = () => {
   const [active, setActive] = useState("Jobs");
   const [dateValue, setDateValue] = useState(new Date());
 
-  // ------------------ TABLE COLUMNS ------------------
+  // SIDEBAR STATE
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // TABLE COLUMNS
   const columns = ["Job Title", "Company", "Status", "Applied On"];
 
-  // ------------------ FIXED TABLE DATA ------------------
+  // TABLE DATA
   const rows = [
     {
       "Job Title": "UX/UI Designer",
@@ -44,21 +48,13 @@ const AdminDash = () => {
     {
       "Job Title": "UX Researcher",
       Company: "Heiq",
-      Status: (
-        <span className="text-primary fw-semibold">
-          Shortlisted : Assessment
-        </span>
-      ),
+      Status: <span className="text-primary fw-semibold">Shortlisted : Assessment</span>,
       "Applied On": "16-12-2022",
     },
     {
       "Job Title": "Product Designer",
       Company: "MBAtrek Pvt. Ltd.",
-      Status: (
-        <span className="text-primary fw-semibold">
-          Shortlisted : HR Interview
-        </span>
-      ),
+      Status: <span className="text-primary fw-semibold">Shortlisted : HR Interview</span>,
       "Applied On": "15-12-2022",
     },
     {
@@ -70,20 +66,19 @@ const AdminDash = () => {
     {
       "Job Title": "HTML Developer",
       Company: "Blissclub",
-      Status: (
-        <span className="text-primary fw-semibold">
-          Shortlisted : Assessment
-        </span>
-      ),
+      Status: <span className="text-primary fw-semibold">Shortlisted : Assessment</span>,
       "Applied On": "14-12-2022",
     },
   ];
 
   return (
     <div style={{ width: "100%", minHeight: "100vh", background: "#f7f7f7" }}>
+      
+      {/* SIDEBAR */}
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* TOP NAVBAR */}
-      <TopNavbar />
+      <TopNavbar onMenuClick={() => setSidebarOpen(true)} />
 
       {/* BACK BUTTON */}
       <div style={{ marginTop: "1rem", display: "flex", justifyContent: "flex-end", paddingRight: "1.5rem" }}>
@@ -99,7 +94,6 @@ const AdminDash = () => {
           lastSeen="Active now"
         />
 
-        {/* Floating Center Profile Box */}
         <div
           style={{
             position: "absolute",
@@ -117,7 +111,7 @@ const AdminDash = () => {
         </div>
       </div>
 
-      {/* FULL WIDTH PAGE CONTENT */}
+      {/* PAGE CONTENT */}
       <div
         style={{
           width: "100%",
@@ -129,10 +123,9 @@ const AdminDash = () => {
       >
         <CardContainer>
 
-          {/* TABS */}
           <Tabs active={active} setActive={setActive} tabs={["Jobs", "Internships"]} />
 
-          {/* SEARCH + FILTERS ROW */}
+          {/* SEARCH + FILTERS */}
           <div
             style={{
               display: "flex",
@@ -155,7 +148,7 @@ const AdminDash = () => {
             </div>
           </div>
 
-          {/* STATISTICS ROW */}
+          {/* STATS */}
           <div
             style={{
               marginTop: "25px",

@@ -10,7 +10,13 @@ import HelpIcon from "../../assets/Vector (2).png";
 import LogoutIcon from "../../assets/logout.png";
 import MenuIcon from "../../assets/Vector (3).png"; // menu icon
 
-const TopNavbar = ({ onLogout, onDarkMode, onHelp, onNotifications, onMenuClick }) => {
+const TopNavbar = ({
+  onLogout = () => {},
+  onDarkMode = () => {},
+  onHelp = () => {},
+  onNotifications = () => {},
+  onMenuClick = () => {},
+}) => {
   return (
     <div
       style={{
@@ -29,13 +35,9 @@ const TopNavbar = ({ onLogout, onDarkMode, onHelp, onNotifications, onMenuClick 
     >
       {/* LEFT — NEW LOGO + MENU ICON */}
       <div style={{ display: "flex", alignItems: "center", gap: "18px" }}>
-        <img
-          src={Logo}
-          alt="logo"
-          style={{ height: "45px", cursor: "pointer" }}
-        />
+        <img src={Logo} alt="logo" style={{ height: "45px", cursor: "pointer" }} />
 
-        {/* custom menu icon */}
+        {/* Menu Icon */}
         <img
           src={MenuIcon}
           alt="Menu"
@@ -45,14 +47,8 @@ const TopNavbar = ({ onLogout, onDarkMode, onHelp, onNotifications, onMenuClick 
       </div>
 
       {/* RIGHT ICONS */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "30px",
-          color: "#666",
-        }}
-      >
+      <div style={{ display: "flex", alignItems: "center", gap: "30px", color: "#666" }}>
+        
         {/* Notification */}
         <div style={{ textAlign: "center", cursor: "pointer" }} onClick={onNotifications}>
           <img src={NotificationIcon} alt="Notification" style={{ width: "20px", height: "20px" }} />
@@ -76,6 +72,7 @@ const TopNavbar = ({ onLogout, onDarkMode, onHelp, onNotifications, onMenuClick 
           <img src={LogoutIcon} alt="Logout" style={{ width: "20px", height: "20px" }} />
           <div style={{ fontSize: "10px" }}>Logout</div>
         </div>
+
       </div>
     </div>
   );

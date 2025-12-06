@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 
 import TopNavbar from "../components/layout/TopNavbar";
+import Sidebar from "../components/layout/Sidebar";   // ⭐ ADD
 import BackButton from "../components/layout/BackButton";
 import Tabs from "../components/ui/Tabs";
 import SearchInput from "../components/ui/SearchInput";
@@ -9,19 +10,14 @@ import DateTabs from "../components/ui/DateTabs";
 import PageTitle from "../components/ui/PageTitle";
 import ExportButton from "../components/ui/ExportButton";
 import FilterDropdown from "../components/ui/FilterDropdown";
-import StatisticsRow from "../components/ui/StatisticsRow";
 import DataTable from "../components/ui/DataTable";
 
 const Candidates = () => {
+  const [activeTab, setActiveTab] = useState("Candidates");
   const [filterBy, setFilterBy] = useState("Email ID");
 
-  const stats = [
-    { title: "Total", value: 120, color: "#4CAF50" },
-    { title: "Verified", value: 80, color: "green" },
-    { title: "Unverified", value: 40, color: "red" },
-    { title: "Active", value: 95, color: "#007bff" },
-    { title: "Deactivated", value: 25, color: "#777" },
-  ];
+  // ⭐ SIDEBAR STATE
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const columns = [
     "Name",
@@ -32,72 +28,108 @@ const Candidates = () => {
     "Registered on",
   ];
 
-  const data = [
+  const candidateData = [
     {
-      "Name": "S. NO. Aman Garg",
+      Name: "S. NO. Aman Garg",
       "Email ID": "aman@gmail.com",
-      "Phone": "1234567890",
-      "Verification Status": "Verified",
+      Phone: "1234567890",
+      "Verification Status": <span style={{ color: "green" }}>Verified</span>,
       "Account Status": "Active",
       "Registered on": "20-12-2022",
     },
     {
-      "Name": "Abhya Ram",
+      Name: "Nived PK",
+      "Email ID": "nived@gmail.com",
+      Phone: "1234567890",
+      "Verification Status": <span style={{ color: "green" }}>Verified</span>,
+      "Account Status": "Active",
+      "Registered on": "20-12-2022",
+    },
+    {
+      Name: "Abhya Ram",
       "Email ID": "abhay@gmail.com",
-      "Phone": "1234567890",
-      "Verification Status": "Unverified",
+      Phone: "1234567890",
+      "Verification Status": <span style={{ color: "red" }}>Unverified</span>,
       "Account Status": "Deactivated",
       "Registered on": "16-12-2022",
     },
+    {
+      Name: "Irfan Khan",
+      "Email ID": "irfan@gmail.com",
+      Phone: "1234567890",
+      "Verification Status": <span style={{ color: "green" }}>Verified</span>,
+      "Account Status": "Active",
+      "Registered on": "15-12-2022",
+    },
+    {
+      Name: "Vibha",
+      "Email ID": "vibha@gmail.com",
+      Phone: "1234567890",
+      "Verification Status": <span style={{ color: "red" }}>Unverified</span>,
+      "Account Status": "Deactivated",
+      "Registered on": "14-12-2022",
+    },
+    {
+      Name: "Utkarsh Rawat",
+      "Email ID": "utkarsh@gmail.com",
+      Phone: "1234567890",
+      "Verification Status": <span style={{ color: "green" }}>Verified</span>,
+      "Account Status": "Active",
+      "Registered on": "14-12-2022",
+    },
   ];
+
+  const employerData = [];
+  const rows = activeTab === "Candidates" ? candidateData : employerData;
 
   return (
     <>
-      <TopNavbar />
+      {/* ⭐ SIDEBAR */}
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+      {/* ⭐ TOP NAVBAR WITH MENU CLICK */}
+      <TopNavbar onMenuClick={() => setSidebarOpen(true)} />
 
       <Container fluid className="mt-4 px-4">
 
-        {/* BACK BUTTON */}
         <BackButton label="Back" />
 
-        {/* PAGE TITLE */}
-        <PageTitle title="Users list" />
+        <PageTitle title="Users List" />
 
-        {/* TABS */}
-        <div className="mt-3 mb-4" style={{ maxWidth: "350px" }}>
-          <Tabs tabs={["Candidates", "Employers"]} active="Candidates" />
+        <div className="mb-4">
+          <Tabs
+            tabs={["Candidates", "Employers"]}
+            active={activeTab}
+            setActive={setActiveTab}
+            fullWidth
+          />
         </div>
 
-        {/* STATISTICS */}
-        <StatisticsRow stats={stats} />
-
-        {/* ---------------- FILTERS ROW ---------------- */}
         <Row className="g-3 align-items-center mb-4">
-
-          {/* EXPORT BUTTON */}
           <Col xs={12} md={3} lg={2}>
             <ExportButton />
           </Col>
 
-          {/* SEARCH BOX */}
           <Col xs={12} md={4} lg={4}>
             <SearchInput placeholder="Enter search here..." />
           </Col>
 
-          {/* FILTER DROPDOWN */}
           <Col xs={12} md={3} lg={3}>
             <FilterDropdown value={filterBy} setValue={setFilterBy} />
           </Col>
 
-          {/* DATE PICKER */}
           <Col xs={12} md={2} lg={3}>
             <DateTabs />
           </Col>
-
         </Row>
 
-        {/* ---------------- DATA TABLE ---------------- */}
-        <DataTable columns={columns} rows={data} />
+        <DataTable
+          columns={columns}
+          rows={rows}
+          headerColor="#666666"
+          headerBg="#D9D9D95C"
+        />
+
       </Container>
     </>
   );

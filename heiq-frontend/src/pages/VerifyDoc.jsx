@@ -3,18 +3,22 @@ import { Container, Row, Col } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
 import TopNavbar from "../components/layout/TopNavbar";
+import Sidebar from "../components/layout/Sidebar";   // ⭐ ADDED
 import BackButton from "../components/layout/BackButton";
 import ProfileMiniNavbar from "../components/layout/ProfileMiniNavbar";
 import ProfileCenterBox from "../components/layout/ProfileCenterBox";
 import Tabs from "../components/ui/Tabs";
 import DocumentSectionBox from "../components/ui/DocumentSectionBox";
 
-import UploadModal from "../components/layout/UploadModal.jsx";  
+import UploadModal from "../components/layout/UploadModal.jsx";
 import UserImage from "../assets/user.jpg";
 
 const VerifyDoc = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("Verify Documents");
+
+  // ⭐ SIDEBAR STATE
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // ===== Upload Modal States =====
   const [openPopup, setOpenPopup] = useState(false);
@@ -29,13 +33,17 @@ const VerifyDoc = () => {
   const handleTabChange = (tab) => {
     setActiveTab(tab);
 
-    if (tab === "Profile") navigate("/User-Profile");
+    if (tab === "Profile") navigate("/Profile");
     if (tab === "Account Settings") navigate("/Account-Setting");
   };
 
   return (
     <>
-      <TopNavbar />
+      {/* ⭐ SIDEBAR */}
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+      {/* ⭐ TOP NAVBAR WITH SIDEBAR ICON */}
+      <TopNavbar onMenuClick={() => setSidebarOpen(true)} />
 
       <Container fluid className="px-0">
 
@@ -48,7 +56,7 @@ const VerifyDoc = () => {
           </Row>
         </Container>
 
-        {/* MINI NAV + CENTER PROFILE CARD */}
+        {/* MINI NAV + PROFILE CARD */}
         <Container fluid className="px-3 px-md-4 mt-3">
           <Row>
             <Col xs={12}>
@@ -62,7 +70,7 @@ const VerifyDoc = () => {
 
                 <div
                   className="position-absolute start-50 translate-middle-x"
-                  style={{ top: "50px" }}
+                  style={{ top: "-30px" }}
                 >
                   <ProfileCenterBox
                     profileImage={UserImage}
@@ -76,7 +84,11 @@ const VerifyDoc = () => {
         </Container>
 
         {/* TABS */}
-        <Container fluid className="px-3 px-md-4 mt-4">
+<Container
+  fluid
+  className="px-3 px-md-4"
+  style={{ marginTop: "80px" }}   // increase here
+>
           <Row>
             <Col xs={12}>
               <Tabs
@@ -149,7 +161,7 @@ const VerifyDoc = () => {
         </Container>
       </Container>
 
-      {/* ===== UPLOAD POPUP MODAL ===== */}
+      {/* UPLOAD POPUP MODAL */}
       <UploadModal
         open={openPopup}
         onClose={() => setOpenPopup(false)}

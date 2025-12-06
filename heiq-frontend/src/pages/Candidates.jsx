@@ -6,7 +6,6 @@ import BackButton from "../components/layout/BackButton";
 import Tabs from "../components/ui/Tabs";
 import SearchInput from "../components/ui/SearchInput";
 import DateTabs from "../components/ui/DateTabs";
-
 import PageTitle from "../components/ui/PageTitle";
 import ExportButton from "../components/ui/ExportButton";
 import FilterDropdown from "../components/ui/FilterDropdown";
@@ -28,25 +27,25 @@ const Candidates = () => {
     "Name",
     "Email ID",
     "Phone",
-    "Verification",
+    "Verification Status",
     "Account Status",
     "Registered on",
   ];
 
   const data = [
     {
-      Name: "Aman Garg",
+      "Name": "S. NO. Aman Garg",
       "Email ID": "aman@gmail.com",
-      Phone: "1234567890",
-      Verification: "Verified",
+      "Phone": "1234567890",
+      "Verification Status": "Verified",
       "Account Status": "Active",
       "Registered on": "20-12-2022",
     },
     {
-      Name: "Abhya Ram",
+      "Name": "Abhya Ram",
       "Email ID": "abhay@gmail.com",
-      Phone: "1234567890",
-      Verification: "Unverified",
+      "Phone": "1234567890",
+      "Verification Status": "Unverified",
       "Account Status": "Deactivated",
       "Registered on": "16-12-2022",
     },
@@ -58,38 +57,47 @@ const Candidates = () => {
 
       <Container fluid className="mt-4 px-4">
 
-        <BackButton text="Back" />
+        {/* BACK BUTTON */}
+        <BackButton label="Back" />
 
+        {/* PAGE TITLE */}
         <PageTitle title="Users list" />
 
         {/* TABS */}
-        <Tabs tabs={["Candidates", "Employers"]} active="Candidates" />
+        <div className="mt-3 mb-4" style={{ maxWidth: "350px" }}>
+          <Tabs tabs={["Candidates", "Employers"]} active="Candidates" />
+        </div>
 
-        {/* STATISTICS ROW */}
+        {/* STATISTICS */}
         <StatisticsRow stats={stats} />
 
-        {/* FILTER ROW */}
-        <Row className="align-items-center g-3 mb-3">
-          <Col xs={12} md={3}>
+        {/* ---------------- FILTERS ROW ---------------- */}
+        <Row className="g-3 align-items-center mb-4">
+
+          {/* EXPORT BUTTON */}
+          <Col xs={12} md={3} lg={2}>
             <ExportButton />
           </Col>
 
-          <Col xs={12} md={4}>
-            <SearchInput placeholder="Search..." />
+          {/* SEARCH BOX */}
+          <Col xs={12} md={4} lg={4}>
+            <SearchInput placeholder="Enter search here..." />
           </Col>
 
-          <Col xs={12} md={3}>
+          {/* FILTER DROPDOWN */}
+          <Col xs={12} md={3} lg={3}>
             <FilterDropdown value={filterBy} setValue={setFilterBy} />
           </Col>
 
-          <Col xs={12} md={2}>
+          {/* DATE PICKER */}
+          <Col xs={12} md={2} lg={3}>
             <DateTabs />
           </Col>
+
         </Row>
 
-        {/* TABLE */}
-        <DataTable columns={columns} data={data} />
-
+        {/* ---------------- DATA TABLE ---------------- */}
+        <DataTable columns={columns} rows={data} />
       </Container>
     </>
   );

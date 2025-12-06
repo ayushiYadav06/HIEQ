@@ -1,4 +1,3 @@
-// src/components/ui/FilterDropdown.jsx
 import React from "react";
 import { Form } from "react-bootstrap";
 
@@ -7,7 +6,8 @@ const FilterDropdown = ({ value, setValue }) => {
     <Form.Select
       value={value}
       onChange={(e) => setValue(e.target.value)}
-      className="border-secondary"
+      className="border-secondary w-100"
+      style={{ height: "38px", fontSize: "14px" }}
     >
       <option value="Email ID">Email ID</option>
       <option value="Name">Name</option>

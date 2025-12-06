@@ -1,68 +1,61 @@
-import React, { useRef } from "react";
-import "./UploadBox.css";
+// UploadBox.jsx
+import React from "react";
+import { Button } from "react-bootstrap";
+import UploadIcon from "../../assets/Group 411.png";
 
-// IMPORT IMAGE CORRECTLY
-import UploadIcon from "../../assets/Rectangle 176.png";
-
-const UploadBox = ({
-  title = "Upload document",
-  subtitle = "Click on the icon below to upload your file (.pdf format only)",
-  file,
-  setFile,
-  onCancel,
-  onUpload,
-}) => {
-  const inputRef = useRef(null);
-
-  const handleClick = () => inputRef.current.click();
-
-  const handleChange = (e) => {
-    const selected = e.target.files[0];
-    if (!selected) return;
-
-    if (selected.type !== "application/pdf") {
-      alert("Only PDF allowed");
-      return;
+const UploadBox = ({ file, setFile, onCancel, onUpload }) => {
+  const handleFileChange = (e) => {
+    if (e.target.files[0]) {
+      setFile(e.target.files[0]);
     }
-
-    setFile(selected);
   };
 
   return (
-    <div className="upload-wrapper">
-      <h4 className="upload-title">{title}</h4>
-      <p className="upload-subtitle">{subtitle}</p>
-
-      {/* IMAGE ICON BOX */}
-      <div className="upload-icon-box" onClick={handleClick}>
-        <img src={UploadIcon} alt="upload icon" className="upload-icon" />
+    <div className="bg-white rounded p-4" style={{ width: "400px", maxWidth: "90vw" }}>
+      <h5 className="mb-3">Upload Document</h5>
+      
+      <div
+        className="border rounded p-4 text-center mb-3"
+        style={{
+          borderStyle: "dashed",
+          borderColor: "#ccc",
+          background: "#f9f9f9",
+          cursor: "pointer"
+        }}
+        onClick={() => document.getElementById("file-input").click()}
+      >
+        <img src={UploadIcon} alt="upload" style={{ width: 40, height: 40, marginBottom: 10 }} />
+        <p className="mb-1">Click to browse or drag & drop</p>
+        <p className="text-muted small">Supported formats: PDF, JPG, PNG</p>
+        <input
+          id="file-input"
+          type="file"
+          accept=".pdf,.jpg,.jpeg,.png"
+          onChange={handleFileChange}
+          style={{ display: "none" }}
+        />
       </div>
 
-      {/* Hidden File Input */}
-      <input
-        type="file"
-        hidden
-        ref={inputRef}
-        accept=".pdf"
-        onChange={handleChange}
-      />
+      {file && (
+        <div className="mb-3 p-2 border rounded d-flex justify-content-between align-items-center">
+          <span className="text-truncate">{file.name}</span>
+          <Button variant="link" size="sm" onClick={() => setFile(null)}>
+            Remove
+          </Button>
+        </div>
+      )}
 
-      {/* FILE NAME FIELD */}
-      <input
-        className="upload-filename"
-        value={file ? file.name : ""}
-        placeholder="No file selected"
-        readOnly
-      />
-
-      {/* BUTTONS */}
-      <div className="upload-btn-row">
-        <button className="cancel-btn" onClick={onCancel}>
-          CANCEL
-        </button>
-        <button className="upload-btn" onClick={onUpload} disabled={!file}>
-          UPLOAD
-        </button>
+      <div className="d-flex justify-content-end gap-2">
+        <Button variant="secondary" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button 
+          variant="primary" 
+          onClick={onUpload}
+          disabled={!file}
+        >
+          Upload
+        </Button>
       </div>
     </div>
   );

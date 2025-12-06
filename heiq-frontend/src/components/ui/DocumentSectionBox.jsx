@@ -1,121 +1,99 @@
 import React from "react";
-import { Button, Form } from "react-bootstrap";
+import { Button, Form, Row, Col } from "react-bootstrap";
 
 import EyeIcon from "../../assets/Eye.png";
 import CloudIcon from "../../assets/Cloud.png";
-
-// NEW ICONS
-import AadhaarIcon from "../../assets/Group.png"; 
+import AadhaarIcon from "../../assets/Group.png";
 import UploadIcon from "../../assets/Group 411.png";
 
 const DocumentSectionBox = ({ title, items = [], onUploadNew }) => {
   return (
-    <div className="p-4 bg-white rounded shadow-sm border mb-4 w-100">
+    <div className="p-3 p-md-4 bg-white rounded shadow-sm border mb-4">
+      {/* SECTION TITLE */}
       <h6 className="fw-bold mb-3">{title}</h6>
 
       {items.map((item, index) => (
-        <div
-          key={index}
-          className="p-3 bg-light rounded border mb-3 w-100"
-          style={{ borderColor: "#E6E6E6" }}
-        >
-          {/* ONE-LINE FLEX */}
-          <div className="d-flex align-items-center justify-content-between w-100">
-            
-            {/* LEFT SIDE */}
-            <div className="d-flex align-items-center">
+        <div key={index} className="p-3 bg-light rounded border mb-3">
+          <Row className="align-items-center gy-3">
 
-              {/* ICON BEFORE DOCUMENT NAME */}
-              {["Aadhar", "BTech", "Software Intern"].includes(item.documentName) && (
-                <img
-                  src={AadhaarIcon}
-                  alt="doc-icon"
-                  style={{ width: 18, height: 18, marginRight: 8 }}
-                />
-              )}
+            {/* LEFT: ICON + NAME + DATE + EYE/CLOUD BUTTONS */}
+            <Col xs={12} lg={6}>
+              <div className="d-flex flex-wrap align-items-center gap-3">
 
-              {/* Document Name */}
-              <span className="fw-bold">{item.documentName}</span>
+                {/* DOC ICON + NAME */}
+                <div className="d-flex align-items-center gap-2">
+                  <img src={AadhaarIcon} width={18} height={18} alt="doc" />
+                  <span className="fw-semibold">{item.documentName}</span>
+                </div>
 
-              {/* Uploaded Date */}
-              <span style={{ marginLeft: "100px" }}>
+                {/* DATE */}
                 <small className="text-muted">
-                  Uploaded on : {item.uploadedDate}
+                  Uploaded on: {item.uploadedDate}
                 </small>
-              </span>
 
-              {/* Eye Icon */}
-              <img
-                src={EyeIcon}
-                alt="view"
-                style={{
-                  width: 20,
-                  height: 20,
-                  cursor: "pointer",
-                  marginLeft: "250px",
-                  marginRight: "10px",
-                }}
-                onClick={item.onView}
-              />
+                {/* EYE + CLOUD AS BOOTSTRAP BUTTONS */}
+                <div className="btn-group" role="group">
+                  <Button
+                    variant="light"
+                    size="sm"
+                    className="d-flex align-items-center justify-content-center"
+                    onClick={item.onView}
+                  >
+                    <img src={EyeIcon} width={18} height={18} alt="view" />
+                  </Button>
 
-              {/* Cloud Icon */}
-              <img
-                src={CloudIcon}
-                alt="download"
-                style={{
-                  width: 22,
-                  height: 22,
-                  cursor: "pointer",
-                  marginLeft: "150px",
-                }}
-                onClick={item.onDownload}
-              />
-            </div>
+                  <Button
+                    variant="light"
+                    size="sm"
+                    className="d-flex align-items-center justify-content-center"
+                    onClick={item.onDownload}
+                  >
+                    <img src={CloudIcon} width={20} height={20} alt="download" />
+                  </Button>
+                </div>
+              </div>
+            </Col>
 
-            {/* RIGHT SIDE */}
-            <div className="d-flex align-items-center">
+            {/* RIGHT: APPROVE DROPDOWN + UPDATE BUTTON */}
+            <Col xs={12} lg={6}>
+              <Row className="gy-2">
+                <Col xs={12} sm={6}>
+                  <Form.Select
+                    value={item.status}
+                    onChange={item.onStatusChange}
+                    className="w-100"
+                  >
+                    <option value="Approve">Approve</option>
+                    <option value="Reject">Reject</option>
+                    <option value="Pending">Pending</option>
+                  </Form.Select>
+                </Col>
 
-              {/* STATUS DROPDOWN */}
-              <Form.Select
-                value={item.status}
-                onChange={item.onStatusChange}
-                className="doc-status-dropdown"
-                style={{
-                  width: "180px",
-                  marginRight: "200px",
-                  marginLeft: "20px",
-                }}
-              >
-                <option value="Approve" className="approve-option">Approve</option>
-                <option value="Reject">Reject</option>
-                <option value="Pending">Pending</option>
-              </Form.Select>
+                <Col xs={12} sm={6}>
+                  <Button
+                    variant="secondary"
+                    className="w-100 fw-semibold"
+                    onClick={item.onUpdate}
+                  >
+                    Update
+                  </Button>
+                </Col>
+              </Row>
+            </Col>
 
-              <Button
-                variant="secondary"
-                style={{ minWidth: "140px", marginRight: "20px" }}
-                onClick={item.onUpdate}
-              >
-                Update
-              </Button>
-            </div>
-          </div>
+          </Row>
         </div>
       ))}
 
-      {/* Upload new (icon replaced) */}
-      <div
-        className="mt-3 fw-semibold d-flex align-items-center"
-        style={{ cursor: "pointer", color: "#585858" }}
+      {/* UPLOAD DOCUMENT — BOOTSTRAP LINK BUTTON */}
+      <Button
+        variant="link"
+        className="mt-2 p-0 d-inline-flex align-items-center gap-2 text-secondary fw-semibold"
         onClick={onUploadNew}
       >
-        <img
-          src={UploadIcon}
-          alt="upload"
-          style={{ width: 22, height: 22, marginRight: 6 }}
-        />
+        <img src={UploadIcon} width={22} height={22} alt="upload" />
         Upload document
-      </div>
+      </Button>
     </div>
   );
 };

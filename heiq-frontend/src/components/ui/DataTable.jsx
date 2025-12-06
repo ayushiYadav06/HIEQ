@@ -1,41 +1,23 @@
 import React from "react";
-import StatusBadge from "./StatusBadge";
 
-const DataTable = ({ columns = [], rows = [] }) => {
+const DataTable = ({ columns, rows }) => {
   return (
     <div className="table-responsive mt-3">
       <table className="table table-bordered align-middle">
         <thead className="table-light">
           <tr>
-            {columns.map((col, index) => (
-              <th key={index} style={{ fontWeight: 600 }}>
-                {col}
-              </th>
+            {columns.map((col, i) => (
+              <th key={i}>{col}</th>
             ))}
           </tr>
         </thead>
 
         <tbody>
-          {rows.length === 0 && (
-            <tr>
-              <td
-                colSpan={columns.length}
-                className="text-center py-4"
-                style={{ color: "#777" }}
-              >
-                No data available
-              </td>
-            </tr>
-          )}
-
-          {rows.map((row, index) => (
-            <tr key={index}>
-              <td>{row.title}</td>
-              <td>{row.company}</td>
-              <td>
-                <StatusBadge status={row.status} />
-              </td>
-              <td>{row.date}</td>
+          {rows.map((row, i) => (
+            <tr key={i}>
+              {columns.map((col, j) => (
+                <td key={j}>{row[col]}</td>
+              ))}
             </tr>
           ))}
         </tbody>
@@ -44,4 +26,4 @@ const DataTable = ({ columns = [], rows = [] }) => {
   );
 };
 
-export default DataTable; // ✅ FIXED — now exporting default
+export default DataTable;

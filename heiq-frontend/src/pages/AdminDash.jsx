@@ -24,17 +24,59 @@ const AdminDash = () => {
   const [active, setActive] = useState("Jobs");
   const [dateValue, setDateValue] = useState(new Date());
 
-  // TABLE HEADERS
+  // ------------------ TABLE COLUMNS ------------------
   const columns = ["Job Title", "Company", "Status", "Applied On"];
 
-  // YOUR EXACT DATA FROM SCREENSHOT
+  // ------------------ FIXED TABLE DATA ------------------
   const rows = [
-    { title: "UX/UI Designer", company: "MBAtrek Pvt. Ltd.", status: "Awaiting", date: "20-12-2022" },
-    { title: "Product Manager", company: "YoCreativ Pvt. Ltd.", status: "Rejected", date: "20-12-2022" },
-    { title: "UX Researcher", company: "Heiq", status: "Shortlisted : Assessment", date: "16-12-2022" },
-    { title: "Product Designer", company: "MBAtrek Pvt. Ltd.", status: "Shortlisted : HR Interview", date: "15-12-2022" },
-    { title: "UX/UI Designer", company: "Bloombloom Pvt. Ltd.", status: "Selected", date: "14-12-2022" },
-    { title: "HTML Developer", company: "Blissclub", status: "Shortlisted : Assessment", date: "14-12-2022" },
+    {
+      "Job Title": "UX/UI Designer",
+      Company: "MBAtrek Pvt. Ltd.",
+      Status: <span className="text-warning fw-semibold">Awaiting</span>,
+      "Applied On": "20-12-2022",
+    },
+    {
+      "Job Title": "Product Manager",
+      Company: "YoCreativ Pvt. Ltd.",
+      Status: <span className="text-danger fw-semibold">Rejected</span>,
+      "Applied On": "20-12-2022",
+    },
+    {
+      "Job Title": "UX Researcher",
+      Company: "Heiq",
+      Status: (
+        <span className="text-primary fw-semibold">
+          Shortlisted : Assessment
+        </span>
+      ),
+      "Applied On": "16-12-2022",
+    },
+    {
+      "Job Title": "Product Designer",
+      Company: "MBAtrek Pvt. Ltd.",
+      Status: (
+        <span className="text-primary fw-semibold">
+          Shortlisted : HR Interview
+        </span>
+      ),
+      "Applied On": "15-12-2022",
+    },
+    {
+      "Job Title": "UX/UI Designer",
+      Company: "Bloombloom Pvt. Ltd.",
+      Status: <span className="text-success fw-semibold">Selected</span>,
+      "Applied On": "14-12-2022",
+    },
+    {
+      "Job Title": "HTML Developer",
+      Company: "Blissclub",
+      Status: (
+        <span className="text-primary fw-semibold">
+          Shortlisted : Assessment
+        </span>
+      ),
+      "Applied On": "14-12-2022",
+    },
   ];
 
   return (
@@ -75,7 +117,7 @@ const AdminDash = () => {
         </div>
       </div>
 
-      {/* FULL WIDTH + RESPONSIVE PAGE CONTENT */}
+      {/* FULL WIDTH PAGE CONTENT */}
       <div
         style={{
           width: "100%",
@@ -90,7 +132,7 @@ const AdminDash = () => {
           {/* TABS */}
           <Tabs active={active} setActive={setActive} tabs={["Jobs", "Internships"]} />
 
-          {/* ---------------- SEARCH + FILTERS ROW ---------------- */}
+          {/* SEARCH + FILTERS ROW */}
           <div
             style={{
               display: "flex",
@@ -100,23 +142,20 @@ const AdminDash = () => {
               width: "100%",
             }}
           >
-            {/* SEARCH */}
             <div style={{ flex: "1 1 280px" }}>
               <SearchInput placeholder="Search here..." />
             </div>
 
-            {/* ALL JOBS */}
             <div style={{ flex: "1 1 200px" }}>
               <AllJobsButton value="All Jobs" />
             </div>
 
-            {/* DATE */}
             <div style={{ flex: "1 1 200px" }}>
               <DateTabs selected={dateValue} onChange={setDateValue} />
             </div>
           </div>
 
-          {/* ---------------- STATISTICS ROW ---------------- */}
+          {/* STATISTICS ROW */}
           <div
             style={{
               marginTop: "25px",
@@ -139,7 +178,7 @@ const AdminDash = () => {
             <StatBox label="Rejected" value="07" color={colors.rejected} />
           </div>
 
-          {/* ---------------- RESPONSIVE TABLE ---------------- */}
+          {/* TABLE */}
           <div style={{ overflowX: "auto", marginTop: "20px", width: "100%" }}>
             <DataTable columns={columns} rows={rows} />
           </div>

@@ -1,43 +1,18 @@
 import React from "react";
-import SearchIcon from "../../assets/Search.png"; 
+import SearchIcon from "../../assets/Search.png";
 
 const SearchInput = ({ placeholder }) => {
   return (
-    <div
-      style={{
-        width: "100%",
-        height: "35px",
-        display: "flex",
-        alignItems: "center",
-        border: "1px solid #DDD",
-        borderRadius: "6px",
-        background: "#FFFFFF",
-        paddingLeft: "10px",
-      }}
-    >
-      {/* ICON */}
-      <img
-        src={SearchIcon}
-        alt="search"
-        width={16}
-        height={16}
-        style={{ marginRight: "8px" }}
-      />
-
-      {/* INPUT FIELD */}
+    <div className="d-flex align-items-center border rounded px-2" style={{ height: "38px" }}>
+      <img src={SearchIcon} width={16} height={16} className="me-2" />
       <input
+        className="form-control border-0 shadow-none"
         placeholder={placeholder}
-        style={{
-          width: "100%",
-          height: "100%",
-          border: "none",
-          outline: "none",
-          fontSize: "14px",
-          background: "transparent",
-        }}
+        style={{ fontSize: "14px" }}
       />
     </div>
   );
 };
 
 export default SearchInput;
+ 

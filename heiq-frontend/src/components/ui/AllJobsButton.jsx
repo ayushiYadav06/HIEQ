@@ -1,17 +1,6 @@
 const AllJobsButton = ({ value = "All Jobs" }) => {
   return (
-    <select
-      style={{
-        width: "100%",
-        height: "35px",
-        border: "1px solid #DDD",
-        borderRadius: "5px",
-        padding: "6px 10px",
-        fontSize: "14px",
-        background: "#FFFFFF",
-        outline: "none",
-      }}
-    >
+    <select className="form-select w-100" style={{ height: "38px" }}>
       <option>{value}</option>
     </select>
   );

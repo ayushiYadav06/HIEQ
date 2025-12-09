@@ -4,34 +4,50 @@ import { colors } from "../../theme/colors";
 const Tabs = ({ active, setActive, tabs = [] }) => {
   return (
     <div
-      className="tabs"
+      className="tabs-wrapper w-100"
       style={{
-        display: "flex",
-        flex: 1,
-        height: "44px",
-        background: "#F3F3F3",
-        borderRadius: "4px",
-        overflow: "hidden",
-        minWidth: "250px",
+        paddingLeft: "10px", // ⭐ EXACT SIDEBAR WIDTH
       }}
     >
-      {tabs.map((tab) => (
-        <button
-          key={tab}
-          onClick={() => setActive(tab)}
-          style={{
-            flex: 1,
-            background: active === tab ? colors.primaryGreen : "transparent",
-            color: active === tab ? "#fff" : "#555",
-            border: "none",
-            cursor: "pointer",
-            fontSize: "14px",
-            fontWeight: 600,
-          }}
-        >
-          {tab}
-        </button>
-      ))}
+      <style>
+        {`
+          @media (max-width: 767px) {
+            .tabs-wrapper {
+              padding-left: 0 !important;
+            }
+          }
+        `}
+      </style>
+
+      {/* FULL WIDTH TAB BAR */}
+      <div
+        className="d-flex w-100"
+        style={{
+          background: "#F3F3F3",
+          borderRadius: "6px",
+          overflow: "hidden",
+          height: "48px",
+          width: "100%",      // ⭐ FULL WIDTH ALWAYS
+        }}
+      >
+        {tabs.map((tab) => (
+          <button
+            key={tab}
+            className="btn flex-fill"
+            onClick={() => setActive(tab)}
+            style={{
+              background:
+                active === tab ? colors.primaryGreen : "transparent",
+              color: active === tab ? "#fff" : "#000",
+              border: "none",
+              fontWeight: 600,
+              borderRadius: 0,
+            }}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
     </div>
   );
 };

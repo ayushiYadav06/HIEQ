@@ -1,73 +1,49 @@
 import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-
 import CalendarIcon from "../../assets/clarity_date-line.svg";
 
 const DateTabs = ({ selected, onChange }) => {
-  // Always have a valid date
   const [selectedDate, setSelectedDate] = useState(selected || new Date());
   const [open, setOpen] = useState(false);
 
-  // Sync parent → child updates
   useEffect(() => {
     if (selected) setSelectedDate(new Date(selected));
   }, [selected]);
 
   return (
-    <div style={{ position: "relative", width: "100%" }}>
-      
-      {/* DATE INPUT BOX */}
+    <div style={{ position: "relative", maxWidth: "450px" }} className="w-100">
+      {/* Clickable Field */}
       <div
         onClick={() => setOpen(!open)}
+        className="d-flex align-items-center border rounded px-3 w-100"
         style={{
-          width: "100%",
-          height: "38px",
-          border: "1px solid #999",
-          borderRadius: "5px",
-          padding: "6px 10px",
-          background: "#fff",
+          height: "40px",
           cursor: "pointer",
-          fontSize: "14px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: "8px",
+          background: "#fff",
+          gap: "15px", // ⭐ increased gap between icon and date
         }}
       >
-        {/* ICON */}
-        <img
-          src={CalendarIcon}
-          alt="calendar"
-          width={17}
-          height={17}
-          style={{ opacity: 0.8 }}
-        />
-
-        {/* SAFE DATE TEXT */}
-        <span>
-          {selectedDate ? selectedDate.toDateString() : "Select Date"}
-        </span>
+        <img src={CalendarIcon} width={20} alt="" />
+        <span className="flex-grow-1">{selectedDate.toDateString()}</span>
       </div>
 
-      {/* POPUP DATE PICKER */}
+      {/* Calendar popup */}
       {open && (
         <div
           style={{
             position: "absolute",
-            top: "45px",
-            zIndex: 100,
+            top: "48px",
+            zIndex: 1000,
+            boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
             background: "#fff",
-            borderRadius: "6px",
-            boxShadow: "0px 4px 12px rgba(0,0,0,0.15)",
           }}
         >
           <DatePicker
             selected={selectedDate}
             onChange={(date) => {
-              const newDate = new Date(date);
-              setSelectedDate(newDate);
-              if (onChange) onChange(newDate);
+              setSelectedDate(date);
+              onChange?.(date);
               setOpen(false);
             }}
             inline

@@ -6,57 +6,69 @@ const ProfileCenterBox = ({
   hideButton = false,
   title,
   children,
-  onViewProfile
+  onViewProfile,
 }) => {
   return (
-    <div>
-      {profileImage && name && (
-        <div
-          className="text-center"
-          style={{
-            marginBottom: "30px",
-            marginTop: "60px", // IMAGE MOVED DOWN
-          }}
-        >
-          {/* PROFILE IMAGE */}
+    <div className="w-100 d-flex justify-content-center">
+      <div
+        className="text-center"
+        style={{ maxWidth: "1260px", position: "relative" }}
+      >
+        {/* ⭐ IMAGE - DO NOT CHANGE THIS */}
+        {profileImage && (
           <img
             src={profileImage}
             alt="profile"
-            className="rounded-circle border"
+            className="rounded-circle border shadow"
             style={{
-              width: "150px",
-              height: "150px",
+              width: "140px",
+              height: "140px",
               objectFit: "cover",
               background: "#fff",
-              marginBottom: "15px",
+              position: "absolute",
+              top: "70px",
+              left: "50%", // ⭐ This is YOUR custom position
+              transform: "translateX(-50%)",
+              zIndex: 20,
             }}
           />
+        )}
 
-          {/* NAME */}
-          <h5 className="fw-semibold text-dark" style={{ marginTop: "15px" }}>
-            {name}
-          </h5>
+        {/* ⭐ NAME + BUTTON CENTERED EXACTLY UNDER THE IMAGE */}
+        <div
+          style={{
+            marginTop: "240px",
+            position: "absolute",
+            left: "80%", // ⭐ SAME CENTER AS IMAGE
+            transform: "translateX(-50%)",
+            textAlign: "center",
+            width: "300px",
+          }}
+        >
+          <h5 className="fw-semibold text-dark mb-2">{name}</h5>
 
-          {/* VIEW PROFILE BUTTON */}
           {!hideButton && (
             <button
-              className="btn btn-success px-4"
-              style={{ marginTop: "10px" }}
-              onClick={onViewProfile}  // ⭐ BUTTON WORKS NOW
+              className="btn btn-success px-4 py-2"
+              style={{ fontSize: "0.9rem" }}
+              onClick={onViewProfile}
             >
               View Profile
             </button>
           )}
         </div>
-      )}
 
-      {/* FORM BOX */}
-      {title && children && (
-        <div className="bg-white rounded border p-4" style={{ marginTop: "30px" }}>
-          <h5 className="mb-4">{title}</h5>
-          {children}
-        </div>
-      )}
+        {/* Space filler so content doesn't overlap */}
+        <div style={{ height: "340px" }}></div>
+
+        {/* ⭐ OPTIONAL CONTENT BOX */}
+        {title && children && (
+          <div className="bg-white rounded border p-3 p-md-4 mt-4 shadow-sm">
+            <h5 className="mb-3">{title}</h5>
+            {children}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

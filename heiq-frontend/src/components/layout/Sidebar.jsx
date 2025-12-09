@@ -1,113 +1,116 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
+import {
+  FaHome,
+  FaStar,
+  FaPlus,
+  FaFileAlt,
+  FaLock,
+  FaQuestionCircle,
+  FaUsers,
+} from "react-icons/fa";
+import { FiSearch } from "react-icons/fi";
+
+const NAVBAR_HEIGHT = 70; // Keep sidebar aligned with navbar
+
 const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
 
-  // ⭐ REUSABLE HANDLER
   const handleNavigation = (path) => {
     navigate(path);
-    onClose(); // close sidebar after clicking
+    onClose();
   };
 
   return (
     <>
-      {/* DARK OVERLAY */}
-      {isOpen && (
-        <div
-          onClick={onClose}
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0,0,0,0.4)",
-            zIndex: 998,
-          }}
-        ></div>
-      )}
-
-      {/* SIDEBAR */}
+      {/* ⭐ MOBILE SIDEBAR */}
       <div
-        style={{
-          position: "fixed",
-          top: 0,
-          left: isOpen ? "0" : "-260px",
-          width: "260px",
-          height: "100vh",
-          background: "#fff",
-          boxShadow: "2px 0px 8px rgba(0,0,0,0.15)",
-          padding: "20px",
-          transition: "left 0.3s ease",
-          zIndex: 999,
-        }}
+        className={`offcanvas offcanvas-start d-md-none ${
+          isOpen ? "show" : ""
+        }`}
+        tabIndex="-1"
+        style={{ width: "200px" }}
       >
-        {/* CLOSE BUTTON */}
-        <div
-          onClick={onClose}
-          style={{
-            textAlign: "right",
-            cursor: "pointer",
-            fontSize: "22px",
-            fontWeight: "bold",
-            marginBottom: "20px",
-          }}
-        >
-          ✕
+        {/* Header Removed */}
+        <div className="offcanvas-header border-bottom">
+          <button className="btn-close ms-auto" onClick={onClose}></button>
         </div>
 
+        <div className="offcanvas-body px-3">
+          <SidebarMenu onNavigate={handleNavigation} />
+        </div>
+      </div>
+
+      {/* ⭐ DESKTOP SIDEBAR */}
+      <div
+        className="d-none d-md-flex flex-column bg-white border-end shadow-sm"
+        style={{
+          width: "210px",
+          height: `calc(100vh - ${NAVBAR_HEIGHT}px)`,
+          position: "fixed",
+          left: 0,
+          top: NAVBAR_HEIGHT,
+          zIndex: 1030,
+        }}
+      >
+        {/* Sidebar Header Removed */}
+        {/* Empty spacing removed completely */}
+
         {/* MENU ITEMS */}
-        <ul style={{ listStyle: "none", padding: 0 }}>
-
-          <li style={menuItem} onClick={() => handleNavigation("/")}>
-            Dashboard
-          </li>
-
-          <li style={menuItem} onClick={() => handleNavigation("/job-prep-requests")}>
-            Job Prep Requests
-          </li>
-
-          <li style={menuItem} onClick={() => handleNavigation("/admin/candidates")}>
-            Candidates
-          </li>
-
-          <li style={menuItem} onClick={() => handleNavigation("/reported-opportunities")}>
-            Reported Opportunities
-          </li>
-
-          <li style={menuItem} onClick={() => handleNavigation("/Account-Setting")}>
-            Account Settings
-          </li>
-
-          <li style={menuItem} onClick={() => handleNavigation("/company-deactivate")}>
-            Company Deactivate
-          </li>
-
-          <li style={menuItem} onClick={() => handleNavigation("/company/activate")}>
-            Company Activate
-          </li>
-
-          <li style={menuItem} onClick={() => handleNavigation("/Verify-Documents")}>
-            Verify Documents
-          </li>
-
-          <li style={menuItem} onClick={() => handleNavigation("/profile")}>
-            User Profile
-          </li>
-
-        </ul>
+        <div className="px-3 pt-2">
+          <SidebarMenu onNavigate={handleNavigation} />
+        </div>
       </div>
     </>
   );
 };
 
-const menuItem = {
-  padding: "12px 0",
-  borderBottom: "1px solid #eee",
-  cursor: "pointer",
-  fontSize: "15px",
-  color: "#333",
-};
+/* ⭐ Sidebar Menu */
+const SidebarMenu = ({ onNavigate }) => (
+  <ul className="list-unstyled m-0 p-0">
+    <SidebarItem
+      icon={<FaHome />}
+      label="Dashboard"
+      onClick={() => onNavigate("/admin/dashboard")}
+    />
+    <SidebarItem
+      icon={<FaUsers />}
+      label="User Management"
+      onClick={() => onNavigate("/")}
+    />
+    <SidebarItem
+      icon={<FiSearch />}
+      label="Search jobs, internships"
+      onClick={() => onNavigate("/search")}
+    />
+    <SidebarItem icon={<FaStar />} label="Saved Opportunities" />
+    <SidebarItem icon={<FaPlus />} label="Badges" />
+    <SidebarItem icon={<FaFileAlt />} label="My Resumes" />
+    <SidebarItem
+      icon={<FaLock />}
+      label="Change Password"
+      onClick={() => onNavigate("/Account-Setting")}
+    />
+    <SidebarItem icon={<FaQuestionCircle />} label="Help" />
+  </ul>
+);
+
+/* ⭐ Sidebar item with 10px border */
+const SidebarItem = ({ icon, label, onClick }) => (
+  <li
+    onClick={onClick}
+    className="d-flex align-items-center gap-2 py-3"
+    style={{
+      cursor: "pointer",
+      color: "#555",
+      fontSize: "15px",
+      borderBottom: "1px solid #f3f3f3",
+    }}
+  >
+    <span style={{ fontSize: "18px", color: "#888" }}>{icon}</span>
+    <span>{label}</span>
+  </li>
+);
 
 export default Sidebar;

@@ -1,21 +1,18 @@
 import React from "react";
 
-// NEW LOGO
-import Logo from "../../assets/Vector (4).png";
-
 // CUSTOM ICONS
 import NotificationIcon from "../../assets/Vector.png";
 import DarkModeIcon from "../../assets/Vector (1).png";
 import HelpIcon from "../../assets/Vector (2).png";
 import LogoutIcon from "../../assets/logout.png";
-import MenuIcon from "../../assets/Vector (3).png"; // menu icon
+import Logo from "../../assets/hieqLogo.png"; // ⭐ LOGO NOW HERE
 
 const TopNavbar = ({
+  isSidebarOpen = false,
   onLogout = () => {},
   onDarkMode = () => {},
   onHelp = () => {},
   onNotifications = () => {},
-  onMenuClick = () => {},
 }) => {
   return (
     <div
@@ -24,55 +21,47 @@ const TopNavbar = ({
         background: "#ffffff",
         borderBottom: "1px solid #e6e6e6",
         display: "flex",
-        justifyContent: "space-between",
+        justifyContent: "space-between", // ⭐ LEFT = LOGO, RIGHT = ICONS
         alignItems: "center",
         padding: "0 20px",
         height: "70px",
         position: "sticky",
         top: 0,
-        zIndex: 100,
+        zIndex: 90,
+        transition: "0.3s",
       }}
     >
-      {/* LEFT — NEW LOGO + MENU ICON */}
-      <div style={{ display: "flex", alignItems: "center", gap: "18px" }}>
-        <img src={Logo} alt="logo" style={{ height: "45px", cursor: "pointer" }} />
 
-        {/* Menu Icon */}
+      {/* ⭐ LOGO ON LEFT */}
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
         <img
-          src={MenuIcon}
-          alt="Menu"
-          onClick={onMenuClick}
-          style={{ width: "22px", height: "22px", cursor: "pointer" }}
+          src={Logo}
+          alt="HieQ Logo"
+          style={{ height: "45px", cursor: "pointer" }}
         />
       </div>
 
-      {/* RIGHT ICONS */}
+      {/* RIGHT SIDE ICONS */}
       <div style={{ display: "flex", alignItems: "center", gap: "30px", color: "#666" }}>
-        
-        {/* Notification */}
         <div style={{ textAlign: "center", cursor: "pointer" }} onClick={onNotifications}>
           <img src={NotificationIcon} alt="Notification" style={{ width: "20px", height: "20px" }} />
           <div style={{ fontSize: "10px" }}>Notifications</div>
         </div>
 
-        {/* Dark Mode */}
         <div style={{ textAlign: "center", cursor: "pointer" }} onClick={onDarkMode}>
           <img src={DarkModeIcon} alt="Dark Mode" style={{ width: "20px", height: "20px" }} />
           <div style={{ fontSize: "10px" }}>Dark Mode</div>
         </div>
 
-        {/* Help */}
         <div style={{ textAlign: "center", cursor: "pointer" }} onClick={onHelp}>
           <img src={HelpIcon} alt="Help" style={{ width: "20px", height: "20px" }} />
           <div style={{ fontSize: "10px" }}>Help</div>
         </div>
 
-        {/* Logout */}
         <div style={{ textAlign: "center", cursor: "pointer" }} onClick={onLogout}>
           <img src={LogoutIcon} alt="Logout" style={{ width: "20px", height: "20px" }} />
           <div style={{ fontSize: "10px" }}>Logout</div>
         </div>
-
       </div>
     </div>
   );

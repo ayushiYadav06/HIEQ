@@ -42,6 +42,8 @@ const Tabs = ({ active, setActive, tabs = [] }) => {
               border: "none",
               fontWeight: 600,
               borderRadius: 0,
+              cursor: "pointer",
+              zIndex: 1,
             }}
           >
             {tab}

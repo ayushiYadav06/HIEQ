@@ -4,6 +4,11 @@ const { Schema } = mongoose;
 const UserSchema = new Schema(
   {
     email: { type: String, required: true, index: true, unique: true },
+    emailVerified: { type: Boolean, default: false },
+    emailVerificationToken: { type: String },
+    emailVerificationTokenExpiry: { type: Date },
+    passwordResetToken: { type: String },
+    passwordResetTokenExpiry: { type: Date },
     passwordHash: { type: String },
     name: { type: String, required: true },
     blocked: { type: Boolean, default: false },
@@ -19,12 +24,52 @@ const UserSchema = new Schema(
         "SUPPORT_ADMIN",
         "EMPLOYER",
         "STUDENT",
+        "JOB_SEEKER",
       ],
       default: "STUDENT",
       index: true,
     },
+    permissions: [{
+      type: String,
+      trim: true
+    }],
     phone: String,
+    contact: String,
+    gender: String,
+    dob: Date,
+    summary: String,
+    aadharFile: String, // File path
+    aadharStatus: {
+      type: String,
+      enum: ['Pending', 'Approve', 'Reject'],
+      default: 'Pending'
+    },
+    profileImage: String, // Profile image file path
     profile: Schema.Types.Mixed,
+    // Candidate/Job Seeker fields
+    education: [{
+      degree: String,
+      university: String,
+      year: String,
+      degreeFile: String, // File path
+      status: {
+        type: String,
+        enum: ['Pending', 'Approve', 'Reject'],
+        default: 'Pending'
+      }
+    }],
+    experience: [{
+      company: String,
+      role: String,
+      years: String
+    }],
+    // Employer fields
+    skills: [String],
+    companyExperience: [{
+      company: String,
+      role: String,
+      years: String
+    }],
     refreshTokens: [{ token: String, createdAt: Date }],
     createdAt: { type: Date, default: Date.now },
     updatedAt: Date,

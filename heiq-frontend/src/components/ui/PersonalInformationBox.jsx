@@ -1,55 +1,95 @@
 import React from "react";
 import { Form, Row, Col } from "react-bootstrap";
+import { useTheme } from "../../contexts/ThemeContext";
+import { colors } from "../../theme/colors";
 import CameraIcon from "../../assets/Group_163.png";
+import UserImage from "../../assets/user.jpg";
 
 const PersonalInformationBox = ({ profileImage, onUpload, values = {}, onChange }) => {
+  const { isDark } = useTheme();
+  const themeColors = isDark ? colors.dark : colors.light;
+
   return (
-    <div className="bg-white rounded border p-4 mt-4" style={{ maxWidth: "1500px", margin: "0 auto" }}>
-      <h4 className="fw-semibold mb-4">1. Personal Information</h4>
+    <div
+      className="rounded border p-4 mt-4"
+      style={{
+        maxWidth: "1500px",
+        margin: "0 auto",
+        backgroundColor: themeColors.surface,
+        borderColor: themeColors.border,
+      }}
+    >
+      <h4 className="fw-semibold mb-4" style={{ color: themeColors.text }}>
+        1. Personal Information
+      </h4>
 
       <Row className="g-4 align-items-start">
 
         {/* LEFT FORM — WIDER NOW */}
         <Col xs={12} md={7} lg={8}>
           <Form.Group className="mb-3">
-            <Form.Label>Full Name *</Form.Label>
+            <Form.Label style={{ color: themeColors.text }}>Full Name *</Form.Label>
             <Form.Control
               type="text"
               name="name"
               placeholder="Enter full name"
               value={values.name}
               onChange={onChange}
+              style={{
+                backgroundColor: themeColors.inputBackground,
+                color: themeColors.text,
+                borderColor: themeColors.border,
+              }}
             />
           </Form.Group>
 
           <Row>
             <Col xs={12} md={6} className="mb-3">
-              <Form.Label>Email Address *</Form.Label>
+              <Form.Label style={{ color: themeColors.text }}>Email Address *</Form.Label>
               <Form.Control
                 type="email"
                 name="email"
                 placeholder="Enter email"
                 value={values.email}
                 onChange={onChange}
+                style={{
+                  backgroundColor: themeColors.inputBackground,
+                  color: themeColors.text,
+                  borderColor: themeColors.border,
+                }}
               />
             </Col>
 
             <Col xs={12} md={6} className="mb-3">
-              <Form.Label>Contact Number *</Form.Label>
+              <Form.Label style={{ color: themeColors.text }}>Contact Number *</Form.Label>
               <Form.Control
                 type="text"
                 name="phone"
                 placeholder="Enter phone"
                 value={values.phone}
                 onChange={onChange}
+                style={{
+                  backgroundColor: themeColors.inputBackground,
+                  color: themeColors.text,
+                  borderColor: themeColors.border,
+                }}
               />
             </Col>
           </Row>
 
           <Row>
             <Col xs={12} md={6} className="mb-3">
-              <Form.Label>Gender *</Form.Label>
-              <Form.Select name="gender" value={values.gender} onChange={onChange}>
+              <Form.Label style={{ color: themeColors.text }}>Gender *</Form.Label>
+              <Form.Select
+                name="gender"
+                value={values.gender}
+                onChange={onChange}
+                style={{
+                  backgroundColor: themeColors.inputBackground,
+                  color: themeColors.text,
+                  borderColor: themeColors.border,
+                }}
+              >
                 <option>Male</option>
                 <option>Female</option>
                 <option>Other</option>
@@ -57,8 +97,18 @@ const PersonalInformationBox = ({ profileImage, onUpload, values = {}, onChange 
             </Col>
 
             <Col xs={12} md={6} className="mb-3">
-              <Form.Label>Date of Birth *</Form.Label>
-              <Form.Control type="date" name="dob" value={values.dob} onChange={onChange} />
+              <Form.Label style={{ color: themeColors.text }}>Date of Birth *</Form.Label>
+              <Form.Control
+                type="date"
+                name="dob"
+                value={values.dob}
+                onChange={onChange}
+                style={{
+                  backgroundColor: themeColors.inputBackground,
+                  color: themeColors.text,
+                  borderColor: themeColors.border,
+                }}
+              />
             </Col>
           </Row>
         </Col>
@@ -76,25 +126,35 @@ const PersonalInformationBox = ({ profileImage, onUpload, values = {}, onChange 
             }}
           >
             <img
+              key={profileImage} // Force re-render when image URL changes
               src={profileImage}
               alt="Profile"
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              onError={(e) => {
+                // Use local placeholder image instead of external URL
+                if (e.target.src !== UserImage) {
+                  e.target.src = UserImage;
+                }
+              }}
             />
 
-            <button
-              onClick={onUpload}
-              style={{
-                position: "absolute",
-                bottom: -20,
-                left: "50%",
-                transform: "translateX(-50%)",
-                border: "none",
-                background: "transparent",
-                cursor: "pointer",
-              }}
-            >
-              <img src={CameraIcon} alt="Upload" style={{ width: 60 }} />
-            </button>
+            {onUpload && (
+              <button
+                onClick={onUpload}
+                style={{
+                  position: "absolute",
+                  bottom: -20,
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                }}
+                title="Click to upload profile image"
+              >
+                <img src={CameraIcon} alt="Upload" style={{ width: 60 }} />
+              </button>
+            )}
           </div>
         </Col>
       </Row>
@@ -102,7 +162,7 @@ const PersonalInformationBox = ({ profileImage, onUpload, values = {}, onChange 
       {/* SUMMARY — ALWAYS FULL WIDTH */}
       <Row className="mt-4">
         <Col xs={12}>
-          <Form.Label>Profile Summary *</Form.Label>
+          <Form.Label style={{ color: themeColors.text }}>Profile Summary *</Form.Label>
           <Form.Control
             as="textarea"
             rows={4}
@@ -110,8 +170,15 @@ const PersonalInformationBox = ({ profileImage, onUpload, values = {}, onChange 
             placeholder="Enter summary"
             value={values.summary}
             onChange={onChange}
+            style={{
+              backgroundColor: themeColors.inputBackground,
+              color: themeColors.text,
+              borderColor: themeColors.border,
+            }}
           />
-          <p className="text-end text-muted mt-1">250 words limit</p>
+          <p className="text-end mt-1" style={{ color: themeColors.textSecondary }}>
+            250 words limit
+          </p>
         </Col>
       </Row>
     </div>

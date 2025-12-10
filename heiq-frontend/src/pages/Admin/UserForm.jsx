@@ -1,43 +1,46 @@
 // pages/Admin/UserForm.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Form,
   Button,
   Row,
   Col,
   Card,
-  Container,
   InputGroup,
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-
-import TopNavbar from "../../components/layout/TopNavbar";
-import Sidebar from "../../components/layout/Sidebar";
+import { useTheme } from "../../contexts/ThemeContext";
+import { colors } from "../../theme/colors";
+import AdminLayout from "../../components/layout/AdminLayout";
 import BackButton from "../../components/layout/BackButton";
-
-// ⭐ IMPORT YOUR CUSTOM TABS
 import Tabs from "../../components/ui/Tabs";
+import { userAPI, roleAPI } from "../../services/api";
 
 const UserForm = () => {
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
+  const { isDark } = useTheme();
+  const themeColors = isDark ? colors.dark : colors.light;
   const [showPassword, setShowPassword] = useState(false);
   const [contactError, setContactError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [roles, setRoles] = useState([]);
+  const [error, setError] = useState("");
 
   // ⭐ ACTIVE TAB STATE
   const [activeTab, setActiveTab] = useState("Candidate");
 
   // ⭐ FORM STATE
   const [formData, setFormData] = useState({
-    fullName: "",
+    name: "",
     email: "",
     password: "",
+    role: "STUDENT",
     contact: "",
     gender: "",
     dob: "",
     summary: "",
     aadhar: null,
+    profileImage: null,
 
     // Candidate fields
     education: [{ degree: "", university: "", year: "", degreeFile: null }],
@@ -48,6 +51,19 @@ const UserForm = () => {
     companyExperience: [{ company: "", role: "", years: "" }],
   });
 
+  // Fetch roles
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const data = await roleAPI.getAllRoles();
+        setRoles(data);
+      } catch (error) {
+        console.error("Failed to fetch roles:", error);
+      }
+    };
+    fetchRoles();
+  }, []);
+
   // Basic update
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -56,6 +72,92 @@ const UserForm = () => {
   // Aadhar upload
   const handleFileChange = (e) => {
     setFormData({ ...formData, aadhar: e.target.files[0] });
+  };
+
+  // Profile image upload
+  const handleProfileImageChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setFormData({ ...formData, profileImage: e.target.files[0] });
+    }
+  };
+
+  // Handle form submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setIsSubmitting(true);
+
+    try {
+      // Validate required fields
+      if (!formData.name || !formData.email || !formData.password || !formData.role) {
+        setError("Please fill in all required fields");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Create FormData for file uploads
+      const submitData = new FormData();
+      
+      // Add basic fields
+      submitData.append("name", formData.name);
+      submitData.append("email", formData.email);
+      submitData.append("password", formData.password);
+      submitData.append("role", formData.role);
+      submitData.append("contact", formData.contact || "");
+      submitData.append("gender", formData.gender || "");
+      submitData.append("dob", formData.dob || "");
+      submitData.append("summary", formData.summary || "");
+
+      // Add aadhar file
+      if (formData.aadhar) {
+        submitData.append("aadhar", formData.aadhar);
+      }
+
+      // Add profile image
+      if (formData.profileImage) {
+        submitData.append("profileImage", formData.profileImage);
+      }
+
+      // Add education data
+      if (activeTab === "Candidate" && formData.education) {
+        let fileIndex = 0;
+        formData.education.forEach((edu, index) => {
+          submitData.append(`education[${index}][degree]`, edu.degree || "");
+          submitData.append(`education[${index}][university]`, edu.university || "");
+          submitData.append(`education[${index}][year]`, edu.year || "");
+          if (edu.degreeFile) {
+            submitData.append("degreeFile", edu.degreeFile);
+            fileIndex++;
+          }
+        });
+      }
+
+      // Add experience data
+      if (activeTab === "Candidate" && formData.experience) {
+        submitData.append("experience", JSON.stringify(formData.experience));
+      }
+
+      // Add skills
+      if (activeTab === "Employer" && formData.skills) {
+        submitData.append("skills", JSON.stringify(formData.skills.filter(s => s.trim() !== "")));
+      }
+
+      // Add company experience
+      if (activeTab === "Employer" && formData.companyExperience) {
+        submitData.append("companyExperience", JSON.stringify(formData.companyExperience));
+      }
+
+      // Submit to API
+      await userAPI.create(submitData);
+      
+      alert("User created successfully!");
+      navigate("/admin/candidates");
+    } catch (error) {
+      console.error("Failed to create user:", error);
+      setError(error.response?.data?.message || "Failed to create user. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Candidate: add education
@@ -100,83 +202,137 @@ const UserForm = () => {
   };
 
   // ⭐⭐⭐ SUBMIT HANDLER — PRINT IN CONSOLE ⭐⭐⭐
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("📌 Final Form Data Submitted:", formData);
-  };
-
   return (
-    <>
-      {/* SIDEBAR */}
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+    <AdminLayout>
+      <BackButton label="Back" onClick={() => navigate(-1)} />
 
-      {/* NAVBAR */}
-      <TopNavbar onMenuClick={() => setSidebarOpen(true)} />
-
-      {/* BACK BUTTON */}
-      <Container fluid className="px-0 mt-4">
-        <BackButton label="Back" onClick={() => navigate(-1)} />
-      </Container>
-
-      {/* PAGE CONTENT AREA */}
-      <div
-        style={{
-          paddingLeft: "215px",
-          paddingRight: "20px",
-          marginTop: "20px",
-        }}
-      >
+      <div className="mt-4">
         <Card
           className="p-4 shadow-lg"
-          style={{ maxWidth: "1200px", margin: "0 auto" }}
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            backgroundColor: themeColors.surface,
+            borderColor: themeColors.border,
+          }}
         >
-          <h3 className="mb-4 text-center">Create New User</h3>
+          <h3
+            className="mb-4 text-center"
+            style={{ color: themeColors.text }}
+          >
+            Create New User
+          </h3>
 
-          {/* ⭐⭐⭐ TABS ⭐⭐⭐ */}
+          {error && (
+            <div
+              className="alert alert-danger"
+              style={{ marginBottom: "20px" }}
+            >
+              {error}
+            </div>
+          )}
+
+          {/* ============================================= */}
+          {/* ⭐⭐⭐ TABS AT THE TOP ⭐⭐⭐ */}
+          {/* ============================================= */}
           <Tabs
             active={activeTab}
             setActive={setActiveTab}
             tabs={["Candidate", "Employer"]}
           />
 
-          {/* ⭐ FORM START ⭐ */}
+          {/* ============================================= */}
+          {/* ⭐ BASIC FIELDS (VISIBLE FOR BOTH TABS) ⭐ */}
+          {/* ============================================= */}
+
           <Form onSubmit={handleSubmit}>
-            <h5 className="mt-4">Basic Information</h5>
+            <h5 className="mt-4" style={{ color: themeColors.text }}>Basic Information</h5>
 
             {/* FULL NAME */}
             <Form.Group className="mb-3">
-              <Form.Label>Full Name</Form.Label>
+              <Form.Label style={{ color: themeColors.text }}>Full Name *</Form.Label>
               <Form.Control
-                name="fullName"
+                name="name"
                 type="text"
                 placeholder="Enter full name"
+                value={formData.name}
                 onChange={handleChange}
+                required
+                style={{
+                  backgroundColor: themeColors.inputBackground,
+                  color: themeColors.text,
+                  borderColor: themeColors.border,
+                }}
               />
+            </Form.Group>
+
+            {/* ROLE */}
+            <Form.Group className="mb-3">
+              <Form.Label style={{ color: themeColors.text }}>Role *</Form.Label>
+              <Form.Select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                required
+                style={{
+                  backgroundColor: themeColors.inputBackground,
+                  color: themeColors.text,
+                  borderColor: themeColors.border,
+                }}
+              >
+                <option value="STUDENT">Job Seeker (Student)</option>
+                <option value="EMPLOYER">Employer</option>
+                <option value="ADMIN">Admin</option>
+                {roles.map((role) => (
+                  <option key={role._id} value={role.name}>
+                    {role.displayName}
+                  </option>
+                ))}
+              </Form.Select>
             </Form.Group>
 
             {/* EMAIL */}
             <Form.Group className="mb-3">
-              <Form.Label>Email Address</Form.Label>
+              <Form.Label style={{ color: themeColors.text }}>Email Address *</Form.Label>
               <Form.Control
                 name="email"
                 type="email"
                 placeholder="Enter email"
+                value={formData.email}
                 onChange={handleChange}
+                required
+                style={{
+                  backgroundColor: themeColors.inputBackground,
+                  color: themeColors.text,
+                  borderColor: themeColors.border,
+                }}
               />
             </Form.Group>
 
             {/* PASSWORD */}
             <Form.Group className="mb-3">
-              <Form.Label>Password</Form.Label>
+              <Form.Label style={{ color: themeColors.text }}>Password *</Form.Label>
               <InputGroup>
                 <Form.Control
                   name="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter password"
+                  value={formData.password}
                   onChange={handleChange}
+                  required
+                  style={{
+                    backgroundColor: themeColors.inputBackground,
+                    color: themeColors.text,
+                    borderColor: themeColors.border,
+                  }}
                 />
                 <InputGroup.Text
-                  style={{ cursor: "pointer" }}
+                  style={{
+                    cursor: "pointer",
+                    backgroundColor: themeColors.inputBackground,
+                    borderColor: themeColors.border,
+                    color: themeColors.text,
+                  }}
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? "🙈" : "👁️"}
@@ -186,7 +342,7 @@ const UserForm = () => {
 
             {/* CONTACT */}
             <Form.Group className="mb-3">
-              <Form.Label>Contact Number</Form.Label>
+              <Form.Label style={{ color: themeColors.text }}>Contact Number</Form.Label>
               <Form.Control
                 name="contact"
                 value={formData.contact}
@@ -201,6 +357,11 @@ const UserForm = () => {
                       : "Contact number must be exactly 10 digits."
                   );
                 }}
+                style={{
+                  backgroundColor: themeColors.inputBackground,
+                  color: themeColors.text,
+                  borderColor: themeColors.border,
+                }}
               />
               {contactError && (
                 <small style={{ color: "red" }}>{contactError}</small>
@@ -209,54 +370,119 @@ const UserForm = () => {
 
             {/* GENDER */}
             <Form.Group className="mb-3">
-              <Form.Label>Gender</Form.Label>
-              <Form.Select name="gender" onChange={handleChange}>
-                <option>Select Gender</option>
-                <option>Male</option>
-                <option>Female</option>
-                <option>Other</option>
+              <Form.Label style={{ color: themeColors.text }}>Gender</Form.Label>
+              <Form.Select
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                style={{
+                  backgroundColor: themeColors.inputBackground,
+                  color: themeColors.text,
+                  borderColor: themeColors.border,
+                }}
+              >
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
               </Form.Select>
             </Form.Group>
 
             {/* DOB */}
             <Form.Group className="mb-3">
-              <Form.Label>Date of Birth</Form.Label>
+              <Form.Label style={{ color: themeColors.text }}>Date of Birth</Form.Label>
               <Form.Control
                 name="dob"
                 type="date"
+                value={formData.dob}
                 onChange={handleChange}
+                style={{
+                  backgroundColor: themeColors.inputBackground,
+                  color: themeColors.text,
+                  borderColor: themeColors.border,
+                }}
               />
             </Form.Group>
 
             {/* SUMMARY */}
             <Form.Group className="mb-3">
-              <Form.Label>Profile Summary</Form.Label>
+              <Form.Label style={{ color: themeColors.text }}>Profile Summary</Form.Label>
               <Form.Control
                 name="summary"
                 as="textarea"
                 rows={3}
                 placeholder="Write summary"
+                value={formData.summary}
                 onChange={handleChange}
+                style={{
+                  backgroundColor: themeColors.inputBackground,
+                  color: themeColors.text,
+                  borderColor: themeColors.border,
+                }}
               />
+            </Form.Group>
+
+            {/* PROFILE IMAGE */}
+            <Form.Group className="mb-3">
+              <Form.Label style={{ color: themeColors.text }}>Profile Image</Form.Label>
+              <Row>
+                <Col md={6}>
+                  <Form.Control
+                    type="file"
+                    accept=".jpg,.jpeg,.png"
+                    onChange={handleProfileImageChange}
+                    style={{
+                      backgroundColor: themeColors.inputBackground,
+                      color: themeColors.text,
+                      borderColor: themeColors.border,
+                    }}
+                  />
+                  <Form.Text style={{ color: themeColors.textSecondary }}>
+                    Recommended: Square image, max 5MB (JPG, PNG)
+                  </Form.Text>
+                </Col>
+                <Col md={6}>
+                  {formData.profileImage && (
+                    <div className="text-center">
+                      <img
+                        src={URL.createObjectURL(formData.profileImage)}
+                        alt="Preview"
+                        style={{
+                          width: "100px",
+                          height: "100px",
+                          borderRadius: "50%",
+                          objectFit: "cover",
+                          border: `2px solid ${themeColors.border}`,
+                        }}
+                      />
+                    </div>
+                  )}
+                </Col>
+              </Row>
             </Form.Group>
 
             {/* AADHAR */}
             <Form.Group className="mb-3">
-              <Form.Label>Upload Aadhar</Form.Label>
+              <Form.Label style={{ color: themeColors.text }}>Upload Aadhar</Form.Label>
               <Form.Control
                 type="file"
                 accept=".jpg,.jpeg,.png,.pdf"
                 onChange={handleFileChange}
+                style={{
+                  backgroundColor: themeColors.inputBackground,
+                  color: themeColors.text,
+                  borderColor: themeColors.border,
+                }}
               />
             </Form.Group>
 
             {/* ⭐⭐⭐ CANDIDATE SECTION ⭐⭐⭐ */}
             {activeTab === "Candidate" && (
               <>
-                <h4 className="mt-4">Candidate Details</h4>
+                <h4 className="mt-4" style={{ color: themeColors.text }}>Candidate Details</h4>
 
                 {/* EDUCATION */}
-                <h5 className="mt-3">Education</h5>
+                <h5 className="mt-3" style={{ color: themeColors.text }}>Education</h5>
 
                 {formData.education.map((edu, index) => (
                   <Row key={index} className="mb-3 align-items-center">
@@ -269,6 +495,11 @@ const UserForm = () => {
                           const updated = [...formData.education];
                           updated[index].degree = e.target.value;
                           setFormData({ ...formData, education: updated });
+                        }}
+                        style={{
+                          backgroundColor: themeColors.inputBackground,
+                          color: themeColors.text,
+                          borderColor: themeColors.border,
                         }}
                       />
                     </Col>
@@ -283,6 +514,11 @@ const UserForm = () => {
                           updated[index].university = e.target.value;
                           setFormData({ ...formData, education: updated });
                         }}
+                        style={{
+                          backgroundColor: themeColors.inputBackground,
+                          color: themeColors.text,
+                          borderColor: themeColors.border,
+                        }}
                       />
                     </Col>
 
@@ -296,6 +532,11 @@ const UserForm = () => {
                           updated[index].year = e.target.value;
                           setFormData({ ...formData, education: updated });
                         }}
+                        style={{
+                          backgroundColor: themeColors.inputBackground,
+                          color: themeColors.text,
+                          borderColor: themeColors.border,
+                        }}
                       />
                     </Col>
 
@@ -308,20 +549,34 @@ const UserForm = () => {
                           updated[index].degreeFile = e.target.files[0];
                           setFormData({ ...formData, education: updated });
                         }}
+                        style={{
+                          backgroundColor: themeColors.inputBackground,
+                          color: themeColors.text,
+                          borderColor: themeColors.border,
+                        }}
                       />
-                      <small className="text-muted">
+                      <small style={{ color: themeColors.textSecondary }}>
                         Upload certificate
                       </small>
                     </Col>
                   </Row>
                 ))}
 
-                <Button variant="secondary" size="sm" onClick={addEducation}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={addEducation}
+                  style={{
+                    backgroundColor: themeColors.background,
+                    borderColor: themeColors.border,
+                    color: themeColors.text,
+                  }}
+                >
                   + Add More Education
                 </Button>
 
                 {/* EXPERIENCE */}
-                <h5 className="mt-4">Experience</h5>
+                <h5 className="mt-4" style={{ color: themeColors.text }}>Experience</h5>
 
                 {formData.experience.map((exp, index) => (
                   <Row key={index} className="mb-3">
@@ -334,6 +589,11 @@ const UserForm = () => {
                           const updated = [...formData.experience];
                           updated[index].company = e.target.value;
                           setFormData({ ...formData, experience: updated });
+                        }}
+                        style={{
+                          backgroundColor: themeColors.inputBackground,
+                          color: themeColors.text,
+                          borderColor: themeColors.border,
                         }}
                       />
                     </Col>
@@ -348,6 +608,11 @@ const UserForm = () => {
                           updated[index].role = e.target.value;
                           setFormData({ ...formData, experience: updated });
                         }}
+                        style={{
+                          backgroundColor: themeColors.inputBackground,
+                          color: themeColors.text,
+                          borderColor: themeColors.border,
+                        }}
                       />
                     </Col>
 
@@ -361,12 +626,26 @@ const UserForm = () => {
                           updated[index].years = e.target.value;
                           setFormData({ ...formData, experience: updated });
                         }}
+                        style={{
+                          backgroundColor: themeColors.inputBackground,
+                          color: themeColors.text,
+                          borderColor: themeColors.border,
+                        }}
                       />
                     </Col>
                   </Row>
                 ))}
 
-                <Button variant="secondary" size="sm" onClick={addExperience}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={addExperience}
+                  style={{
+                    backgroundColor: themeColors.background,
+                    borderColor: themeColors.border,
+                    color: themeColors.text,
+                  }}
+                >
                   + Add More Experience
                 </Button>
               </>
@@ -375,10 +654,10 @@ const UserForm = () => {
             {/* ⭐⭐⭐ EMPLOYER SECTION ⭐⭐⭐ */}
             {activeTab === "Employer" && (
               <>
-                <h4 className="mt-4">Employer Details</h4>
+                <h4 className="mt-4" style={{ color: themeColors.text }}>Employer Details</h4>
 
                 {/* SKILLS */}
-                <h5 className="mt-3">Skills Required</h5>
+                <h5 className="mt-3" style={{ color: themeColors.text }}>Skills Required</h5>
 
                 {formData.skills.map((skill, index) => (
                   <Row key={index} className="mb-3">
@@ -392,17 +671,31 @@ const UserForm = () => {
                           updated[index] = e.target.value;
                           setFormData({ ...formData, skills: updated });
                         }}
+                        style={{
+                          backgroundColor: themeColors.inputBackground,
+                          color: themeColors.text,
+                          borderColor: themeColors.border,
+                        }}
                       />
                     </Col>
                   </Row>
                 ))}
 
-                <Button variant="secondary" size="sm" onClick={addSkill}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={addSkill}
+                  style={{
+                    backgroundColor: themeColors.background,
+                    borderColor: themeColors.border,
+                    color: themeColors.text,
+                  }}
+                >
                   + Add More Skill
                 </Button>
 
                 {/* COMPANY EXPERIENCE */}
-                <h5 className="mt-4">Company Experience</h5>
+                <h5 className="mt-4" style={{ color: themeColors.text }}>Company Experience</h5>
 
                 {formData.companyExperience.map((exp, index) => (
                   <Row key={index} className="mb-3">
@@ -419,6 +712,11 @@ const UserForm = () => {
                             companyExperience: updated,
                           });
                         }}
+                        style={{
+                          backgroundColor: themeColors.inputBackground,
+                          color: themeColors.text,
+                          borderColor: themeColors.border,
+                        }}
                       />
                     </Col>
 
@@ -434,6 +732,11 @@ const UserForm = () => {
                             ...formData,
                             companyExperience: updated,
                           });
+                        }}
+                        style={{
+                          backgroundColor: themeColors.inputBackground,
+                          color: themeColors.text,
+                          borderColor: themeColors.border,
                         }}
                       />
                     </Col>
@@ -451,6 +754,11 @@ const UserForm = () => {
                             companyExperience: updated,
                           });
                         }}
+                        style={{
+                          backgroundColor: themeColors.inputBackground,
+                          color: themeColors.text,
+                          borderColor: themeColors.border,
+                        }}
                       />
                     </Col>
                   </Row>
@@ -460,6 +768,11 @@ const UserForm = () => {
                   variant="secondary"
                   size="sm"
                   onClick={addCompanyExperience}
+                  style={{
+                    backgroundColor: themeColors.background,
+                    borderColor: themeColors.border,
+                    color: themeColors.text,
+                  }}
                 >
                   + Add Company Experience
                 </Button>
@@ -468,14 +781,24 @@ const UserForm = () => {
 
             {/* SUBMIT */}
             <div className="text-center mt-4">
-              <Button variant="primary" type="submit">
-                Submit Form
+              <Button
+                variant="primary"
+                type="submit"
+                disabled={isSubmitting}
+                style={{
+                  backgroundColor: colors.primaryGreen,
+                  borderColor: colors.primaryGreen,
+                  color: "#ffffff",
+                  minWidth: "150px",
+                }}
+              >
+                {isSubmitting ? "Creating..." : "Create User"}
               </Button>
             </div>
           </Form>
         </Card>
       </div>
-    </>
+    </AdminLayout>
   );
 };
 

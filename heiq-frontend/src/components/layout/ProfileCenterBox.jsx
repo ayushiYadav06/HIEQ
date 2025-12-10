@@ -1,4 +1,5 @@
 import React from "react";
+import UserImage from "../../assets/user.jpg";
 
 const ProfileCenterBox = ({
   profileImage,
@@ -14,9 +15,10 @@ const ProfileCenterBox = ({
         className="text-center"
         style={{ maxWidth: "1260px", position: "relative" }}
       >
-        {/* ⭐ IMAGE - DO NOT CHANGE THIS */}
+        {/* ⭐ IMAGE - CENTERED */}
         {profileImage && (
           <img
+            key={profileImage} // Force re-render when image URL changes
             src={profileImage}
             alt="profile"
             className="rounded-circle border shadow"
@@ -27,9 +29,15 @@ const ProfileCenterBox = ({
               background: "#fff",
               position: "absolute",
               top: "70px",
-              left: "50%", // ⭐ This is YOUR custom position
-              transform: "translateX(15%)",
+              left: "50%",
+              transform: "translateX(-50%)",
               zIndex: 20,
+            }}
+            onError={(e) => {
+              // Use local placeholder image instead of external URL
+              if (e.target.src !== UserImage) {
+                e.target.src = UserImage;
+              }
             }}
           />
         )}
@@ -39,13 +47,14 @@ const ProfileCenterBox = ({
           style={{
             marginTop: "240px",
             position: "absolute",
-            left: "80%", // ⭐ SAME CENTER AS IMAGE
-            transform: "translateX(-18%)",
+            right: "2rem",
+            transform: "translateX(-50%)",
             textAlign: "center",
-            width: "300px",
+            width: "100%",
+            maxWidth: "300px",
           }}
         >
-          <h5 className="fw-semibold text-dark mb-2">{name}</h5>
+          <h5 className="fw-semibold mb-2" style={{ color: "inherit" }}>{name}</h5>
 
           {!hideButton && (
             <button

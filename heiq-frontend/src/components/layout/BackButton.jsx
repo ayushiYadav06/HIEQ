@@ -20,9 +20,6 @@ const BackButton = ({ label = "Back", className = "", iconSize = 16 }) => {
         color: "#666666",
         padding: "8px 0",
 
-        /* ⭐ MOVE BACK BUTTON AFTER SIDEBAR */
-        marginLeft: "220px", // 280px sidebar + 20px spacing
-
         justifyContent: "flex-start",
       }}
     >

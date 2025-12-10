@@ -1,16 +1,16 @@
 import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { useTheme } from "../../../contexts/ThemeContext";
 import { colors } from "../../../theme/colors";
-import { assessmentAPI } from "../../../services/api";
+import { listManagementAPI } from "../../../services/api";
 import AdminLayout from "../../../components/layout/AdminLayout";
 import BackButton from "../../../components/layout/BackButton";
-import AssessmentTable from "../../../components/Assessment/AssessmentTable";
-import AssessmentForm from "../../../components/Assessment/AssessmentForm";
-import AssessmentFilters from "../../../components/Assessment/AssessmentFilters";
+import ListManagementTable from "../../../components/ListManagement/ListManagementTable";
+import ListManagementForm from "../../../components/ListManagement/ListManagementForm";
+import ListManagementFilters from "../../../components/ListManagement/ListManagementFilters";
 
-const ASSESSMENT_TABS = ["Skills", "College", "Jobs", "Industries"];
+const LIST_MANAGEMENT_TABS = ["Skills", "College", "Jobs", "Industries"];
 
-const AssessmentList = () => {
+const ListManagement = () => {
   const { isDark } = useTheme();
   const themeColors = isDark ? colors.dark : colors.light;
   const [activeTab, setActiveTab] = useState("Skills");
@@ -47,7 +47,7 @@ const AssessmentList = () => {
         params.status = statusFilter === "active";
       }
 
-      const items = await assessmentAPI.getByType(type, params);
+      const items = await listManagementAPI.getByType(type, params);
       // Map _id to id for frontend compatibility
       const mappedItems = items.map((item) => ({
         ...item,
@@ -110,7 +110,7 @@ const AssessmentList = () => {
       if (window.confirm("Are you sure you want to delete this item?")) {
         setIsLoading(true);
         try {
-          await assessmentAPI.delete(activeTab, id);
+          await listManagementAPI.delete(activeTab, id);
           // Remove from local state
           setData((prev) => ({
             ...prev,
@@ -131,7 +131,7 @@ const AssessmentList = () => {
   const handleStatusToggle = useCallback(
     async (id, newStatus) => {
       try {
-        const updatedItem = await assessmentAPI.toggleStatus(
+        const updatedItem = await listManagementAPI.toggleStatus(
           activeTab,
           id,
           newStatus
@@ -160,7 +160,7 @@ const AssessmentList = () => {
       try {
         if (editingItem) {
           // Update existing
-          const updatedItem = await assessmentAPI.update(
+          const updatedItem = await listManagementAPI.update(
             activeTab,
             editingItem.id,
             formData
@@ -175,7 +175,7 @@ const AssessmentList = () => {
           }));
         } else {
           // Create new
-          const newItem = await assessmentAPI.create(activeTab, formData);
+          const newItem = await listManagementAPI.create(activeTab, formData);
           setData((prev) => ({
             ...prev,
             [activeTab]: [
@@ -210,16 +210,16 @@ const AssessmentList = () => {
         <BackButton label="Back" />
 
         <div className="mt-4">
-            <h1
-              style={{
-                fontSize: "24px",
-                fontWeight: 600,
-                marginBottom: "20px",
-                color: themeColors.text,
-              }}
-            >
-              Assessment Management
-            </h1>
+              <h1
+                style={{
+                  fontSize: "24px",
+                  fontWeight: 600,
+                  marginBottom: "20px",
+                  color: themeColors.text,
+                }}
+              >
+                List Management
+              </h1>
 
             {error && (
               <div
@@ -239,7 +239,7 @@ const AssessmentList = () => {
                   gap: "8px",
                 }}
               >
-                {ASSESSMENT_TABS.map((tab) => (
+                {LIST_MANAGEMENT_TABS.map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
@@ -283,7 +283,7 @@ const AssessmentList = () => {
             <div style={{ marginBottom: "20px" }}>
               <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                 <div className="flex-fill w-100" style={{ maxWidth: "600px" }}>
-                  <AssessmentFilters
+                  <ListManagementFilters
                     searchQuery={searchQuery}
                     onSearchChange={setSearchQuery}
                     statusFilter={statusFilter}
@@ -337,7 +337,7 @@ const AssessmentList = () => {
                 borderColor: themeColors.border,
               }}
             >
-              <AssessmentTable
+              <ListManagementTable
                 data={filteredData}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
@@ -349,7 +349,7 @@ const AssessmentList = () => {
       </AdminLayout>
 
       {/* Form Modal */}
-      <AssessmentForm
+      <ListManagementForm
         isOpen={isFormOpen}
         onClose={() => {
           setIsFormOpen(false);
@@ -362,4 +362,5 @@ const AssessmentList = () => {
   );
 };
 
-export default AssessmentList;
+export default ListManagement;
+

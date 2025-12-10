@@ -126,6 +126,7 @@ const Settings = () => {
 
   // Open role edit modal
   const handleEditRole = (role) => {
+    if (showRoleModal) return; // Prevent double opening
     setEditingRole(role);
     setRoleFormData({
       name: role.name,
@@ -137,8 +138,18 @@ const Settings = () => {
     setShowRoleModal(true);
   };
 
+  // Open role create modal
+  const handleCreateRole = () => {
+    if (showRoleModal) return; // Prevent double opening
+    setEditingRole(null);
+    setRoleFormData({ name: "", displayName: "", description: "", permissions: [] });
+    setSelectedPermissions([]);
+    setShowRoleModal(true);
+  };
+
   // Open permission edit modal
   const handleEditPermission = (permission) => {
+    if (showPermissionModal) return; // Prevent double opening
     setEditingPermission(permission);
     setPermissionFormData({
       name: permission.name,
@@ -146,6 +157,14 @@ const Settings = () => {
       description: permission.description || "",
       category: permission.category || "general",
     });
+    setShowPermissionModal(true);
+  };
+
+  // Open permission create modal
+  const handleCreatePermission = () => {
+    if (showPermissionModal) return; // Prevent double opening
+    setEditingPermission(null);
+    setPermissionFormData({ name: "", displayName: "", description: "", category: "general" });
     setShowPermissionModal(true);
   };
 
@@ -226,11 +245,9 @@ const Settings = () => {
             >
               <h5 style={{ color: themeColors.text, margin: 0 }}>Roles Management</h5>
               <Button
-                onClick={() => {
-                  setEditingRole(null);
-                  setRoleFormData({ name: "", displayName: "", description: "", permissions: [] });
-                  setSelectedPermissions([]);
-                  setShowRoleModal(true);
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCreateRole();
                 }}
                 style={{
                   backgroundColor: colors.primaryGreen,
@@ -283,7 +300,10 @@ const Settings = () => {
                             variant="info"
                             size="sm"
                             className="me-2"
-                            onClick={() => handleEditRole(role)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditRole(role);
+                            }}
                           >
                             Edit
                           </Button>
@@ -324,10 +344,9 @@ const Settings = () => {
             >
               <h5 style={{ color: themeColors.text, margin: 0 }}>Permissions Management</h5>
               <Button
-                onClick={() => {
-                  setEditingPermission(null);
-                  setPermissionFormData({ name: "", displayName: "", description: "", category: "general" });
-                  setShowPermissionModal(true);
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCreatePermission();
                 }}
                 style={{
                   backgroundColor: colors.primaryGreen,
@@ -371,7 +390,10 @@ const Settings = () => {
                             variant="info"
                             size="sm"
                             className="me-2"
-                            onClick={() => handleEditPermission(permission)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditPermission(permission);
+                            }}
                           >
                             Edit
                           </Button>
@@ -396,13 +418,16 @@ const Settings = () => {
       {/* Role Modal */}
       <Modal
         show={showRoleModal}
-        onHide={() => {
+        onHide={(e) => {
+          // Prevent double closing
+          if (e && e.stopPropagation) e.stopPropagation();
           setShowRoleModal(false);
           setEditingRole(null);
           setRoleFormData({ name: "", displayName: "", description: "", permissions: [] });
           setSelectedPermissions([]);
         }}
         centered
+        backdrop="static"
       >
         <Modal.Header
           closeButton
@@ -527,12 +552,15 @@ const Settings = () => {
       {/* Permission Modal */}
       <Modal
         show={showPermissionModal}
-        onHide={() => {
+        onHide={(e) => {
+          // Prevent double closing
+          if (e && e.stopPropagation) e.stopPropagation();
           setShowPermissionModal(false);
           setEditingPermission(null);
           setPermissionFormData({ name: "", displayName: "", description: "", category: "general" });
         }}
         centered
+        backdrop="static"
       >
         <Modal.Header
           closeButton
@@ -630,7 +658,7 @@ const Settings = () => {
                 <option value="general">General</option>
                 <option value="user">User Management</option>
                 <option value="content">Content Management</option>
-                <option value="assessment">Assessment</option>
+                <option value="listmanagement">List Management</option>
                 <option value="ticket">Ticket Management</option>
               </Form.Select>
             </Form.Group>

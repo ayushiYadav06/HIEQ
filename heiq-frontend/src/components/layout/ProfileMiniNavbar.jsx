@@ -7,9 +7,7 @@ const ProfileMiniNavbar = ({ email, phone, joinedDate, lastSeen }) => {
     <div
       className="w-100"
       style={{
-        // ⭐ On Desktop, push content right by 280px sidebar width
-        paddingLeft: "210px",
-
+        //  paddingLeft: "210px",
         // ⭐ On Mobile, remove left spacing
         // This uses a CSS trick — overridden via media query below
       }}

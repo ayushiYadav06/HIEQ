@@ -1,5 +1,5 @@
 // pages/Admin/Candidates.jsx
-import React, { useState, useEffect, useCallback, useMemo , useRef } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Container, Row, Col, Button, Alert } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -12,6 +12,7 @@ import PageTitle from "../../components/ui/PageTitle";
 import ExportButton from "../../components/ui/ExportButton";
 import FilterDropdown from "../../components/ui/FilterDropdown";
 import DataTable from "../../components/ui/DataTable";
+import CSVUploadModal from "../../components/CSVUploadModal";
 import { userAPI } from "../../services/api";
 import { Table, Badge, Spinner } from "react-bootstrap";
 
@@ -25,9 +26,9 @@ const Candidates = () => {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-    const [uploadStatus, setUploadStatus] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef(null);
+  const [isCSVModalOpen, setIsCSVModalOpen] = useState(false);
 
   // Fetch users
   const fetchUsers = useCallback(async () => {
@@ -147,35 +148,62 @@ const Candidates = () => {
     // Parse header
     const headers = lines[0]
       .split(",")
-      .map((h) => h.trim().replace(/"/g, ""));
+      .map((h) => h.trim().replace(/"/g, ""))
+      .filter((h) => h); // Remove empty headers
+    
+    // Validate required headers
+    const requiredHeaders = ["Full Name", "Email"];
+    const hasRequiredHeaders = requiredHeaders.some((req) =>
+      headers.some((h) => h.toLowerCase().includes(req.toLowerCase()))
+    );
+    
+    if (!hasRequiredHeaders) {
+      throw new Error("CSV must contain 'Full Name' and 'Email' columns");
+    }
     
     // Parse data rows
     const data = [];
     for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue; // Skip empty lines
+
       const values = [];
       let currentValue = "";
       let inQuotes = false;
 
-      for (let j = 0; j < lines[i].length; j++) {
-        const char = lines[i][j];
+      for (let j = 0; j < line.length; j++) {
+        const char = line[j];
         if (char === '"') {
           inQuotes = !inQuotes;
         } else if (char === "," && !inQuotes) {
-          values.push(currentValue.trim());
+          values.push(currentValue.trim().replace(/^"|"$/g, ""));
           currentValue = "";
         } else {
           currentValue += char;
         }
       }
-      values.push(currentValue.trim());
+      values.push(currentValue.trim().replace(/^"|"$/g, ""));
 
-      if (values.length === headers.length) {
+      // Only add rows that have at least name and email
+      if (values.length >= 2) {
         const row = {};
         headers.forEach((header, index) => {
-          row[header] = values[index] || "";
+          if (header) {
+            row[header] = values[index] || "";
+          }
         });
-        data.push(row);
+        
+        // Only add if row has at least name and email
+        const hasName = row["Full Name"] || row["fullName"] || row["Name"];
+        const hasEmail = row["Email"] || row["email"] || row["Email ID"];
+        if (hasName && hasEmail) {
+          data.push(row);
+        }
       }
+    }
+
+    if (data.length === 0) {
+      throw new Error("No valid data rows found in CSV. Please check the format.");
     }
 
     return data;
@@ -185,14 +213,18 @@ const Candidates = () => {
   const transformCSVToUserData = (csvData, userType) => {
     return csvData.map((row) => {
       const userData = {
-        fullName: row["Full Name"] || row["fullName"] || row["Name"] || "",
-        email: row["Email"] || row["email"] || row["Email ID"] || "",
+        fullName: (row["Full Name"] || row["fullName"] || row["Name"] || "").trim(),
+        email: (row["Email"] || row["email"] || row["Email ID"] || "").trim(),
         password: row["Password"] || row["password"] || "DefaultPassword123!",
-        contact: row["Contact"] || row["contact"] || row["Phone"] || "",
-        gender: row["Gender"] || row["gender"] || "",
-        dob: row["Date of Birth"] || row["DOB"] || row["dob"] || "",
-        summary: row["Summary"] || row["summary"] || row["Profile Summary"] || "",
+        contact: (row["Contact"] || row["contact"] || row["Phone"] || "").trim(),
+        gender: (row["Gender"] || row["gender"] || "").trim(),
+        dob: (row["Date of Birth"] || row["DOB"] || row["dob"] || "").trim(),
+        summary: (row["Summary"] || row["summary"] || row["Profile Summary"] || "").trim(),
         role: userType === "Candidates" ? "STUDENT" : "EMPLOYER",
+        education: [],
+        experience: [],
+        skills: [],
+        companyExperience: [],
       };
 
       // Parse education (format: "Degree|University|Year" or JSON)
@@ -289,24 +321,30 @@ const Candidates = () => {
       const userType = activeTab === "Candidates" ? "Candidates" : "Employers";
       const transformedData = transformCSVToUserData(csvData, userType);
 
+      // Validate transformed data
+      const validData = transformedData.filter((user) => {
+        return user.fullName && user.email && user.password;
+      });
+
+      if (validData.length === 0) {
+        throw new Error("No valid users found in CSV. Please check that Full Name and Email columns are filled.");
+      }
+
+      console.log("Sending to backend:", validData);
+
       // Send to backend
-      const response = await userAPI.bulkCreate(transformedData);
+      const response = await userAPI.bulkCreate(validData);
+
+      console.log("Backend response:", response);
 
       setUploadStatus({
         type: "success",
-        message: `Successfully uploaded ${response.results.success.length} users. ${response.results.failed.length} failed.`,
+        message: `Successfully uploaded ${response.results?.success?.length || 0} users. ${response.results?.failed?.length || 0} failed.`,
         details: response.results,
       });
 
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-
-      // Optionally refresh the page or reload data
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
+      // Refresh user list
+      fetchUsers();
     } catch (error) {
       console.error("CSV upload error:", error);
       let errorMessage = "Failed to upload CSV file";
@@ -328,8 +366,149 @@ const Candidates = () => {
     }
   };
 
-  const handleCSVButtonClick = () => {
-    fileInputRef.current?.click();
+  const handleCSVModalOpen = () => {
+    setUploadStatus(null); // Clear previous upload status
+    setIsCSVModalOpen(true);
+  };
+
+  const handleCSVModalClose = () => {
+    setIsCSVModalOpen(false);
+    // Clear upload status after closing if it was successful
+    if (uploadStatus?.type === "success") {
+      setTimeout(() => {
+        setUploadStatus(null);
+      }, 2000);
+    }
+  };
+
+  // Export users to CSV
+  const handleExportCSV = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Fetch all users for export (without search filter)
+      const role = activeTab === "Candidates" ? "STUDENT" : "EMPLOYER";
+      const exportUsers = await userAPI.getAll({ role });
+      
+      if (exportUsers.length === 0) {
+        alert("No users to export");
+        setIsLoading(false);
+        return;
+      }
+
+    // Define CSV headers based on user type
+    const isCandidate = activeTab === "Candidates";
+    let headers = [
+      "Full Name",
+      "Email",
+      "Phone",
+      "Contact",
+      "Role",
+      "Gender",
+      "Date of Birth",
+      "Summary",
+      "Account Status",
+      "Registered On",
+    ];
+
+    if (isCandidate) {
+      headers.push("Education", "Experience");
+    } else {
+      headers.push("Skills", "Company Experience");
+    }
+
+      // Convert users to CSV rows
+      const csvRows = [headers.join(",")];
+
+      exportUsers.forEach((user) => {
+      const row = [];
+
+      // Basic fields
+      row.push(`"${(user.name || "").replace(/"/g, '""')}"`);
+      row.push(`"${(user.email || "").replace(/"/g, '""')}"`);
+      row.push(`"${(user.phone || "").replace(/"/g, '""')}"`);
+      row.push(`"${(user.contact || "").replace(/"/g, '""')}"`);
+      row.push(`"${(user.role || "").replace(/"/g, '""')}"`);
+      row.push(`"${(user.gender || "").replace(/"/g, '""')}"`);
+      row.push(`"${user.dob ? formatDate(user.dob) : ""}"`);
+      row.push(`"${(user.summary || "").replace(/"/g, '""')}"`);
+      row.push(
+        `"${user.deleted ? "Deleted" : user.blocked ? "Blocked" : "Active"}"`
+      );
+      row.push(`"${formatDate(user.createdAt)}"`);
+
+      // Role-specific fields
+      if (isCandidate) {
+        // Format education
+        const educationStr =
+          user.education && user.education.length > 0
+            ? user.education
+                .map(
+                  (edu) =>
+                    `${edu.degree || ""}|${edu.university || ""}|${edu.year || ""}`
+                )
+                .join(";")
+            : "";
+        row.push(`"${educationStr.replace(/"/g, '""')}"`);
+
+        // Format experience
+        const experienceStr =
+          user.experience && user.experience.length > 0
+            ? user.experience
+                .map(
+                  (exp) =>
+                    `${exp.company || ""}|${exp.role || ""}|${exp.years || ""}`
+                )
+                .join(";")
+            : "";
+        row.push(`"${experienceStr.replace(/"/g, '""')}"`);
+      } else {
+        // Format skills
+        const skillsStr =
+          user.skills && user.skills.length > 0
+            ? user.skills.join(",")
+            : "";
+        row.push(`"${skillsStr.replace(/"/g, '""')}"`);
+
+        // Format company experience
+        const companyExpStr =
+          user.companyExperience && user.companyExperience.length > 0
+            ? user.companyExperience
+                .map(
+                  (exp) =>
+                    `${exp.company || ""}|${exp.role || ""}|${exp.years || ""}`
+                )
+                .join(";")
+            : "";
+        row.push(`"${companyExpStr.replace(/"/g, '""')}"`);
+      }
+
+      csvRows.push(row.join(","));
+    });
+
+    // Create CSV content
+    const csvContent = csvRows.join("\n");
+
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute("href", url);
+      link.setAttribute(
+        "download",
+        `${activeTab.toLowerCase()}_export_${new Date().toISOString().split("T")[0]}.csv`
+      );
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Export error:", error);
+      alert("Failed to export users. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
 
@@ -349,34 +528,12 @@ const Candidates = () => {
         >
           <PageTitle title="Users List" />
 
-         <div style={{ display: "flex", gap: "10px" }}>
-            <input
-              type="file"
-              accept=".csv"
-              ref={fileInputRef}
-              onChange={handleCSVUpload}
-              style={{ display: "none" }}
-            />
+          <div style={{ display: "flex", gap: "10px" }}>
             <Button
               variant="success"
-              onClick={handleCSVButtonClick}
-              disabled={isUploading}
+              onClick={handleCSVModalOpen}
               style={{
                 background: "#28a745",
-                color: "#fff",
-                border: "none",
-                padding: "10px 15px",
-                borderRadius: "4px",
-                cursor: isUploading ? "not-allowed" : "pointer",
-              }}
-            >
-              {isUploading ? "Uploading..." : "📄 Upload CSV"}
-            </Button>
-            <button
-              className="create-btn"
-              onClick={() => navigate("/create-user")}
-              style={{
-                background: "#007bff",
                 color: "#fff",
                 border: "none",
                 padding: "10px 15px",
@@ -384,40 +541,25 @@ const Candidates = () => {
                 cursor: "pointer",
               }}
             >
+              📄 Upload CSV
+            </Button>
+            <button
+              className="create-btn"
+              onClick={() => navigate("/create-user")}
+              style={{
+                background: colors.primaryGreen,
+                color: "#fff",
+                border: "none",
+                padding: "10px 15px",
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontWeight: 500,
+              }}
+            >
               <span className="plus">+</span> Create User
             </button>
           </div>
         </div>
-
-        {/* Upload Status Alert */}
-        {uploadStatus && (
-          <Alert
-            variant={uploadStatus.type}
-            dismissible
-            onClose={() => setUploadStatus(null)}
-            className="mb-4"
-          >
-            <Alert.Heading>
-              {uploadStatus.type === "success" ? "Upload Successful!" : "Upload Failed"}
-            </Alert.Heading>
-            <p>{uploadStatus.message}</p>
-            {uploadStatus.details && uploadStatus.details.failed.length > 0 && (
-              <div className="mt-3">
-                <strong>Failed entries:</strong>
-                <ul className="mb-0">
-                  {uploadStatus.details.failed.slice(0, 5).map((fail, idx) => (
-                    <li key={idx}>
-                      {fail.email}: {fail.reason}
-                    </li>
-                  ))}
-                  {uploadStatus.details.failed.length > 5 && (
-                    <li>... and {uploadStatus.details.failed.length - 5} more</li>
-                  )}
-                </ul>
-              </div>
-            )}
-          </Alert>
-        )}
 
         {/* Tabs */}
         <div className="mb-4">
@@ -439,7 +581,7 @@ const Candidates = () => {
             />
           </div>
           <div>
-            <ExportButton />
+            <ExportButton onClick={handleExportCSV} />
           </div>
         </div>
 
@@ -481,6 +623,15 @@ const Candidates = () => {
           </div>
         )}
       </div>
+
+      {/* CSV Upload Modal */}
+      <CSVUploadModal
+        isOpen={isCSVModalOpen}
+        onClose={handleCSVModalClose}
+        onUpload={handleCSVUpload}
+        isUploading={isUploading}
+        uploadStatus={uploadStatus}
+      />
     </AdminLayout>
   );
 };

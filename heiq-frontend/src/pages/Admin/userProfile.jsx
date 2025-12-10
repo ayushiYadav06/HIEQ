@@ -21,6 +21,8 @@ const UserProfile = () => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const profileImageInputRef = React.useRef(null);
 
   // Fetch user data
   useEffect(() => {
@@ -79,6 +81,65 @@ const UserProfile = () => {
     if (tab === "Verify Documents") navigate("/Verify-Documents");
   };
 
+  // Get profile image URL
+  const getProfileImageUrl = () => {
+    if (user?.profileImage) {
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
+      // Handle path - remove 'uploads/' prefix if present since we're already serving from /uploads
+      let imagePath = user.profileImage;
+      if (imagePath.startsWith('uploads/')) {
+        imagePath = imagePath.replace('uploads/', '');
+      }
+      return `${baseUrl}/uploads/${imagePath}`;
+    }
+    return UserImage;
+  };
+
+  // Handle profile image upload
+  const handleProfileImageUpload = async (file) => {
+    if (!file || !user?._id) return;
+
+    setIsUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append("profileImage", file);
+
+      await userAPI.update(user._id, formData);
+      
+      // Refresh user data
+      const updatedUser = await userAPI.getById(user._id);
+      setUser(updatedUser);
+      alert("Profile image updated successfully!");
+    } catch (error) {
+      console.error("Failed to upload profile image:", error);
+      alert("Failed to upload profile image. Please try again.");
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  // Handle image file selection
+  const handleImageFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.match(/^image\/(jpeg|jpg|png)$/)) {
+        alert("Please select a valid image file (JPG, PNG)");
+        return;
+      }
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Image size must be less than 5MB");
+        return;
+      }
+      handleProfileImageUpload(file);
+    }
+    // Reset input
+    if (profileImageInputRef.current) {
+      profileImageInputRef.current.value = "";
+    }
+  };
+
   if (isLoading) {
     return (
       <AdminLayout>
@@ -126,13 +187,19 @@ const UserProfile = () => {
           lastSeen={user.updatedAt ? formatDate(user.updatedAt) : "N/A"}
         />
 
-        {/* CENTER BOX */}
+        {/* CENTER BOX - Properly Centered */}
         <div
-          className="position-absolute start-50 translate-middle-x"
-          style={{ top: "-30px" }}
+          className="position-absolute"
+          style={{ 
+            top: "-30px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "100%",
+            maxWidth: "1260px"
+          }}
         >
           <ProfileCenterBox
-            profileImage={UserImage}
+            profileImage={getProfileImageUrl()}
             name={user.name?.toUpperCase() || "N/A"}
             hideButton
           />
@@ -151,12 +218,29 @@ const UserProfile = () => {
       {/* PROFILE CONTENT */}
       <div className="mt-4">
         {/* Personal Information */}
-        <PersonalInformationBox
-          profileImage={UserImage}
-          values={formValues}
-          onChange={() => {}} // Read-only for now
-          onUpload={() => alert("Upload clicked")}
-        />
+        <div>
+          <input
+            type="file"
+            accept="image/jpeg,image/jpg,image/png"
+            ref={profileImageInputRef}
+            onChange={handleImageFileSelect}
+            style={{ display: "none" }}
+          />
+          <PersonalInformationBox
+            profileImage={getProfileImageUrl()}
+            values={formValues}
+            onChange={() => {}} // Read-only for now
+            onUpload={() => profileImageInputRef.current?.click()}
+          />
+          {isUploadingImage && (
+            <div className="text-center mt-2">
+              <Spinner animation="border" size="sm" />
+              <span className="ms-2" style={{ color: themeColors.textSecondary }}>
+                Uploading image...
+              </span>
+            </div>
+          )}
+        </div>
 
         {/* Role and Status Card */}
         <Card
@@ -251,7 +335,7 @@ const UserProfile = () => {
                       <td style={{ color: themeColors.text }}>
                         {edu.degreeFile ? (
                           <a
-                            href={`${import.meta.env.VITE_API_BASE_URL || "http://localhost:4000"}/uploads/${edu.degreeFile}`}
+                            href={`${import.meta.env.VITE_API_BASE_URL || "http://localhost:4000"}/uploads/${edu.degreeFile.startsWith('uploads/') ? edu.degreeFile.replace('uploads/', '') : edu.degreeFile}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             style={{ color: colors.primaryGreen }}
@@ -413,7 +497,7 @@ const UserProfile = () => {
             <Card.Body>
               <p style={{ color: themeColors.textSecondary }}>Aadhar Document:</p>
               <a
-                href={`${import.meta.env.VITE_API_BASE_URL || "http://localhost:4000"}/uploads/${user.aadharFile}`}
+                href={`${import.meta.env.VITE_API_BASE_URL || "http://localhost:4000"}/uploads/${user.aadharFile.startsWith('uploads/') ? user.aadharFile.replace('uploads/', '') : user.aadharFile}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: colors.primaryGreen }}

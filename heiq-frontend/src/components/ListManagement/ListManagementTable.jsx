@@ -2,7 +2,7 @@ import React from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { colors } from "../../theme/colors";
 
-const AssessmentTable = ({
+const ListManagementTable = ({
   data = [],
   onEdit,
   onDelete,
@@ -236,4 +236,5 @@ const AssessmentTable = ({
   );
 };
 
-export default AssessmentTable;
+export default ListManagementTable;
+

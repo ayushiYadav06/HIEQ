@@ -2,7 +2,7 @@ import React from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { colors } from "../../theme/colors";
 
-const AssessmentFilters = ({
+const ListManagementFilters = ({
   searchQuery,
   onSearchChange,
   statusFilter,
@@ -49,4 +49,5 @@ const AssessmentFilters = ({
   );
 };
 
-export default AssessmentFilters;
+export default ListManagementFilters;
+

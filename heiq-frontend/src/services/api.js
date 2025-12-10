@@ -67,49 +67,49 @@ export const authAPI = {
   },
 };
 
-// Assessment API
-export const assessmentAPI = {
-  // GET /api/admin/assessment/:type
+// List Management API
+export const listManagementAPI = {
+  // GET /api/admin/listmanagement/:type
   getByType: async (type, params = {}) => {
-    const response = await apiClient.get(`/api/admin/assessment/${type}`, {
+    const response = await apiClient.get(`/api/admin/listmanagement/${type}`, {
       params,
     });
     return response.data;
   },
 
-  // GET /api/admin/assessment/:type/:id
+  // GET /api/admin/listmanagement/:type/:id
   getById: async (type, id) => {
-    const response = await apiClient.get(`/api/admin/assessment/${type}/${id}`);
+    const response = await apiClient.get(`/api/admin/listmanagement/${type}/${id}`);
     return response.data;
   },
 
-  // POST /api/admin/assessment/:type
+  // POST /api/admin/listmanagement/:type
   create: async (type, data) => {
-    const response = await apiClient.post(`/api/admin/assessment/${type}`, data);
+    const response = await apiClient.post(`/api/admin/listmanagement/${type}`, data);
     return response.data;
   },
 
-  // PATCH /api/admin/assessment/:type/:id
+  // PATCH /api/admin/listmanagement/:type/:id
   update: async (type, id, data) => {
     const response = await apiClient.patch(
-      `/api/admin/assessment/${type}/${id}`,
+      `/api/admin/listmanagement/${type}/${id}`,
       data
     );
     return response.data;
   },
 
-  // DELETE /api/admin/assessment/:type/:id
+  // DELETE /api/admin/listmanagement/:type/:id
   delete: async (type, id) => {
     const response = await apiClient.delete(
-      `/api/admin/assessment/${type}/${id}`
+      `/api/admin/listmanagement/${type}/${id}`
     );
     return response.data;
   },
 
-  // PATCH /api/admin/assessment/:type/:id/status
+  // PATCH /api/admin/listmanagement/:type/:id/status
   toggleStatus: async (type, id, status) => {
     const response = await apiClient.patch(
-      `/api/admin/assessment/${type}/${id}/status`,
+      `/api/admin/listmanagement/${type}/${id}/status`,
       { status }
     );
     return response.data;
@@ -183,6 +183,43 @@ export const userAPI = {
   // Unblock user
   unblock: async (id) => {
     const response = await apiClient.patch(`/api/users/${id}/unblock`);
+    return response.data;
+  },
+
+  // Change password
+  changePassword: async (id, newPassword, confirmPassword) => {
+    const response = await apiClient.patch(`/api/users/${id}/change-password`, {
+      newPassword,
+      confirmPassword,
+    });
+    return response.data;
+  },
+
+  // Send password reset email
+  sendPasswordResetEmail: async (id) => {
+    const response = await apiClient.post(`/api/users/${id}/send-reset-password`);
+    return response.data;
+  },
+
+  // Send email verification link
+  sendEmailVerificationLink: async (id) => {
+    const response = await apiClient.post(`/api/users/${id}/send-verification`);
+    return response.data;
+  },
+
+  // Verify email
+  verifyEmail: async (id, token) => {
+    const response = await apiClient.post(`/api/users/${id}/verify-email`, { token });
+    return response.data;
+  },
+
+  // Update document status
+  updateDocumentStatus: async (id, documentType, status, educationIndex = null) => {
+    const response = await apiClient.patch(`/api/users/${id}/document-status`, {
+      documentType,
+      status,
+      educationIndex,
+    });
     return response.data;
   },
 };

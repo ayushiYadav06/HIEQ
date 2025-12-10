@@ -40,6 +40,7 @@ const UserForm = () => {
     dob: "",
     summary: "",
     aadhar: null,
+    profileImage: null,
 
     // Candidate fields
     education: [{ degree: "", university: "", year: "", degreeFile: null }],
@@ -73,6 +74,13 @@ const UserForm = () => {
     setFormData({ ...formData, aadhar: e.target.files[0] });
   };
 
+  // Profile image upload
+  const handleProfileImageChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setFormData({ ...formData, profileImage: e.target.files[0] });
+    }
+  };
+
   // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -103,6 +111,11 @@ const UserForm = () => {
       // Add aadhar file
       if (formData.aadhar) {
         submitData.append("aadhar", formData.aadhar);
+      }
+
+      // Add profile image
+      if (formData.profileImage) {
+        submitData.append("profileImage", formData.profileImage);
       }
 
       // Add education data
@@ -189,11 +202,6 @@ const UserForm = () => {
   };
 
   // ⭐⭐⭐ SUBMIT HANDLER — PRINT IN CONSOLE ⭐⭐⭐
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("📌 Final Form Data Submitted:", formData);
-  };
-
   return (
     <AdminLayout>
       <BackButton label="Back" onClick={() => navigate(-1)} />
@@ -334,7 +342,7 @@ const UserForm = () => {
 
             {/* CONTACT */}
             <Form.Group className="mb-3">
-              <Form.Label>Contact Number</Form.Label>
+              <Form.Label style={{ color: themeColors.text }}>Contact Number</Form.Label>
               <Form.Control
                 name="contact"
                 value={formData.contact}
@@ -349,6 +357,11 @@ const UserForm = () => {
                       : "Contact number must be exactly 10 digits."
                   );
                 }}
+                style={{
+                  backgroundColor: themeColors.inputBackground,
+                  color: themeColors.text,
+                  borderColor: themeColors.border,
+                }}
               />
               {contactError && (
                 <small style={{ color: "red" }}>{contactError}</small>
@@ -357,54 +370,119 @@ const UserForm = () => {
 
             {/* GENDER */}
             <Form.Group className="mb-3">
-              <Form.Label>Gender</Form.Label>
-              <Form.Select name="gender" onChange={handleChange}>
-                <option>Select Gender</option>
-                <option>Male</option>
-                <option>Female</option>
-                <option>Other</option>
+              <Form.Label style={{ color: themeColors.text }}>Gender</Form.Label>
+              <Form.Select
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                style={{
+                  backgroundColor: themeColors.inputBackground,
+                  color: themeColors.text,
+                  borderColor: themeColors.border,
+                }}
+              >
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
               </Form.Select>
             </Form.Group>
 
             {/* DOB */}
             <Form.Group className="mb-3">
-              <Form.Label>Date of Birth</Form.Label>
+              <Form.Label style={{ color: themeColors.text }}>Date of Birth</Form.Label>
               <Form.Control
                 name="dob"
                 type="date"
+                value={formData.dob}
                 onChange={handleChange}
+                style={{
+                  backgroundColor: themeColors.inputBackground,
+                  color: themeColors.text,
+                  borderColor: themeColors.border,
+                }}
               />
             </Form.Group>
 
             {/* SUMMARY */}
             <Form.Group className="mb-3">
-              <Form.Label>Profile Summary</Form.Label>
+              <Form.Label style={{ color: themeColors.text }}>Profile Summary</Form.Label>
               <Form.Control
                 name="summary"
                 as="textarea"
                 rows={3}
                 placeholder="Write summary"
+                value={formData.summary}
                 onChange={handleChange}
+                style={{
+                  backgroundColor: themeColors.inputBackground,
+                  color: themeColors.text,
+                  borderColor: themeColors.border,
+                }}
               />
+            </Form.Group>
+
+            {/* PROFILE IMAGE */}
+            <Form.Group className="mb-3">
+              <Form.Label style={{ color: themeColors.text }}>Profile Image</Form.Label>
+              <Row>
+                <Col md={6}>
+                  <Form.Control
+                    type="file"
+                    accept=".jpg,.jpeg,.png"
+                    onChange={handleProfileImageChange}
+                    style={{
+                      backgroundColor: themeColors.inputBackground,
+                      color: themeColors.text,
+                      borderColor: themeColors.border,
+                    }}
+                  />
+                  <Form.Text style={{ color: themeColors.textSecondary }}>
+                    Recommended: Square image, max 5MB (JPG, PNG)
+                  </Form.Text>
+                </Col>
+                <Col md={6}>
+                  {formData.profileImage && (
+                    <div className="text-center">
+                      <img
+                        src={URL.createObjectURL(formData.profileImage)}
+                        alt="Preview"
+                        style={{
+                          width: "100px",
+                          height: "100px",
+                          borderRadius: "50%",
+                          objectFit: "cover",
+                          border: `2px solid ${themeColors.border}`,
+                        }}
+                      />
+                    </div>
+                  )}
+                </Col>
+              </Row>
             </Form.Group>
 
             {/* AADHAR */}
             <Form.Group className="mb-3">
-              <Form.Label>Upload Aadhar</Form.Label>
+              <Form.Label style={{ color: themeColors.text }}>Upload Aadhar</Form.Label>
               <Form.Control
                 type="file"
                 accept=".jpg,.jpeg,.png,.pdf"
                 onChange={handleFileChange}
+                style={{
+                  backgroundColor: themeColors.inputBackground,
+                  color: themeColors.text,
+                  borderColor: themeColors.border,
+                }}
               />
             </Form.Group>
 
             {/* ⭐⭐⭐ CANDIDATE SECTION ⭐⭐⭐ */}
             {activeTab === "Candidate" && (
               <>
-                <h4 className="mt-4">Candidate Details</h4>
+                <h4 className="mt-4" style={{ color: themeColors.text }}>Candidate Details</h4>
 
                 {/* EDUCATION */}
-                <h5 className="mt-3">Education</h5>
+                <h5 className="mt-3" style={{ color: themeColors.text }}>Education</h5>
 
                 {formData.education.map((edu, index) => (
                   <Row key={index} className="mb-3 align-items-center">
@@ -417,6 +495,11 @@ const UserForm = () => {
                           const updated = [...formData.education];
                           updated[index].degree = e.target.value;
                           setFormData({ ...formData, education: updated });
+                        }}
+                        style={{
+                          backgroundColor: themeColors.inputBackground,
+                          color: themeColors.text,
+                          borderColor: themeColors.border,
                         }}
                       />
                     </Col>
@@ -431,6 +514,11 @@ const UserForm = () => {
                           updated[index].university = e.target.value;
                           setFormData({ ...formData, education: updated });
                         }}
+                        style={{
+                          backgroundColor: themeColors.inputBackground,
+                          color: themeColors.text,
+                          borderColor: themeColors.border,
+                        }}
                       />
                     </Col>
 
@@ -444,6 +532,11 @@ const UserForm = () => {
                           updated[index].year = e.target.value;
                           setFormData({ ...formData, education: updated });
                         }}
+                        style={{
+                          backgroundColor: themeColors.inputBackground,
+                          color: themeColors.text,
+                          borderColor: themeColors.border,
+                        }}
                       />
                     </Col>
 
@@ -456,20 +549,34 @@ const UserForm = () => {
                           updated[index].degreeFile = e.target.files[0];
                           setFormData({ ...formData, education: updated });
                         }}
+                        style={{
+                          backgroundColor: themeColors.inputBackground,
+                          color: themeColors.text,
+                          borderColor: themeColors.border,
+                        }}
                       />
-                      <small className="text-muted">
+                      <small style={{ color: themeColors.textSecondary }}>
                         Upload certificate
                       </small>
                     </Col>
                   </Row>
                 ))}
 
-                <Button variant="secondary" size="sm" onClick={addEducation}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={addEducation}
+                  style={{
+                    backgroundColor: themeColors.background,
+                    borderColor: themeColors.border,
+                    color: themeColors.text,
+                  }}
+                >
                   + Add More Education
                 </Button>
 
                 {/* EXPERIENCE */}
-                <h5 className="mt-4">Experience</h5>
+                <h5 className="mt-4" style={{ color: themeColors.text }}>Experience</h5>
 
                 {formData.experience.map((exp, index) => (
                   <Row key={index} className="mb-3">
@@ -482,6 +589,11 @@ const UserForm = () => {
                           const updated = [...formData.experience];
                           updated[index].company = e.target.value;
                           setFormData({ ...formData, experience: updated });
+                        }}
+                        style={{
+                          backgroundColor: themeColors.inputBackground,
+                          color: themeColors.text,
+                          borderColor: themeColors.border,
                         }}
                       />
                     </Col>
@@ -496,6 +608,11 @@ const UserForm = () => {
                           updated[index].role = e.target.value;
                           setFormData({ ...formData, experience: updated });
                         }}
+                        style={{
+                          backgroundColor: themeColors.inputBackground,
+                          color: themeColors.text,
+                          borderColor: themeColors.border,
+                        }}
                       />
                     </Col>
 
@@ -509,12 +626,26 @@ const UserForm = () => {
                           updated[index].years = e.target.value;
                           setFormData({ ...formData, experience: updated });
                         }}
+                        style={{
+                          backgroundColor: themeColors.inputBackground,
+                          color: themeColors.text,
+                          borderColor: themeColors.border,
+                        }}
                       />
                     </Col>
                   </Row>
                 ))}
 
-                <Button variant="secondary" size="sm" onClick={addExperience}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={addExperience}
+                  style={{
+                    backgroundColor: themeColors.background,
+                    borderColor: themeColors.border,
+                    color: themeColors.text,
+                  }}
+                >
                   + Add More Experience
                 </Button>
               </>
@@ -523,10 +654,10 @@ const UserForm = () => {
             {/* ⭐⭐⭐ EMPLOYER SECTION ⭐⭐⭐ */}
             {activeTab === "Employer" && (
               <>
-                <h4 className="mt-4">Employer Details</h4>
+                <h4 className="mt-4" style={{ color: themeColors.text }}>Employer Details</h4>
 
                 {/* SKILLS */}
-                <h5 className="mt-3">Skills Required</h5>
+                <h5 className="mt-3" style={{ color: themeColors.text }}>Skills Required</h5>
 
                 {formData.skills.map((skill, index) => (
                   <Row key={index} className="mb-3">
@@ -540,17 +671,31 @@ const UserForm = () => {
                           updated[index] = e.target.value;
                           setFormData({ ...formData, skills: updated });
                         }}
+                        style={{
+                          backgroundColor: themeColors.inputBackground,
+                          color: themeColors.text,
+                          borderColor: themeColors.border,
+                        }}
                       />
                     </Col>
                   </Row>
                 ))}
 
-                <Button variant="secondary" size="sm" onClick={addSkill}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={addSkill}
+                  style={{
+                    backgroundColor: themeColors.background,
+                    borderColor: themeColors.border,
+                    color: themeColors.text,
+                  }}
+                >
                   + Add More Skill
                 </Button>
 
                 {/* COMPANY EXPERIENCE */}
-                <h5 className="mt-4">Company Experience</h5>
+                <h5 className="mt-4" style={{ color: themeColors.text }}>Company Experience</h5>
 
                 {formData.companyExperience.map((exp, index) => (
                   <Row key={index} className="mb-3">
@@ -567,6 +712,11 @@ const UserForm = () => {
                             companyExperience: updated,
                           });
                         }}
+                        style={{
+                          backgroundColor: themeColors.inputBackground,
+                          color: themeColors.text,
+                          borderColor: themeColors.border,
+                        }}
                       />
                     </Col>
 
@@ -582,6 +732,11 @@ const UserForm = () => {
                             ...formData,
                             companyExperience: updated,
                           });
+                        }}
+                        style={{
+                          backgroundColor: themeColors.inputBackground,
+                          color: themeColors.text,
+                          borderColor: themeColors.border,
                         }}
                       />
                     </Col>
@@ -599,6 +754,11 @@ const UserForm = () => {
                             companyExperience: updated,
                           });
                         }}
+                        style={{
+                          backgroundColor: themeColors.inputBackground,
+                          color: themeColors.text,
+                          borderColor: themeColors.border,
+                        }}
                       />
                     </Col>
                   </Row>
@@ -608,6 +768,11 @@ const UserForm = () => {
                   variant="secondary"
                   size="sm"
                   onClick={addCompanyExperience}
+                  style={{
+                    backgroundColor: themeColors.background,
+                    borderColor: themeColors.border,
+                    color: themeColors.text,
+                  }}
                 >
                   + Add Company Experience
                 </Button>

@@ -2,7 +2,7 @@ import React from "react";
 import UploadBox from "./UploadBox.jsx";
 import "./UploadModal.css";
 
-const UploadModal = ({ open, onClose, file, setFile, onUpload }) => {
+const UploadModal = ({ open, onClose, file, setFile, files, setFiles, onUpload, isProcessing = false, allowMultiple = false }) => {
   if (!open) return null;
 
   return (
@@ -11,8 +11,12 @@ const UploadModal = ({ open, onClose, file, setFile, onUpload }) => {
         <UploadBox
           file={file}
           setFile={setFile}
+          files={files}
+          setFiles={setFiles}
           onCancel={onClose}
           onUpload={onUpload}
+          isProcessing={isProcessing}
+          allowMultiple={allowMultiple}
         />
       </div>
     </div>

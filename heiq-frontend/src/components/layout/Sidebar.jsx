@@ -30,13 +30,8 @@ const menuItems = [
   },
   {
     icon: FaClipboardList,
-    label: "Assessment",
-    path: "/admin/assessment",
-  },
-  {
-    icon: FaUsers,
     label: "List Management",
-    path: "/",
+    path: "/admin/assessment",
   },
   {
     icon: MdReportProblem,

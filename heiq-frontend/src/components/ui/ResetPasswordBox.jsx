@@ -1,7 +1,7 @@
 import React from "react";
 import { Row, Col, Button } from "react-bootstrap";
 
-const ResetPasswordBox = ({ onResetPassword }) => {
+const ResetPasswordBox = ({ onResetPassword, isProcessing = false }) => {
   return (
     <div className="p-4 bg-white rounded shadow-sm mb-4 border">
 
@@ -12,8 +12,12 @@ const ResetPasswordBox = ({ onResetPassword }) => {
 
       <Row>
         <Col className="text-end">
-          <Button variant="secondary" onClick={onResetPassword}>
-            Send reset password link
+          <Button
+            variant="secondary"
+            onClick={onResetPassword}
+            disabled={isProcessing}
+          >
+            {isProcessing ? "Sending..." : "Send reset password link"}
           </Button>
         </Col>
       </Row>

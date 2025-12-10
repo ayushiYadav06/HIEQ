@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { colors } from "../../theme/colors";
 
-const AssessmentForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
+const ListManagementForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
   const { isDark } = useTheme();
   const themeColors = isDark ? colors.dark : colors.light;
   const [formData, setFormData] = useState({
@@ -170,4 +170,5 @@ const AssessmentForm = ({ isOpen, onClose, onSubmit, initialData = null }) => {
   );
 };
 
-export default AssessmentForm;
+export default ListManagementForm;
+

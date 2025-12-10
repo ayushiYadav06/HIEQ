@@ -6,7 +6,6 @@ import Login from "./pages/Login.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Dashboard from "./pages/Admin/Dashboard.jsx";
 import AdminDash from "./pages/Admin/AdminDash.jsx";
-import UserProfile from "./pages/Admin/UserProfile.jsx";
 import AccountSetting from "./pages/Admin/AccountSetting.jsx";
 import VerifyDoc from "./pages/Admin/VerifyDoc.jsx";
 import Candidates from "./pages/Admin/Candidates.jsx";
@@ -17,7 +16,8 @@ import JobPrepReq from "./pages/Admin/JobPrepReq.jsx";
 import UserForm from "./pages/Admin/UserForm";
 import Settings from "./pages/Admin/Settings";
 
-import AssessmentList from "./pages/Admin/Assessment_module/AssessmentList.jsx";
+import ListManagement from "./pages/Admin/ListManagement_module/ListManagement.jsx";
+import UserProfile from "./pages/Admin/userProfile.jsx";
 
 // Public route wrapper (redirects to dashboard if already logged in)
 const PublicRoute = ({ children }) => {
@@ -47,14 +47,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <UserProfile />
-            </ProtectedRoute>
-          }
-        />
+        
         <Route
           path="/profile/:userId"
           element={
@@ -63,16 +56,18 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+       
         <Route
-          path="/Account-Setting"
+          path="/Account-Setting/:userId"
           element={
             <ProtectedRoute>
               <AccountSetting />
             </ProtectedRoute>
           }
         />
+      
         <Route
-          path="/Verify-Documents"
+          path="/Verify-Documents/:userId"
           element={
             <ProtectedRoute>
               <VerifyDoc />
@@ -131,7 +126,7 @@ const App = () => {
           path="/admin/assessment"
           element={
             <ProtectedRoute>
-              <AssessmentList />
+              <ListManagement />
             </ProtectedRoute>
           }
         />

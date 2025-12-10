@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const AssessmentSchema = new Schema(
+const ListManagementSchema = new Schema(
   {
     name: { type: String, required: true, trim: true },
     status: { type: Boolean, default: true },
@@ -18,8 +18,8 @@ const AssessmentSchema = new Schema(
 );
 
 // Compound index for type and name to ensure uniqueness per type
-AssessmentSchema.index({ type: 1, name: 1 }, { unique: true });
+ListManagementSchema.index({ type: 1, name: 1 }, { unique: true });
 
 module.exports =
-  mongoose.models.Assessment || mongoose.model("Assessment", AssessmentSchema);
+  mongoose.models.ListManagement || mongoose.model("ListManagement", ListManagementSchema);
 

@@ -1,6 +1,6 @@
-const Assessment = require("../models/Assessment");
+const ListManagement = require("../models/ListManagement");
 
-// GET /api/admin/assessment/:type
+// GET /api/admin/listmanagement/:type
 // Get all items by type (Skills, College, Jobs, Industries)
 exports.getByType = async (req, res) => {
   try {
@@ -22,7 +22,7 @@ exports.getByType = async (req, res) => {
       filter.status = status === "true" || status === "active";
     }
 
-    const items = await Assessment.find(filter)
+    const items = await ListManagement.find(filter)
       .sort({ createdAt: -1 })
       .lean();
 
@@ -33,7 +33,7 @@ exports.getByType = async (req, res) => {
   }
 };
 
-// GET /api/admin/assessment/:type/:id
+// GET /api/admin/listmanagement/:type/:id
 // Get single item by ID
 exports.getById = async (req, res) => {
   try {
@@ -44,7 +44,7 @@ exports.getById = async (req, res) => {
       return res.status(400).json({ message: "Invalid type" });
     }
 
-    const item = await Assessment.findOne({ _id: id, type }).lean();
+    const item = await ListManagement.findOne({ _id: id, type }).lean();
 
     if (!item) {
       return res.status(404).json({ message: "Item not found" });
@@ -60,7 +60,7 @@ exports.getById = async (req, res) => {
   }
 };
 
-// POST /api/admin/assessment/:type
+// POST /api/admin/listmanagement/:type
 // Create new item
 exports.create = async (req, res) => {
   try {
@@ -76,7 +76,7 @@ exports.create = async (req, res) => {
       return res.status(400).json({ message: "Name is required" });
     }
 
-    const item = new Assessment({
+    const item = new ListManagement({
       name: name.trim(),
       status: status !== undefined ? status : true,
       type,
@@ -96,7 +96,7 @@ exports.create = async (req, res) => {
   }
 };
 
-// PATCH /api/admin/assessment/:type/:id
+// PATCH /api/admin/listmanagement/:type/:id
 // Update item
 exports.update = async (req, res) => {
   try {
@@ -120,7 +120,7 @@ exports.update = async (req, res) => {
     }
     updateData.updatedAt = new Date();
 
-    const item = await Assessment.findOneAndUpdate(
+    const item = await ListManagement.findOneAndUpdate(
       { _id: id, type },
       updateData,
       { new: true, runValidators: true }
@@ -145,7 +145,7 @@ exports.update = async (req, res) => {
   }
 };
 
-// DELETE /api/admin/assessment/:type/:id
+// DELETE /api/admin/listmanagement/:type/:id
 // Delete item
 exports.delete = async (req, res) => {
   try {
@@ -156,7 +156,7 @@ exports.delete = async (req, res) => {
       return res.status(400).json({ message: "Invalid type" });
     }
 
-    const item = await Assessment.findOneAndDelete({ _id: id, type });
+    const item = await ListManagement.findOneAndDelete({ _id: id, type });
 
     if (!item) {
       return res.status(404).json({ message: "Item not found" });
@@ -172,7 +172,7 @@ exports.delete = async (req, res) => {
   }
 };
 
-// PATCH /api/admin/assessment/:type/:id/status
+// PATCH /api/admin/listmanagement/:type/:id/status
 // Toggle status
 exports.toggleStatus = async (req, res) => {
   try {
@@ -188,7 +188,7 @@ exports.toggleStatus = async (req, res) => {
       return res.status(400).json({ message: "Status is required" });
     }
 
-    const item = await Assessment.findOneAndUpdate(
+    const item = await ListManagement.findOneAndUpdate(
       { _id: id, type },
       { status, updatedAt: new Date() },
       { new: true }

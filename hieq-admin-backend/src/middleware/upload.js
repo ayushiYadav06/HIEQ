@@ -60,7 +60,7 @@ const upload = multer({
 
 // Middleware for user form uploads (multiple files)
 const uploadUserFiles = upload.fields([
-  { name: 'aadhar', maxCount: 1 },
+  { name: 'aadhar', maxCount: 10 }, // Allow multiple aadhar files
   { name: 'degreeFile', maxCount: 10 }, // Multiple education certificates
   { name: 'profileImage', maxCount: 1 }
 ]);

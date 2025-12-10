@@ -188,6 +188,12 @@ const UserForm = () => {
     });
   };
 
+  // ⭐⭐⭐ SUBMIT HANDLER — PRINT IN CONSOLE ⭐⭐⭐
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("📌 Final Form Data Submitted:", formData);
+  };
+
   return (
     <AdminLayout>
       <BackButton label="Back" onClick={() => navigate(-1)} />
@@ -392,10 +398,7 @@ const UserForm = () => {
               />
             </Form.Group>
 
-            {/* ======================================================== */}
             {/* ⭐⭐⭐ CANDIDATE SECTION ⭐⭐⭐ */}
-            {/* ======================================================== */}
-
             {activeTab === "Candidate" && (
               <>
                 <h4 className="mt-4">Candidate Details</h4>
@@ -517,10 +520,7 @@ const UserForm = () => {
               </>
             )}
 
-            {/* ======================================================== */}
             {/* ⭐⭐⭐ EMPLOYER SECTION ⭐⭐⭐ */}
-            {/* ======================================================== */}
-
             {activeTab === "Employer" && (
               <>
                 <h4 className="mt-4">Employer Details</h4>

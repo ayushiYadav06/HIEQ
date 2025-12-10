@@ -140,6 +140,12 @@ export const userAPI = {
     return response.data;
   },
 
+   // POST /api/users/bulk - Bulk create users from CSV
+  bulkCreate: async (users) => {
+    const response = await apiClient.post('/api/users/bulk', { users });
+    return response.data;
+  },
+
   // UPDATE user (with file uploads)
   update: async (id, formData) => {
     const response = await apiClient.patch(`/api/users/${id}`, formData, {

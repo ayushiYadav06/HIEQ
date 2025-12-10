@@ -19,12 +19,41 @@ const UserSchema = new Schema(
         "SUPPORT_ADMIN",
         "EMPLOYER",
         "STUDENT",
+        "JOB_SEEKER",
       ],
       default: "STUDENT",
       index: true,
     },
+    permissions: [{
+      type: String,
+      trim: true
+    }],
     phone: String,
+    contact: String,
+    gender: String,
+    dob: Date,
+    summary: String,
+    aadharFile: String, // File path
     profile: Schema.Types.Mixed,
+    // Candidate/Job Seeker fields
+    education: [{
+      degree: String,
+      university: String,
+      year: String,
+      degreeFile: String // File path
+    }],
+    experience: [{
+      company: String,
+      role: String,
+      years: String
+    }],
+    // Employer fields
+    skills: [String],
+    companyExperience: [{
+      company: String,
+      role: String,
+      years: String
+    }],
     refreshTokens: [{ token: String, createdAt: Date }],
     createdAt: { type: Date, default: Date.now },
     updatedAt: Date,

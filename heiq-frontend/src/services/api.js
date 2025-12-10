@@ -116,6 +116,121 @@ export const assessmentAPI = {
   },
 };
 
+// User API
+export const userAPI = {
+  // GET all users
+  getAll: async (params = {}) => {
+    const response = await apiClient.get('/api/users', { params });
+    return response.data;
+  },
+
+  // GET user by ID
+  getById: async (id) => {
+    const response = await apiClient.get(`/api/users/${id}`);
+    return response.data;
+  },
+
+  // CREATE user (with file uploads)
+  create: async (formData) => {
+    const response = await apiClient.post('/api/users', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  // UPDATE user (with file uploads)
+  update: async (id, formData) => {
+    const response = await apiClient.patch(`/api/users/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  // DELETE user (soft delete)
+  delete: async (id) => {
+    const response = await apiClient.delete(`/api/users/${id}`);
+    return response.data;
+  },
+
+  // Hard delete
+  hardDelete: async (id) => {
+    const response = await apiClient.delete(`/api/users/${id}/hard`);
+    return response.data;
+  },
+
+  // Update role
+  updateRole: async (id, role) => {
+    const response = await apiClient.patch(`/api/users/${id}/role`, { role });
+    return response.data;
+  },
+
+  // Block user
+  block: async (id) => {
+    const response = await apiClient.patch(`/api/users/${id}/block`);
+    return response.data;
+  },
+
+  // Unblock user
+  unblock: async (id) => {
+    const response = await apiClient.patch(`/api/users/${id}/unblock`);
+    return response.data;
+  },
+};
+
+// Role and Permission API
+export const roleAPI = {
+  // Roles
+  getAllRoles: async () => {
+    const response = await apiClient.get('/api/admin/roles');
+    return response.data;
+  },
+
+  getRoleById: async (id) => {
+    const response = await apiClient.get(`/api/admin/roles/${id}`);
+    return response.data;
+  },
+
+  createRole: async (data) => {
+    const response = await apiClient.post('/api/admin/roles', data);
+    return response.data;
+  },
+
+  updateRole: async (id, data) => {
+    const response = await apiClient.patch(`/api/admin/roles/${id}`, data);
+    return response.data;
+  },
+
+  deleteRole: async (id) => {
+    const response = await apiClient.delete(`/api/admin/roles/${id}`);
+    return response.data;
+  },
+
+  // Permissions
+  getAllPermissions: async () => {
+    const response = await apiClient.get('/api/admin/roles/permissions/all');
+    return response.data;
+  },
+
+  createPermission: async (data) => {
+    const response = await apiClient.post('/api/admin/roles/permissions', data);
+    return response.data;
+  },
+
+  updatePermission: async (id, data) => {
+    const response = await apiClient.patch(`/api/admin/roles/permissions/${id}`, data);
+    return response.data;
+  },
+
+  deletePermission: async (id) => {
+    const response = await apiClient.delete(`/api/admin/roles/permissions/${id}`);
+    return response.data;
+  },
+};
+
 // Generic API call function for future use
 export const apiCall = async (method, endpoint, data = null, config = {}) => {
   try {

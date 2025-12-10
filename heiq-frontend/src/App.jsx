@@ -15,6 +15,7 @@ import CmpyDeactivate from "./pages/Admin/CmpyDeactivate.jsx";
 import CmpyActivate from "./pages/Admin/CmpyActivate.jsx";
 import JobPrepReq from "./pages/Admin/JobPrepReq.jsx";
 import UserForm from "./pages/Admin/UserForm";
+import Settings from "./pages/Admin/Settings";
 
 import AssessmentList from "./pages/Admin/Assessment_module/AssessmentList.jsx";
 
@@ -48,6 +49,14 @@ const App = () => {
         />
         <Route
           path="/profile"
+          element={
+            <ProtectedRoute>
+              <UserProfile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile/:userId"
           element={
             <ProtectedRoute>
               <UserProfile />
@@ -118,12 +127,27 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-        <Route path="/create-user" element={<UserForm />} />
         <Route
           path="/admin/assessment"
           element={
             <ProtectedRoute>
               <AssessmentList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/Account-Seing"
+          element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/create-user"
+          element={
+            <ProtectedRoute>
+              <UserForm />
             </ProtectedRoute>
           }
         />

@@ -1,38 +1,40 @@
 // pages/Admin/UserForm.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Form,
   Button,
   Row,
   Col,
   Card,
-  Container,
   InputGroup,
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-
-import TopNavbar from "../../components/layout/TopNavbar";
-import Sidebar from "../../components/layout/Sidebar";
+import { useTheme } from "../../contexts/ThemeContext";
+import { colors } from "../../theme/colors";
+import AdminLayout from "../../components/layout/AdminLayout";
 import BackButton from "../../components/layout/BackButton";
-
-// ⭐ IMPORT YOUR CUSTOM TABS
 import Tabs from "../../components/ui/Tabs";
+import { userAPI, roleAPI } from "../../services/api";
 
 const UserForm = () => {
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
+  const { isDark } = useTheme();
+  const themeColors = isDark ? colors.dark : colors.light;
   const [showPassword, setShowPassword] = useState(false);
   const [contactError, setContactError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [roles, setRoles] = useState([]);
+  const [error, setError] = useState("");
 
   // ⭐ ACTIVE TAB STATE
   const [activeTab, setActiveTab] = useState("Candidate");
 
   // ⭐ FORM STATE
   const [formData, setFormData] = useState({
-    fullName: "",
+    name: "",
     email: "",
     password: "",
+    role: "STUDENT",
     contact: "",
     gender: "",
     dob: "",
@@ -48,6 +50,19 @@ const UserForm = () => {
     companyExperience: [{ company: "", role: "", years: "" }],
   });
 
+  // Fetch roles
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const data = await roleAPI.getAllRoles();
+        setRoles(data);
+      } catch (error) {
+        console.error("Failed to fetch roles:", error);
+      }
+    };
+    fetchRoles();
+  }, []);
+
   // Basic update
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -56,6 +71,80 @@ const UserForm = () => {
   // Aadhar upload
   const handleFileChange = (e) => {
     setFormData({ ...formData, aadhar: e.target.files[0] });
+  };
+
+  // Handle form submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setIsSubmitting(true);
+
+    try {
+      // Validate required fields
+      if (!formData.name || !formData.email || !formData.password || !formData.role) {
+        setError("Please fill in all required fields");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Create FormData for file uploads
+      const submitData = new FormData();
+      
+      // Add basic fields
+      submitData.append("name", formData.name);
+      submitData.append("email", formData.email);
+      submitData.append("password", formData.password);
+      submitData.append("role", formData.role);
+      submitData.append("contact", formData.contact || "");
+      submitData.append("gender", formData.gender || "");
+      submitData.append("dob", formData.dob || "");
+      submitData.append("summary", formData.summary || "");
+
+      // Add aadhar file
+      if (formData.aadhar) {
+        submitData.append("aadhar", formData.aadhar);
+      }
+
+      // Add education data
+      if (activeTab === "Candidate" && formData.education) {
+        let fileIndex = 0;
+        formData.education.forEach((edu, index) => {
+          submitData.append(`education[${index}][degree]`, edu.degree || "");
+          submitData.append(`education[${index}][university]`, edu.university || "");
+          submitData.append(`education[${index}][year]`, edu.year || "");
+          if (edu.degreeFile) {
+            submitData.append("degreeFile", edu.degreeFile);
+            fileIndex++;
+          }
+        });
+      }
+
+      // Add experience data
+      if (activeTab === "Candidate" && formData.experience) {
+        submitData.append("experience", JSON.stringify(formData.experience));
+      }
+
+      // Add skills
+      if (activeTab === "Employer" && formData.skills) {
+        submitData.append("skills", JSON.stringify(formData.skills.filter(s => s.trim() !== "")));
+      }
+
+      // Add company experience
+      if (activeTab === "Employer" && formData.companyExperience) {
+        submitData.append("companyExperience", JSON.stringify(formData.companyExperience));
+      }
+
+      // Submit to API
+      await userAPI.create(submitData);
+      
+      alert("User created successfully!");
+      navigate("/admin/candidates");
+    } catch (error) {
+      console.error("Failed to create user:", error);
+      setError(error.response?.data?.message || "Failed to create user. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Candidate: add education
@@ -100,31 +189,34 @@ const UserForm = () => {
   };
 
   return (
-    <>
-      {/* SIDEBAR */}
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+    <AdminLayout>
+      <BackButton label="Back" onClick={() => navigate(-1)} />
 
-      {/* NAVBAR */}
-      <TopNavbar onMenuClick={() => setSidebarOpen(true)} />
-
-      {/* BACK BUTTON */}
-      <Container fluid className="px-0 mt-4">
-        <BackButton label="Back" onClick={() => navigate(-1)} />
-      </Container>
-
-      {/* PAGE CONTENT AREA */}
-      <div
-        style={{
-          paddingLeft: "215px",
-          paddingRight: "20px",
-          marginTop: "20px",
-        }}
-      >
+      <div className="mt-4">
         <Card
           className="p-4 shadow-lg"
-          style={{ maxWidth: "1200px", margin: "0 auto" }}
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            backgroundColor: themeColors.surface,
+            borderColor: themeColors.border,
+          }}
         >
-          <h3 className="mb-4 text-center">Create New User</h3>
+          <h3
+            className="mb-4 text-center"
+            style={{ color: themeColors.text }}
+          >
+            Create New User
+          </h3>
+
+          {error && (
+            <div
+              className="alert alert-danger"
+              style={{ marginBottom: "20px" }}
+            >
+              {error}
+            </div>
+          )}
 
           {/* ============================================= */}
           {/* ⭐⭐⭐ TABS AT THE TOP ⭐⭐⭐ */}
@@ -139,43 +231,94 @@ const UserForm = () => {
           {/* ⭐ BASIC FIELDS (VISIBLE FOR BOTH TABS) ⭐ */}
           {/* ============================================= */}
 
-          <Form>
-            <h5 className="mt-4">Basic Information</h5>
+          <Form onSubmit={handleSubmit}>
+            <h5 className="mt-4" style={{ color: themeColors.text }}>Basic Information</h5>
 
             {/* FULL NAME */}
             <Form.Group className="mb-3">
-              <Form.Label>Full Name</Form.Label>
+              <Form.Label style={{ color: themeColors.text }}>Full Name *</Form.Label>
               <Form.Control
-                name="fullName"
+                name="name"
                 type="text"
                 placeholder="Enter full name"
+                value={formData.name}
                 onChange={handleChange}
+                required
+                style={{
+                  backgroundColor: themeColors.inputBackground,
+                  color: themeColors.text,
+                  borderColor: themeColors.border,
+                }}
               />
+            </Form.Group>
+
+            {/* ROLE */}
+            <Form.Group className="mb-3">
+              <Form.Label style={{ color: themeColors.text }}>Role *</Form.Label>
+              <Form.Select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                required
+                style={{
+                  backgroundColor: themeColors.inputBackground,
+                  color: themeColors.text,
+                  borderColor: themeColors.border,
+                }}
+              >
+                <option value="STUDENT">Job Seeker (Student)</option>
+                <option value="EMPLOYER">Employer</option>
+                <option value="ADMIN">Admin</option>
+                {roles.map((role) => (
+                  <option key={role._id} value={role.name}>
+                    {role.displayName}
+                  </option>
+                ))}
+              </Form.Select>
             </Form.Group>
 
             {/* EMAIL */}
             <Form.Group className="mb-3">
-              <Form.Label>Email Address</Form.Label>
+              <Form.Label style={{ color: themeColors.text }}>Email Address *</Form.Label>
               <Form.Control
                 name="email"
                 type="email"
                 placeholder="Enter email"
+                value={formData.email}
                 onChange={handleChange}
+                required
+                style={{
+                  backgroundColor: themeColors.inputBackground,
+                  color: themeColors.text,
+                  borderColor: themeColors.border,
+                }}
               />
             </Form.Group>
 
             {/* PASSWORD */}
             <Form.Group className="mb-3">
-              <Form.Label>Password</Form.Label>
+              <Form.Label style={{ color: themeColors.text }}>Password *</Form.Label>
               <InputGroup>
                 <Form.Control
                   name="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter password"
+                  value={formData.password}
                   onChange={handleChange}
+                  required
+                  style={{
+                    backgroundColor: themeColors.inputBackground,
+                    color: themeColors.text,
+                    borderColor: themeColors.border,
+                  }}
                 />
                 <InputGroup.Text
-                  style={{ cursor: "pointer" }}
+                  style={{
+                    cursor: "pointer",
+                    backgroundColor: themeColors.inputBackground,
+                    borderColor: themeColors.border,
+                    color: themeColors.text,
+                  }}
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? "🙈" : "👁️"}
@@ -473,14 +616,24 @@ const UserForm = () => {
 
             {/* SUBMIT */}
             <div className="text-center mt-4">
-              <Button variant="primary" type="submit">
-                Submit Form
+              <Button
+                variant="primary"
+                type="submit"
+                disabled={isSubmitting}
+                style={{
+                  backgroundColor: colors.primaryGreen,
+                  borderColor: colors.primaryGreen,
+                  color: "#ffffff",
+                  minWidth: "150px",
+                }}
+              >
+                {isSubmitting ? "Creating..." : "Create User"}
               </Button>
             </div>
           </Form>
         </Card>
       </div>
-    </>
+    </AdminLayout>
   );
 };
 

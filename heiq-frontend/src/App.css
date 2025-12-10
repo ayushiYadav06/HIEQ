@@ -1,13 +1,17 @@
-/* Remove layout restrictions from Vite starter */
+/* ============================
+   Root Layout Fix (Vite)
+============================ */
 #root {
   width: 100%;
   height: 100%;
   margin: 0;
-  padding: 0; /* Bootstrap will handle spacing */
+  padding: 0; /* Bootstrap handles spacing */
   text-align: left; /* Prevents forced centering */
 }
 
-/* Keep logo animation support */
+/* ============================
+   Logo Styles
+============================ */
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -23,6 +27,7 @@
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
+/* Logo Spin Animation */
 @keyframes logo-spin {
   from {
     transform: rotate(0deg);
@@ -38,7 +43,9 @@
   }
 }
 
-/* Optional card class */
+/* ============================
+   Card
+============================ */
 .card {
   padding: 1.5rem;
 }
@@ -46,4 +53,31 @@
 /* Docs link */
 .read-the-docs {
   color: #888;
+}
+
+/* ============================
+   Reusable Create Button
+============================ */
+.create-btn {
+  background-color: #00c853;  /* Green */
+  color: #fff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.create-btn:hover {
+  background-color: #00b248; 
+
+.plus {
+  font-size: 20px;
+  font-weight: 700;
+  margin-top: -2px;
 }

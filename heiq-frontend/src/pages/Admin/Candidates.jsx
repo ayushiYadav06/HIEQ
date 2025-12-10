@@ -1,5 +1,7 @@
+// pages/Admin/Candidates.jsx
 import React, { useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 import TopNavbar from "../../components/layout/TopNavbar";
 import Sidebar from "../../components/layout/Sidebar";
@@ -15,8 +17,9 @@ import DataTable from "../../components/ui/DataTable";
 const Candidates = () => {
   const [activeTab, setActiveTab] = useState("Candidates");
   const [filterBy, setFilterBy] = useState("Email ID");
-
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   const columns = [
     "Name",
@@ -29,7 +32,7 @@ const Candidates = () => {
 
   const candidateData = [
     {
-      Name: "S. NO. Aman Garg",
+      Name: "Aman Garg",
       "Email ID": "aman@gmail.com",
       Phone: "1234567890",
       "Verification Status": <span style={{ color: "green" }}>Verified</span>,
@@ -44,38 +47,6 @@ const Candidates = () => {
       "Account Status": "Active",
       "Registered on": "20-12-2022",
     },
-    {
-      Name: "Abhya Ram",
-      "Email ID": "abhay@gmail.com",
-      Phone: "1234567890",
-      "Verification Status": <span style={{ color: "red" }}>Unverified</span>,
-      "Account Status": "Deactivated",
-      "Registered on": "16-12-2022",
-    },
-    {
-      Name: "Irfan Khan",
-      "Email ID": "irfan@gmail.com",
-      Phone: "1234567890",
-      "Verification Status": <span style={{ color: "green" }}>Verified</span>,
-      "Account Status": "Active",
-      "Registered on": "15-12-2022",
-    },
-    {
-      Name: "Vibha",
-      "Email ID": "vibha@gmail.com",
-      Phone: "1234567890",
-      "Verification Status": <span style={{ color: "red" }}>Unverified</span>,
-      "Account Status": "Deactivated",
-      "Registered on": "14-12-2022",
-    },
-    {
-      Name: "Utkarsh Rawat",
-      "Email ID": "utkarsh@gmail.com",
-      Phone: "1234567890",
-      "Verification Status": <span style={{ color: "green" }}>Verified</span>,
-      "Account Status": "Active",
-      "Registered on": "14-12-2022",
-    },
   ];
 
   const employerData = [];
@@ -83,37 +54,50 @@ const Candidates = () => {
 
   return (
     <>
-      {/* SIDEBAR */}
+      {/* Sidebar */}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      {/* TOP NAVBAR */}
+      {/* Top Navbar */}
       <TopNavbar onMenuClick={() => setSidebarOpen(true)} />
 
-      {/* BACK BUTTON (NOT SHIFTED) */}
+      {/* Back Button */}
       <Container fluid className="mt-4 px-1">
-        <div
-          style={{
-            marginTop: "1rem",
-            display: "flex",
-            justifyContent: "flex-start",
-          }}
-        >
+        <div style={{ display: "flex", justifyContent: "flex-start" }}>
           <BackButton label="Back" />
         </div>
       </Container>
 
-      {/* MAIN CONTENT—SHIFTED AFTER SIDEBAR */}
-      <div
-        style={{
-          paddingLeft: "215px", // ⭐ start exactly after sidebar
-          paddingRight: "20px",
-          marginTop: "20px",
-        }}
-      >
-        {/* TITLE */}
-        <PageTitle title="Users List" />
+      {/* Main Content */}
+      <div style={{ paddingLeft: "215px", paddingRight: "20px", marginTop: "20px" }}>
+        
+        {/* Title + Create Button */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "1.5rem",
+          }}
+        >
+          <PageTitle title="Users List" />
 
-        {/* TABS */}
+          <button
+            className="create-btn"
+            onClick={() => navigate("/create-user")}
+            style={{
+              background: "#007bff",
+              color: "#fff",
+              border: "none",
+              padding: "10px 15px",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            <span className="plus">+</span> Create User
+          </button>
+        </div>
+
+        {/* Tabs */}
         <div className="mb-4">
           <Tabs
             tabs={["Candidates", "Employers"]}
@@ -123,7 +107,7 @@ const Candidates = () => {
           />
         </div>
 
-        {/* FILTER BAR */}
+        {/* Filter Bar */}
         <Row className="g-3 align-items-center mb-4">
           <Col xs={12} md={6} lg={2}>
             <ExportButton />
@@ -142,7 +126,7 @@ const Candidates = () => {
           </Col>
         </Row>
 
-        {/* TABLE */}
+        {/* Table */}
         <DataTable
           columns={columns}
           rows={rows}

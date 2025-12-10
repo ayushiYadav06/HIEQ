@@ -11,8 +11,8 @@ import {
   FaUsers,
 } from "react-icons/fa";
 import { FiSearch } from "react-icons/fi";
-import { MdReportProblem } from "react-icons/md"; 
-import { FaUserShield, FaUserCheck } from "react-icons/fa"; 
+import { MdReportProblem } from "react-icons/md";
+import { FaUserShield, FaUserCheck } from "react-icons/fa";
 import { MdOutlineRequestPage } from "react-icons/md";
 
 const NAVBAR_HEIGHT = 70;
@@ -29,7 +29,9 @@ const Sidebar = ({ isOpen, onClose }) => {
     <>
       {/* ⭐ MOBILE SIDEBAR */}
       <div
-        className={`offcanvas offcanvas-start d-md-none ${isOpen ? "show" : ""}`}
+        className={`offcanvas offcanvas-start d-md-none ${
+          isOpen ? "show" : ""
+        }`}
         tabIndex="-1"
         style={{ width: "200px" }}
       >
@@ -77,35 +79,34 @@ const SidebarMenu = ({ onNavigate }) => (
       onClick={() => onNavigate("/admin/candidates")}
     />
 
-
     <SidebarItem
       icon={<MdOutlineRequestPage />}
       label="Job Prep Requests"
-      onClick={() => onNavigate("/admin/job-prep-requests")}
+      onClick={() => onNavigate("/job-prep-requests")}
     />
 
     <SidebarItem
       icon={<FaUsers />}
       label="Candidates"
-      onClick={() => onNavigate("/admin/dash")}
+      onClick={() => onNavigate("/profile")}
     />
 
     <SidebarItem
       icon={<MdReportProblem />}
       label="Reported Opportunities"
-      onClick={() => onNavigate("/admin/reported-opportunities")}
+      onClick={() => onNavigate("/reported-opportunities")}
     />
 
     <SidebarItem
       icon={<FaUserShield />}
       label="Company Deactivate"
-      onClick={() => onNavigate("/admin/company-deactivate")}
+      onClick={() => onNavigate("/company-deactivate")}
     />
 
     <SidebarItem
       icon={<FaUserCheck />}
       label="Company Activate"
-      onClick={() => onNavigate("/admin/company-activate")}
+      onClick={() => onNavigate("/company/activate")}
     />
 
     <SidebarItem

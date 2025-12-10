@@ -76,21 +76,45 @@ const UserProfile = () => {
 
   // Tab Navigation
   const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    if (tab === "Account Settings") navigate("/Account-Setting");
-    if (tab === "Verify Documents") navigate("/Verify-Documents");
+    // Use userId from params first, then user._id, then user.id
+    const targetUserId = userId || user?._id || user?.id;
+    
+    // If no userId available, don't navigate
+    if (!targetUserId) {
+      alert("User ID not available. Please refresh the page.");
+      return;
+    }
+    
+    // Navigate based on tab selection
+    if (tab === "Account Settings") {
+      navigate(`/Account-Setting/${targetUserId}`);
+      return;
+    }
+    if (tab === "Verify Documents") {
+      navigate(`/Verify-Documents/${targetUserId}`);
+      return;
+    }
+    
+    // For "Profile" tab, just update active tab state (already on profile page)
+    if (tab === "Profile") {
+      setActiveTab(tab);
+    }
   };
 
-  // Get profile image URL
+  // Get profile image URL with cache-busting to show updated images
   const getProfileImageUrl = () => {
     if (user?.profileImage) {
       const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
-      // Handle path - remove 'uploads/' prefix if present since we're already serving from /uploads
+      // Path is stored as 'profile/profileImage-123.jpg' relative to uploads folder
       let imagePath = user.profileImage;
+      // Remove 'uploads/' prefix if present (shouldn't be, but handle it)
       if (imagePath.startsWith('uploads/')) {
         imagePath = imagePath.replace('uploads/', '');
       }
-      return `${baseUrl}/uploads/${imagePath}`;
+      // Add cache-busting query parameter using updatedAt timestamp to force browser reload
+      const cacheBuster = user.updatedAt ? new Date(user.updatedAt).getTime() : Date.now();
+      const imageUrl = `${baseUrl}/uploads/${imagePath}?t=${cacheBuster}`;
+      return imageUrl;
     }
     return UserImage;
   };
@@ -104,11 +128,17 @@ const UserProfile = () => {
       const formData = new FormData();
       formData.append("profileImage", file);
 
-      await userAPI.update(user._id, formData);
+      const response = await userAPI.update(user._id, formData);
       
-      // Refresh user data
+      // Refresh user data to get updated image path
       const updatedUser = await userAPI.getById(user._id);
-      setUser(updatedUser);
+      
+      // Force state update to trigger re-render with new image
+      setUser({
+        ...updatedUser,
+        updatedAt: new Date().toISOString() // Update timestamp to change cache-buster
+      });
+      
       alert("Profile image updated successfully!");
     } catch (error) {
       console.error("Failed to upload profile image:", error);
@@ -335,7 +365,7 @@ const UserProfile = () => {
                       <td style={{ color: themeColors.text }}>
                         {edu.degreeFile ? (
                           <a
-                            href={`${import.meta.env.VITE_API_BASE_URL || "http://localhost:4000"}/uploads/${edu.degreeFile.startsWith('uploads/') ? edu.degreeFile.replace('uploads/', '') : edu.degreeFile}`}
+                            href={`${import.meta.env.VITE_API_BASE_URL || "http://localhost:4000"}/uploads/${edu.degreeFile}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             style={{ color: colors.primaryGreen }}
@@ -497,7 +527,7 @@ const UserProfile = () => {
             <Card.Body>
               <p style={{ color: themeColors.textSecondary }}>Aadhar Document:</p>
               <a
-                href={`${import.meta.env.VITE_API_BASE_URL || "http://localhost:4000"}/uploads/${user.aadharFile.startsWith('uploads/') ? user.aadharFile.replace('uploads/', '') : user.aadharFile}`}
+                href={`${import.meta.env.VITE_API_BASE_URL || "http://localhost:4000"}/uploads/${user.aadharFile}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: colors.primaryGreen }}

@@ -14,4 +14,7 @@ router.patch('/:id/unblock', auth.verifyToken, auth.requireRole('SUPER_ADMIN', '
 
 router.delete('/:id', auth.verifyToken, auth.requireRole('SUPER_ADMIN'), userController.softDeleteUser);
 
+// Bulk create users from CSV
+router.post('/bulk', auth.verifyToken, auth.requireRole('SUPER_ADMIN', 'ADMIN'), userController.bulkCreateUsers);
+
 module.exports = router;

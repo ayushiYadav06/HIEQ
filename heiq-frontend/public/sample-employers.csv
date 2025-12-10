@@ -1,0 +1,7 @@
+Full Name,Email,Password,Contact,Gender,Date of Birth,Summary,Skills,Company Experience
+Tech Solutions Pvt Ltd,hr@techsolutions.com,SecurePass123!,9123456789,Other,1980-01-15,Leading IT services company providing innovative solutions,"Java,Spring Boot,Microservices,AWS,React,Node.js","Tech Solutions|Founder|12;StartupXYZ|Co-Founder|5"
+Innovation Hub,contact@innovationhub.com,SecurePass123!,9234567890,Other,1985-06-20,Technology consulting firm specializing in digital transformation,"Python,Django,PostgreSQL,Docker,Kubernetes,Azure","Innovation Hub|CEO|10;Consulting Corp|Director|4"
+Global Systems Inc,info@globalsystems.com,SecurePass123!,9345678901,Other,1982-03-10,Enterprise software development company with global presence,".NET,C#,SQL Server,Angular,TypeScript,Azure DevOps","Global Systems|CTO|15;TechCorp|VP Engineering|8"
+Digital Ventures,hello@digitalventures.com,SecurePass123!,9456789012,Other,1988-11-25,Startup accelerator and technology incubator,"JavaScript,React,Vue.js,Node.js,MongoDB,Firebase","Digital Ventures|Managing Partner|7;VC Fund|Investment Director|3"
+CloudTech Services,support@cloudtech.com,SecurePass123!,9567890123,Other,1983-08-05,Cloud infrastructure and managed services provider,"AWS,GCP,Azure,Terraform,Ansible,Kubernetes,Docker","CloudTech|Founder|14;IT Services|Technical Lead|6"
+

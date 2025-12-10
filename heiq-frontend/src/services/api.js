@@ -116,6 +116,51 @@ export const assessmentAPI = {
   },
 };
 
+// User API
+export const userAPI = {
+  // GET /api/users
+  getAll: async (params = {}) => {
+    const response = await apiClient.get('/api/users', { params });
+    return response.data;
+  },
+
+  // GET /api/users/:id
+  getById: async (id) => {
+    const response = await apiClient.get(`/api/users/${id}`);
+    return response.data;
+  },
+
+  // POST /api/users/bulk - Bulk create users from CSV
+  bulkCreate: async (users) => {
+    const response = await apiClient.post('/api/users/bulk', { users });
+    return response.data;
+  },
+
+  // PATCH /api/users/:id/role
+  updateRole: async (id, role) => {
+    const response = await apiClient.patch(`/api/users/${id}/role`, { role });
+    return response.data;
+  },
+
+  // PATCH /api/users/:id/block
+  block: async (id) => {
+    const response = await apiClient.patch(`/api/users/${id}/block`);
+    return response.data;
+  },
+
+  // PATCH /api/users/:id/unblock
+  unblock: async (id) => {
+    const response = await apiClient.patch(`/api/users/${id}/unblock`);
+    return response.data;
+  },
+
+  // DELETE /api/users/:id
+  delete: async (id) => {
+    const response = await apiClient.delete(`/api/users/${id}`);
+    return response.data;
+  },
+};
+
 // Generic API call function for future use
 export const apiCall = async (method, endpoint, data = null, config = {}) => {
   try {

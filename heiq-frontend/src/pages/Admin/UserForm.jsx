@@ -99,6 +99,12 @@ const UserForm = () => {
     });
   };
 
+  // ⭐⭐⭐ SUBMIT HANDLER — PRINT IN CONSOLE ⭐⭐⭐
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("📌 Final Form Data Submitted:", formData);
+  };
+
   return (
     <>
       {/* SIDEBAR */}
@@ -126,20 +132,15 @@ const UserForm = () => {
         >
           <h3 className="mb-4 text-center">Create New User</h3>
 
-          {/* ============================================= */}
-          {/* ⭐⭐⭐ TABS AT THE TOP ⭐⭐⭐ */}
-          {/* ============================================= */}
+          {/* ⭐⭐⭐ TABS ⭐⭐⭐ */}
           <Tabs
             active={activeTab}
             setActive={setActiveTab}
             tabs={["Candidate", "Employer"]}
           />
 
-          {/* ============================================= */}
-          {/* ⭐ BASIC FIELDS (VISIBLE FOR BOTH TABS) ⭐ */}
-          {/* ============================================= */}
-
-          <Form>
+          {/* ⭐ FORM START ⭐ */}
+          <Form onSubmit={handleSubmit}>
             <h5 className="mt-4">Basic Information</h5>
 
             {/* FULL NAME */}
@@ -249,10 +250,7 @@ const UserForm = () => {
               />
             </Form.Group>
 
-            {/* ======================================================== */}
             {/* ⭐⭐⭐ CANDIDATE SECTION ⭐⭐⭐ */}
-            {/* ======================================================== */}
-
             {activeTab === "Candidate" && (
               <>
                 <h4 className="mt-4">Candidate Details</h4>
@@ -374,10 +372,7 @@ const UserForm = () => {
               </>
             )}
 
-            {/* ======================================================== */}
             {/* ⭐⭐⭐ EMPLOYER SECTION ⭐⭐⭐ */}
-            {/* ======================================================== */}
-
             {activeTab === "Employer" && (
               <>
                 <h4 className="mt-4">Employer Details</h4>

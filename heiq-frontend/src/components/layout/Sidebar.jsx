@@ -11,8 +11,11 @@ import {
   FaUsers,
 } from "react-icons/fa";
 import { FiSearch } from "react-icons/fi";
+import { MdReportProblem } from "react-icons/md"; 
+import { FaUserShield, FaUserCheck } from "react-icons/fa"; 
+import { MdOutlineRequestPage } from "react-icons/md";
 
-const NAVBAR_HEIGHT = 70; // Keep sidebar aligned with navbar
+const NAVBAR_HEIGHT = 70;
 
 const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
@@ -26,13 +29,10 @@ const Sidebar = ({ isOpen, onClose }) => {
     <>
       {/* ⭐ MOBILE SIDEBAR */}
       <div
-        className={`offcanvas offcanvas-start d-md-none ${
-          isOpen ? "show" : ""
-        }`}
+        className={`offcanvas offcanvas-start d-md-none ${isOpen ? "show" : ""}`}
         tabIndex="-1"
         style={{ width: "200px" }}
       >
-        {/* Header Removed */}
         <div className="offcanvas-header border-bottom">
           <button className="btn-close ms-auto" onClick={onClose}></button>
         </div>
@@ -54,10 +54,6 @@ const Sidebar = ({ isOpen, onClose }) => {
           zIndex: 1030,
         }}
       >
-        {/* Sidebar Header Removed */}
-        {/* Empty spacing removed completely */}
-
-        {/* MENU ITEMS */}
         <div className="px-3 pt-2">
           <SidebarMenu onNavigate={handleNavigation} />
         </div>
@@ -74,29 +70,53 @@ const SidebarMenu = ({ onNavigate }) => (
       label="Dashboard"
       onClick={() => onNavigate("/admin/dashboard")}
     />
+
     <SidebarItem
       icon={<FaUsers />}
       label="User Management"
-      onClick={() => onNavigate("/")}
+      onClick={() => onNavigate("/admin/candidates")}
     />
+
+
     <SidebarItem
-      icon={<FiSearch />}
-      label="Search jobs, internships"
-      onClick={() => onNavigate("/search")}
+      icon={<MdOutlineRequestPage />}
+      label="Job Prep Requests"
+      onClick={() => onNavigate("/admin/job-prep-requests")}
     />
-    <SidebarItem icon={<FaStar />} label="Saved Opportunities" />
-    <SidebarItem icon={<FaPlus />} label="Badges" />
-    <SidebarItem icon={<FaFileAlt />} label="My Resumes" />
+
+    <SidebarItem
+      icon={<FaUsers />}
+      label="Candidates"
+      onClick={() => onNavigate("/admin/dash")}
+    />
+
+    <SidebarItem
+      icon={<MdReportProblem />}
+      label="Reported Opportunities"
+      onClick={() => onNavigate("/admin/reported-opportunities")}
+    />
+
+    <SidebarItem
+      icon={<FaUserShield />}
+      label="Company Deactivate"
+      onClick={() => onNavigate("/admin/company-deactivate")}
+    />
+
+    <SidebarItem
+      icon={<FaUserCheck />}
+      label="Company Activate"
+      onClick={() => onNavigate("/admin/company-activate")}
+    />
+
     <SidebarItem
       icon={<FaLock />}
       label="Change Password"
       onClick={() => onNavigate("/Account-Setting")}
     />
-    <SidebarItem icon={<FaQuestionCircle />} label="Help" />
   </ul>
 );
 
-/* ⭐ Sidebar item with 10px border */
+/* ⭐ Sidebar item */
 const SidebarItem = ({ icon, label, onClick }) => (
   <li
     onClick={onClick}

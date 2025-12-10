@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { loginUser, clearError } from "../store/slices/authSlice";
 
+import TopNavbar from "../components/layout/TopNavbar"; 
+import SideIMG from "../assets/hieqsideimg.png";
+
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -14,14 +17,11 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [localError, setLocalError] = useState("");
 
-  // Get super admin credentials from env (for quick fill)
   const superAdminEmail = import.meta.env.VITE_SUPER_ADMIN_EMAIL || "";
   const superAdminPassword = import.meta.env.VITE_SUPER_ADMIN_PASSWORD || "";
 
-  // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && user) {
-      // Role-based redirect
       if (user.role === "SUPER_ADMIN" || user.role === "ADMIN") {
         navigate("/admin/dashboard", { replace: true });
       } else {
@@ -30,11 +30,8 @@ const Login = () => {
     }
   }, [isAuthenticated, user, navigate]);
 
-  // Clear error when component mounts or when typing
   useEffect(() => {
-    if (error) {
-      dispatch(clearError());
-    }
+    if (error) dispatch(clearError());
   }, [error, dispatch]);
 
   const handleLogin = async (e) => {
@@ -49,104 +46,96 @@ const Login = () => {
     try {
       await dispatch(loginUser({ email, password })).unwrap();
     } catch (err) {
-      setLocalError(err || "Login failed. Please check your credentials.");
-    }
-  };
-
-  const fillSuperAdmin = () => {
-    if (superAdminEmail && superAdminPassword) {
-      setEmail(superAdminEmail);
-      setPassword(superAdminPassword);
+      setLocalError(err || "Login failed.");
     }
   };
 
   return (
-    <div
-      style={{
-        height: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "#f7f7f7",
-      }}
-    >
+    <>
+      {/* ⭐ MINIMAL NAVBAR */}
+      <TopNavbar minimal={true} />
+
       <div
         style={{
-          width: "360px",
-          padding: "30px",
-          background: "#fff",
-          borderRadius: "10px",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+          height: "calc(100vh - 70px)",
+          width: "100%",
+          display: "flex",
+          background: "#fdfaf7",
         }}
       >
-        <h3 className="text-center mb-4">HIEQ Admin Login</h3>
+        {/* LEFT IMAGE */}
+        <div
+          style={{
+            width: "32%",
+            backgroundImage: `url(${SideIMG})`,
+            backgroundSize: "cover",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center left",
+          }}
+        ></div>
 
-        {localError && (
-          <div className="alert alert-danger" role="alert">
-            {localError}
-          </div>
-        )}
-
-        <form onSubmit={handleLogin}>
-          {/* EMAIL INPUT */}
-          <div className="mb-3">
-            <label className="form-label">Email Address</label>
-            <input
-              type="email"
-              className="form-control"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                setLocalError("");
-              }}
-              disabled={isLoading}
-              required
-            />
-          </div>
-
-          {/* PASSWORD INPUT */}
-          <div className="mb-3">
-            <label className="form-label">Password</label>
-            <input
-              type="password"
-              className="form-control"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                setLocalError("");
-              }}
-              disabled={isLoading}
-              required
-            />
-          </div>
-
-          {/* SUPER ADMIN QUICK FILL (Development only) */}
-          {superAdminEmail && (
-            <div className="mb-3">
-              <button
-                type="button"
-                className="btn btn-sm btn-outline-secondary"
-                onClick={fillSuperAdmin}
-                disabled={isLoading}
-              >
-                Fill Super Admin Credentials
-              </button>
-            </div>
-          )}
-
-          {/* LOGIN BUTTON */}
-          <button
-            type="submit"
-            className="btn btn-primary w-100"
-            disabled={isLoading}
+        {/* RIGHT LOGIN SECTION */}
+        <div
+          style={{
+            width: "68%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div
+            style={{
+              width: "380px",
+              padding: "30px",
+              background: "#fff",
+              borderRadius: "12px",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+            }}
           >
-            {isLoading ? "Logging in..." : "Login"}
-          </button>
-        </form>
+            <h3 className="text-center mb-4">HIEQ Admin</h3>
+
+            {localError && <div className="alert alert-danger">{localError}</div>}
+
+            <form onSubmit={handleLogin}>
+              <div className="mb-3">
+                <label className="form-label">Email Address</label>
+                <input
+                  type="email"
+                  className="form-control"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">Password</label>
+                <input
+                  type="password"
+                  className="form-control"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+
+              {/* ⭐ ONLY BUTTON COLOR CHANGED */}
+              <button
+                type="submit"
+                className="btn w-100"
+                disabled={isLoading}
+                style={{
+                  backgroundColor: "#75BEBF",
+                  borderColor: "#75BEBF",
+                  color: "#fff",
+                  fontWeight: "600",
+                }}
+              >
+                {isLoading ? "Logging in..." : "Login"}
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

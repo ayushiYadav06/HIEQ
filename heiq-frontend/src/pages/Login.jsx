@@ -1,45 +1,62 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-// Temporary user database (you will replace with backend later)
-const USERS = [
-  { email: "user1@gmail.com", password: "123456", role: "candidate" },
-  { email: "employee1@gmail.com", password: "123456", role: "employee" },
-];
+import { useAppDispatch, useAppSelector } from "../hooks/redux";
+import { loginUser, clearError } from "../store/slices/authSlice";
 
 const Login = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { isLoading, error, isAuthenticated, user } = useAppSelector(
+    (state) => state.auth
+  );
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [localError, setLocalError] = useState("");
 
-  const handleLogin = (e) => {
+  // Get super admin credentials from env (for quick fill)
+  const superAdminEmail = import.meta.env.VITE_SUPER_ADMIN_EMAIL || "";
+  const superAdminPassword = import.meta.env.VITE_SUPER_ADMIN_PASSWORD || "";
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      // Role-based redirect
+      if (user.role === "SUPER_ADMIN" || user.role === "ADMIN") {
+        navigate("/admin/dashboard", { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
+    }
+  }, [isAuthenticated, user, navigate]);
+
+  // Clear error when component mounts or when typing
+  useEffect(() => {
+    if (error) {
+      dispatch(clearError());
+    }
+  }, [error, dispatch]);
+
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setLocalError("");
 
-    // ADMIN LOGIN (fixed credentials)
-    if (email === "Admin12@gmail.com" && password === "Admin@12345") {
-      navigate("/admin/dashboard");
+    if (!email || !password) {
+      setLocalError("Please enter both email and password");
       return;
     }
 
-    // CHECK NORMAL USERS (Employee / Candidate)
-    const foundUser = USERS.find((u) => u.email === email);
-
-    if (!foundUser) {
-      alert("Account not found. Please Signup first.");
-      return;
+    try {
+      await dispatch(loginUser({ email, password })).unwrap();
+    } catch (err) {
+      setLocalError(err || "Login failed. Please check your credentials.");
     }
+  };
 
-    if (foundUser.password !== password) {
-      alert("Incorrect Password");
-      return;
-    }
-
-    // ROLE-BASED LOGIN REDIRECT
-    if (foundUser.role === "employee") {
-      navigate("/employee/dashboard");
-    } else if (foundUser.role === "candidate") {
-      navigate("/candidate/dashboard");
+  const fillSuperAdmin = () => {
+    if (superAdminEmail && superAdminPassword) {
+      setEmail(superAdminEmail);
+      setPassword(superAdminPassword);
     }
   };
 
@@ -62,47 +79,71 @@ const Login = () => {
           boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
         }}
       >
-        <h3 className="text-center mb-4">Login</h3>
+        <h3 className="text-center mb-4">HIEQ Admin Login</h3>
+
+        {localError && (
+          <div className="alert alert-danger" role="alert">
+            {localError}
+          </div>
+        )}
 
         <form onSubmit={handleLogin}>
           {/* EMAIL INPUT */}
           <div className="mb-3">
-            <label>Email Address</label>
+            <label className="form-label">Email Address</label>
             <input
+              type="email"
               className="form-control"
               placeholder="Enter your email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setLocalError("");
+              }}
+              disabled={isLoading}
               required
             />
           </div>
 
           {/* PASSWORD INPUT */}
           <div className="mb-3">
-            <label>Password</label>
+            <label className="form-label">Password</label>
             <input
               type="password"
               className="form-control"
               placeholder="Enter your password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setLocalError("");
+              }}
+              disabled={isLoading}
               required
             />
           </div>
 
-          {/* LOGIN BUTTON */}
-          <button type="submit" className="btn btn-primary w-100">
-            Login
-          </button>
+          {/* SUPER ADMIN QUICK FILL (Development only) */}
+          {superAdminEmail && (
+            <div className="mb-3">
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-secondary"
+                onClick={fillSuperAdmin}
+                disabled={isLoading}
+              >
+                Fill Super Admin Credentials
+              </button>
+            </div>
+          )}
 
-          {/* SIGNUP LINK */}
-          <p
-            className="text-center mt-3"
-            style={{ cursor: "pointer", color: "blue" }}
-            onClick={() => navigate("/signup")}
+          {/* LOGIN BUTTON */}
+          <button
+            type="submit"
+            className="btn btn-primary w-100"
+            disabled={isLoading}
           >
-            Don’t have an account? Signup
-          </p>
+            {isLoading ? "Logging in..." : "Login"}
+          </button>
         </form>
       </div>
     </div>

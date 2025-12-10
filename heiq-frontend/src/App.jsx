@@ -1,6 +1,9 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAppSelector } from "./hooks/redux";
 
+import Login from "./pages/Login.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Dashboard from "./pages/Admin/Dashboard.jsx";
 import StudentApplications from "./pages/Admin/AdminDash.jsx";
 import UserProfile from "./pages/Admin/UserProfile.jsx";
@@ -12,23 +15,115 @@ import CmpyDeactivate from "./pages/Admin/CmpyDeactivate.jsx";
 import CmpyActivate from "./pages/Admin/CmpyActivate.jsx";
 import JobPrepReq from "./pages/Admin/JobPrepReq.jsx";
 
+// Public route wrapper (redirects to dashboard if already logged in)
+const PublicRoute = ({ children }) => {
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  
+  if (isAuthenticated) {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+  
+  return children;
+};
+
 const App = () => {
   return (
     <>
       <Routes>
-        <Route path="/" element={<StudentApplications />} />
-        <Route path="/profile" element={<UserProfile />} />
-        <Route path="/Account-Setting" element={<Accountsetting />} />
-        <Route path="/Verify-Documents" element={<VerifyDoc />} />
-        <Route path="/admin/candidates" element={<Candidates />} />
+        {/* Public Routes */}
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
+
+        {/* Protected Routes */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <StudentApplications />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <UserProfile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/Account-Setting"
+          element={
+            <ProtectedRoute>
+              <Accountsetting />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/Verify-Documents"
+          element={
+            <ProtectedRoute>
+              <VerifyDoc />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/candidates"
+          element={
+            <ProtectedRoute>
+              <Candidates />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/reported-opportunities"
-          element={<ReportedOpportunities />}
+          element={
+            <ProtectedRoute>
+              <ReportedOpportunities />
+            </ProtectedRoute>
+          }
         />
-        <Route path="/company-deactivate" element={<CmpyDeactivate />} />
-        <Route path="/company/activate" element={<CmpyActivate />} />
-        <Route path="/job-prep-requests" element={<JobPrepReq />} />
-        <Route path="/admin/dashboard" element={<Dashboard />} />
+        <Route
+          path="/company-deactivate"
+          element={
+            <ProtectedRoute>
+              <CmpyDeactivate />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/company/activate"
+          element={
+            <ProtectedRoute>
+              <CmpyActivate />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/job-prep-requests"
+          element={
+            <ProtectedRoute>
+              <JobPrepReq />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Catch all - redirect to login */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </>
   );

@@ -16,6 +16,7 @@ import CmpyActivate from "./pages/Admin/CmpyActivate.jsx";
 import JobPrepReq from "./pages/Admin/JobPrepReq.jsx";
 import UserForm from "./pages/Admin/UserForm";
 
+import AssessmentList from "./pages/Admin/Assessment_module/AssessmentList.jsx";
 
 // Public route wrapper (redirects to dashboard if already logged in)
 const PublicRoute = ({ children }) => {
@@ -36,28 +37,96 @@ const App = () => {
   {/* Public Routes */}
   <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
 
-  {/* Protected Routes */}
-  <Route path="/" element={<ProtectedRoute><AdminDash /></ProtectedRoute>} />
-
-  <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
-
-  <Route path="/Account-Setting" element={<ProtectedRoute><AccountSetting /></ProtectedRoute>} />
-
-  <Route path="/Verify-Documents" element={<ProtectedRoute><VerifyDoc /></ProtectedRoute>} />
-
-  <Route path="/admin/candidates" element={<ProtectedRoute><Candidates /></ProtectedRoute>} />
-
-  <Route path="/reported-opportunities" element={<ProtectedRoute><ReportedOpportunities /></ProtectedRoute>} />
-
-  <Route path="/company-deactivate" element={<ProtectedRoute><CmpyDeactivate /></ProtectedRoute>} />
-
-  <Route path="/company/activate" element={<ProtectedRoute><CmpyActivate /></ProtectedRoute>} />
-
-  <Route path="/job-prep-requests" element={<ProtectedRoute><JobPrepReq /></ProtectedRoute>} />
-
-  <Route path="/admin/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-
-  <Route path="/create-user" element={<UserForm />} />
+        {/* Protected Routes */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <AdminDash/>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <UserProfile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/Account-Setting"
+          element={
+            <ProtectedRoute>
+              <AccountSetting />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/Verify-Documents"
+          element={
+            <ProtectedRoute>
+              <VerifyDoc />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/candidates"
+          element={
+            <ProtectedRoute>
+              <Candidates />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reported-opportunities"
+          element={
+            <ProtectedRoute>
+              <ReportedOpportunities />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/company-deactivate"
+          element={
+            <ProtectedRoute>
+              <CmpyDeactivate />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/company/activate"
+          element={
+            <ProtectedRoute>
+              <CmpyActivate />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/job-prep-requests"
+          element={
+            <ProtectedRoute>
+              <JobPrepReq />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/create-user" element={<UserForm />} />
+        <Route
+          path="/admin/assessment"
+          element={
+            <ProtectedRoute>
+              <AssessmentList />
+            </ProtectedRoute>
+          }
+        />
 
   {/* Catch-all */}
   <Route path="*" element={<Navigate to="/login" replace />} />

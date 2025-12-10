@@ -81,12 +81,11 @@ const AdminDash = () => {
 
   return (
     <div style={{ width: "100%", minHeight: "100vh", background: "#f7f7f7" }}>
-      
+        {/* TOP NAVBAR */}
+        <TopNavbar />
+
       {/* SIDEBAR */}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      {/* TOP NAVBAR */}
-      <TopNavbar />
 
       {/* BACK BUTTON */}
       <div style={{ marginTop: "1rem" }}>

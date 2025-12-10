@@ -108,7 +108,9 @@ const Sidebar = ({ isOpen, onClose }) => {
     <>
       {/* ⭐ MOBILE SIDEBAR */}
       <div
-        className={`offcanvas offcanvas-start d-md-none ${isOpen ? "show" : ""}`}
+        className={`offcanvas offcanvas-start d-md-none ${
+          isOpen ? "show" : ""
+        }`}
         tabIndex="-1"
         style={{
           width: "200px",

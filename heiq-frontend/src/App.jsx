@@ -14,6 +14,8 @@ import ReportedOpportunities from "./pages/Admin/ReportedOpportunities.jsx";
 import CmpyDeactivate from "./pages/Admin/CmpyDeactivate.jsx";
 import CmpyActivate from "./pages/Admin/CmpyActivate.jsx";
 import JobPrepReq from "./pages/Admin/JobPrepReq.jsx";
+import UserForm from "./pages/Admin/UserForm";
+
 import AssessmentList from "./pages/Admin/Assessment_module/AssessmentList.jsx";
 
 // Public route wrapper (redirects to dashboard if already logged in)
@@ -32,18 +34,8 @@ const App = () => {
     <>
       <Routes>
 
-
-
-
-        {/* Public Routes */}
-        <Route
-          path="/login"
-          element={
-            <PublicRoute>
-              <Login />
-            </PublicRoute>
-          }
-        />
+  {/* Public Routes */}
+  <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
 
         {/* Protected Routes */}
         <Route
@@ -126,6 +118,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="/create-user" element={<UserForm />} />
         <Route
           path="/admin/assessment"
           element={
@@ -135,9 +128,11 @@ const App = () => {
           }
         />
 
-        {/* Catch all - redirect to login */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
+  {/* Catch-all */}
+  <Route path="*" element={<Navigate to="/login" replace />} />
+
+</Routes>
+
     </>
   );
 };

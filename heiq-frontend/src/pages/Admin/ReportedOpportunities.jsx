@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import TopNavbar from "../../components/layout/TopNavbar";
-import Sidebar from "../../components/layout/Sidebar"; // ⭐ ADDED
+import Sidebar from "../../components/layout/Sidebar";
 import BackButton from "../../components/layout/BackButton";
 
 import Tabs from "../../components/ui/Tabs";
@@ -17,8 +17,29 @@ const ReportedOpportunities = () => {
   const [searchValue, setSearchValue] = useState("");
   const [filterValue, setFilterValue] = useState("Email ID");
 
-  // ⭐ SIDEBAR STATE
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // ⭐ Sidebar padding for responsiveness
+  const [leftPad, setLeftPad] = useState(210);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+
+      if (width >= 768) {
+        // ⭐ Tablet + Laptop + Desktop → Sidebar Fixed → Indent content
+        setLeftPad(210);
+      } else {
+        // ⭐ Mobile → Sidebar Offcanvas → No indentation
+        setLeftPad(0);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize();
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const columns = [
     "sno",
@@ -89,49 +110,69 @@ const ReportedOpportunities = () => {
 
   return (
     <>
-      {/* ⭐ SIDEBAR */}
+      {/* SIDEBAR */}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      {/* ⭐ TOP NAVBAR WITH MENU ICON */}
+      {/* TOP NAVBAR */}
       <TopNavbar onMenuClick={() => setSidebarOpen(true)} />
 
+      {/* BACK BUTTON */}
       <div className="container-fluid mt-4 px-4">
         <BackButton align="left" />
+      </div>
 
-        <h4 className="fw-bold mt-3">Reported Opportunities</h4>
+      {/* MAIN CONTENT */}
+      <div
+        className="container-fluid"
+        style={{
+          paddingLeft: `${leftPad}px`,
+          paddingRight: "20px",
+          transition: "all 0.2s ease",
+        }}
+      >
+        <div className="px-2 px-md-3">
+          <h4 className="fw-bold mt-3">Reported Opportunities</h4>
 
-        <div className="mt-3">
-          <Tabs
-            active={activeTab}
-            setActive={setActiveTab}
-            tabs={["Jobs", "Internships"]}
-          />
-        </div>
-
-        <div className="row g-3 align-items-center mt-4">
-          <div className="col-md-2 col-6">
-            <ExportButton />
-          </div>
-
-          <div className="col-md-4 col-6">
-            <SearchInput
-              placeholder="Enter search here..."
-              value={searchValue}
-              onChange={(v) => setSearchValue(v)}
+          <div className="mt-3">
+            <Tabs
+              active={activeTab}
+              setActive={setActiveTab}
+              tabs={["Jobs", "Internships"]}
             />
           </div>
 
-          <div className="col-md-3 col-6">
-            <FilterDropdown value={filterValue} setValue={setFilterValue} />
+          {/* FILTERS */}
+          <div className="row g-3 align-items-center mt-4">
+            <div className="col-lg-2 col-md-4 col-6">
+              <ExportButton />
+            </div>
+
+            <div className="col-lg-4 col-md-6 col-6">
+              <SearchInput
+                placeholder="Enter search here..."
+                value={searchValue}
+                onChange={(v) => setSearchValue(v)}
+              />
+            </div>
+
+            <div className="col-lg-3 col-md-4 col-6">
+              <FilterDropdown value={filterValue} setValue={setFilterValue} />
+            </div>
+
+            <div className="col-lg-3 col-md-6 col-6">
+              <DateTabs />
+            </div>
           </div>
 
-          <div className="col-md-3 col-6">
-            <DateTabs />
+          {/* TABLE */}
+          <div
+            className="mt-4"
+            style={{
+              overflowX: window.innerWidth < 768 ? "auto" : "visible",
+            }}
+          >
+            <DataTable columns={columns} rows={rows} />
           </div>
-        </div>
-
-        <div className="mt-4">
-          <DataTable columns={columns} rows={rows} />
         </div>
       </div>
     </>

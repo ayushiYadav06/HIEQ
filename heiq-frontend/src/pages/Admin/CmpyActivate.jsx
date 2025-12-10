@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import TopNavbar from "../../components/layout/TopNavbar";
-import Sidebar from "../../components/layout/Sidebar"; // ⭐ ADDED
+import Sidebar from "../../components/layout/Sidebar";
 import BackButton from "../../components/layout/BackButton";
 import DataTable from "../../components/ui/DataTable";
 import ActionButton from "../../components/ui/ActionButton";
@@ -9,128 +9,109 @@ import ActionButton from "../../components/ui/ActionButton";
 import HclLogo from "../../assets/hclcmpy.png";
 
 const CmpyActivate = () => {
-  // ⭐ SIDEBAR STATE
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // ⭐ LEFT PADDING (responsive sidebar)
+  const [leftPad, setLeftPad] = useState(210);
+
+  useEffect(() => {
+    const adjustPadding = () => {
+      const width = window.innerWidth;
+
+      if (width >= 768) {
+        // Tablet, laptop, desktop → sidebar fixed → add padding
+        setLeftPad(210);
+      } else {
+        // Mobile → offcanvas → no sidebar padding
+        setLeftPad(0);
+      }
+    };
+
+    adjustPadding();
+    window.addEventListener("resize", adjustPadding);
+    return () => window.removeEventListener("resize", adjustPadding);
+  }, []);
 
   const columns = ["sno", "user", "reason", "notes", "updatedOn"];
 
-  // ⭐ NOTES ARE NOW EMPTY
   const rows = [
     {
       sno: 1,
-      user: (
-        <a
-          href="#"
-          style={{ color: "#333", textDecoration: "none", fontWeight: 600 }}
-        >
-          Aman Garg
-        </a>
-      ),
+      user: <a href="#" style={{ color: "#333", textDecoration: "none", fontWeight: 600 }}>Aman Garg</a>,
       reason: "False or insufficient information",
-      notes: "", // EMPTY
+      notes: "",
       updatedOn: "14-12-2022",
     },
     {
       sno: 2,
-      user: (
-        <a
-          href="#"
-          style={{ color: "#333", textDecoration: "none", fontWeight: 600 }}
-        >
-          Nived P K
-        </a>
-      ),
+      user: <a href="#" style={{ color: "#333", textDecoration: "none", fontWeight: 600 }}>Nived P K</a>,
       reason: "False or insufficient information",
-      notes: "", // EMPTY
+      notes: "",
       updatedOn: "15-12-2022",
     },
     {
       sno: 3,
-      user: (
-        <a
-          href="#"
-          style={{ color: "#333", textDecoration: "none", fontWeight: 600 }}
-        >
-          Abhiya Ram
-        </a>
-      ),
+      user: <a href="#" style={{ color: "#333", textDecoration: "none", fontWeight: 600 }}>Abhiya Ram</a>,
       reason: "Unprofessional or unethical behaviour",
-      notes: "", // EMPTY
+      notes: "",
       updatedOn: "18-12-2022",
     },
     {
       sno: 4,
-      user: (
-        <a
-          href="#"
-          style={{ color: "#333", textDecoration: "none", fontWeight: 600 }}
-        >
-          Irfan Khan
-        </a>
-      ),
+      user: <a href="#" style={{ color: "#333", textDecoration: "none", fontWeight: 600 }}>Irfan Khan</a>,
       reason: "False or insufficient information",
-      notes: "", // EMPTY
+      notes: "",
       updatedOn: "20-12-2022",
     },
     {
       sno: 5,
-      user: (
-        <a
-          href="#"
-          style={{ color: "#333", textDecoration: "none", fontWeight: 600 }}
-        >
-          Sanchit
-        </a>
-      ),
+      user: <a href="#" style={{ color: "#333", textDecoration: "none", fontWeight: 600 }}>Sanchit</a>,
       reason: "False or insufficient information",
-      notes: "", // EMPTY
+      notes: "",
       updatedOn: "22-12-2022",
     },
     {
       sno: 6,
-      user: (
-        <a
-          href="#"
-          style={{ color: "#333", textDecoration: "none", fontWeight: 600 }}
-        >
-          Meghana
-        </a>
-      ),
-      reason: "Unprofessional or unethical behaviour",
-      notes: "", // EMPTY
+      user: <a href="#" style={{ color: "#333", textDecoration: "none", fontWeight: 600 }}>Meghana</a>,
+      reason: "Unprofessional behaviour",
+      notes: "",
       updatedOn: "25-12-2022",
     },
   ];
 
   return (
     <>
-      {/* ⭐ SIDEBAR */}
+      {/* SIDEBAR */}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      {/* ⭐ TOP NAVBAR WITH MENU CLICK */}
+      {/* TOP NAVBAR */}
       <TopNavbar onMenuClick={() => setSidebarOpen(true)} />
 
-      <div className="container-fluid mt-4">
-        <div
-          style={{
-            marginTop: "1rem",
-            display: "flex",
-            justifyContent: "flex-start",
-          }}
-        >
-          <BackButton label="Back" />
-        </div>
+      {/* BACK BUTTON (UNTOUCHED) */}
+      <div className="container-fluid mt-4 px-4">
+        <BackButton label="Back" />
+      </div>
 
+      {/* MAIN CONTENT (SHIFTS AFTER SIDEBAR) */}
+      <div
+        className="container-fluid"
+        style={{
+          paddingLeft: `${leftPad}px`,
+          paddingRight: "20px",
+          transition: "all 0.2s ease",
+          marginTop: "10px",
+        }}
+      >
         <div
-          className="mx-auto mt-3 p-4"
+          className="p-4 mx-auto"
           style={{
-            maxWidth: "1500px",
+            maxWidth: "1400px",
             background: "#fff",
             borderRadius: "12px",
             boxShadow: "0px 2px 12px rgba(0,0,0,0.1)",
           }}
         >
-          {/* Job ID */}
+          {/* JOB ID */}
           <p className="fw-semibold" style={{ color: "#666" }}>
             Job ID: J0000000001
           </p>
@@ -144,19 +125,21 @@ const CmpyActivate = () => {
             />
           </div>
 
-          {/* Count */}
+          {/* COUNT */}
           <p className="mt-4 mb-2 fw-semibold">Showing 6 out of 15</p>
 
-          {/* TABLE */}
-          <DataTable
-            columns={columns}
-            rows={rows}
-            headerBg="#EDEDED"
-            headerColor="#333"
-          />
+          {/* TABLE (responsive scroll on mobile) */}
+          <div style={{ overflowX: "auto" }}>
+            <DataTable
+              columns={columns}
+              rows={rows}
+              headerBg="#EDEDED"
+              headerColor="#333"
+            />
+          </div>
 
           {/* ACTIVATE BUTTON */}
-          <div className="text-center mt-4 mb-2">
+          <div className="text-center mt-4 mb-3">
             <ActionButton type="activate" />
           </div>
         </div>

@@ -46,7 +46,7 @@ const AccountSetting = () => {
         <div
           style={{
             marginTop: "1rem",
-            paddingLeft: "210px",      // ⭐ Content starts after sidebar
+            paddingLeft: "5px",      // ⭐ Content starts after sidebar
             display: "flex",
             justifyContent: "flex-start",
           }}

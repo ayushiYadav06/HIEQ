@@ -4,15 +4,15 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 
 const run = async () => {
-  const MONGO_URI = process.env.MONGO_URI;
+  const MONGO_URI = "mongodb://localhost:27017/hieq";
   if (!MONGO_URI) {
     console.error('MONGO_URI required in .env');
     process.exit(1);
   }
   await mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
-  const email = process.env.SUPER_ADMIN_EMAIL;
-  const password = process.env.SUPER_ADMIN_PASSWORD;
+  const email = "superadmin@hieq.local";
+  const password = "SuperSecret123!";
   const name = process.env.SUPER_ADMIN_NAME || 'SUPER_ADMIN';
 
   if (!email || !password) {

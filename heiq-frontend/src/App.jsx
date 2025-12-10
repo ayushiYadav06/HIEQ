@@ -5,9 +5,9 @@ import { useAppSelector } from "./hooks/redux";
 import Login from "./pages/Login.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Dashboard from "./pages/Admin/Dashboard.jsx";
-import StudentApplications from "./pages/Admin/AdminDash.jsx";
+import AdminDash from "./pages/Admin/AdminDash.jsx";
 import UserProfile from "./pages/Admin/UserProfile.jsx";
-import Accountsetting from "./pages/Admin/AccountSetting.jsx";
+import AccountSetting from "./pages/Admin/AccountSetting.jsx";
 import VerifyDoc from "./pages/Admin/VerifyDoc.jsx";
 import Candidates from "./pages/Admin/Candidates.jsx";
 import ReportedOpportunities from "./pages/Admin/ReportedOpportunities.jsx";
@@ -30,6 +30,10 @@ const App = () => {
   return (
     <>
       <Routes>
+
+
+
+
         {/* Public Routes */}
         <Route
           path="/login"
@@ -45,7 +49,7 @@ const App = () => {
           path="/"
           element={
             <ProtectedRoute>
-              <StudentApplications />
+              <AdminDash/>
             </ProtectedRoute>
           }
         />
@@ -61,7 +65,7 @@ const App = () => {
           path="/Account-Setting"
           element={
             <ProtectedRoute>
-              <Accountsetting />
+              <AccountSetting />
             </ProtectedRoute>
           }
         />

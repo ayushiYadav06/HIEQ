@@ -48,7 +48,7 @@ const VerifyDoc = () => {
         <div
           style={{
             marginTop: "1rem",
-            paddingLeft: "210px",
+            paddingLeft: "10px",
             display: "flex",
             justifyContent: "flex-start",
           }}

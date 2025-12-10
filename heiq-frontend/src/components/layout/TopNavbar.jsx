@@ -8,7 +8,7 @@ import NotificationIcon from "../../assets/Vector.png";
 import DarkModeIcon from "../../assets/Vector (1).png";
 import HelpIcon from "../../assets/Vector (2).png";
 import LogoutIcon from "../../assets/logout.png";
-import Logo from "../../assets/hieqLogo.png"; // ⭐ LOGO NOW HERE
+import Logo from "../../assets/hieqLogo.png";
 
 const TopNavbar = ({
   onHelp = () => {},
@@ -38,7 +38,7 @@ const TopNavbar = ({
         background: "#ffffff",
         borderBottom: "1px solid #e6e6e6",
         display: "flex",
-        justifyContent: "space-between", // ⭐ LEFT = LOGO, RIGHT = ICONS
+        justifyContent: "space-between",
         alignItems: "center",
         padding: "0 20px",
         height: "70px",
@@ -55,11 +55,13 @@ const TopNavbar = ({
           src={Logo}
           alt="HieQ Logo"
           style={{ height: "45px", cursor: "pointer" }}
+          onClick={() => navigate("/")} // ⭐ Clicking logo goes home too
         />
       </div>
 
-      {/* RIGHT SIDE ICONS */}
+      {/* ⭐ RIGHT SIDE ICONS */}
       <div style={{ display: "flex", alignItems: "center", gap: "30px", color: "#666" }}>
+        
         <div style={{ textAlign: "center", cursor: "pointer" }} onClick={onNotifications}>
           <img src={NotificationIcon} alt="Notification" style={{ width: "20px", height: "20px" }} />
           <div style={{ fontSize: "10px" }}>Notifications</div>
@@ -86,6 +88,7 @@ const TopNavbar = ({
           <img src={LogoutIcon} alt="Logout" style={{ width: "20px", height: "20px" }} />
           <div style={{ fontSize: "10px" }}>{isLoading ? "Logging out..." : "Logout"}</div>
         </div>
+
       </div>
     </div>
   );

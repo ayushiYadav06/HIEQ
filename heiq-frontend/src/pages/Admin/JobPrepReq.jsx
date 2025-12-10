@@ -1,12 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 
 import TopNavbar from "../../components/layout/TopNavbar";
-import Sidebar from "../../components/layout/Sidebar"; // ⭐ ADDED
+import Sidebar from "../../components/layout/Sidebar";
 import BackButton from "../../components/layout/BackButton";
 import DataTable from "../../components/ui/DataTable";
 
 const JobPrepReq = () => {
-  // ⭐ SIDEBAR STATE
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const columns = ["sno", "user", "service", "notes", "updatedOn", "menu"];
@@ -27,84 +26,42 @@ const JobPrepReq = () => {
   const rows = [
     {
       sno: 1,
-      user: (
-        <a
-          href="#"
-          style={{ color: "#333", fontWeight: 600, textDecoration: "none" }}
-        >
-          Aman Garg
-        </a>
-      ),
+      user: <a href="#" style={{ color: "#333", fontWeight: 600, textDecoration: "none" }}>Aman Garg</a>,
       service: "My Hieq profile",
       notes: "I'm getting rejected.",
       updatedOn: "14-12-2022",
     },
     {
       sno: 2,
-      user: (
-        <a
-          href="#"
-          style={{ color: "#333", fontWeight: 600, textDecoration: "none" }}
-        >
-          Nived P K
-        </a>
-      ),
+      user: <a href="#" style={{ color: "#333", fontWeight: 600, textDecoration: "none" }}>Nived P K</a>,
       service: "My resume",
       notes: "Improve my resume",
       updatedOn: "15-12-2022",
     },
     {
       sno: 3,
-      user: (
-        <a
-          href="#"
-          style={{ color: "#333", fontWeight: 600, textDecoration: "none" }}
-        >
-          Abhiya Ram
-        </a>
-      ),
+      user: <a href="#" style={{ color: "#333", fontWeight: 600, textDecoration: "none" }}>Abhiya Ram</a>,
       service: "Interview prep",
       notes: "I'm getting rejected too many times",
       updatedOn: "18-12-2022",
     },
     {
       sno: 4,
-      user: (
-        <a
-          href="#"
-          style={{ color: "#333", fontWeight: 600, textDecoration: "none" }}
-        >
-          Irfan Khan
-        </a>
-      ),
+      user: <a href="#" style={{ color: "#333", fontWeight: 600, textDecoration: "none" }}>Irfan Khan</a>,
       service: "LinkedIn optimization",
       notes: "Improve my LinkedIn",
       updatedOn: "20-12-2022",
     },
     {
       sno: 5,
-      user: (
-        <a
-          href="#"
-          style={{ color: "#333", fontWeight: 600, textDecoration: "none" }}
-        >
-          Sanchit
-        </a>
-      ),
+      user: <a href="#" style={{ color: "#333", fontWeight: 600, textDecoration: "none" }}>Sanchit</a>,
       service: "My Hieq profile",
       notes: "Improve my profile",
       updatedOn: "22-12-2022",
     },
     {
       sno: 6,
-      user: (
-        <a
-          href="#"
-          style={{ color: "#333", fontWeight: 600, textDecoration: "none" }}
-        >
-          Meghana
-        </a>
-      ),
+      user: <a href="#" style={{ color: "#333", fontWeight: 600, textDecoration: "none" }}>Meghana</a>,
       service: "Interview prep",
       notes: "Mock-interview",
       updatedOn: "25-12-2022",
@@ -152,13 +109,15 @@ const JobPrepReq = () => {
 
   return (
     <>
-      {/* ⭐ SIDEBAR */}
+      {/* SIDEBAR */}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      {/* ⭐ TOP NAVBAR */}
+      {/* TOP NAVBAR */}
       <TopNavbar onMenuClick={() => setSidebarOpen(true)} />
 
       <div className="container-fluid mt-4">
+
+        {/* BACK BUTTON — NO LEFT PADDING */}
         <div
           style={{
             marginTop: "1rem",
@@ -168,25 +127,35 @@ const JobPrepReq = () => {
         >
           <BackButton label="Back" />
         </div>
+
+        {/* ⭐ MAIN CONTENT — START AFTER SIDEBAR EXACTLY */}
         <div
-          className="mx-auto mt-3 p-4"
+          className="mt-3"
           style={{
-            maxWidth: "1500px",
-            background: "#fff",
-            borderRadius: "12px",
-            boxShadow: "0px 2px 12px rgba(0,0,0,0.1)",
+            paddingLeft: "210px", // aligns with sidebar end
+            paddingRight: "0px",
           }}
         >
-          <h4 className="fw-bold mb-4" style={{ color: "#333" }}>
-            Job prep requests
-          </h4>
+          <div
+            className="p-4"
+            style={{
+              background: "#fff",
+              borderRadius: "12px",
+              boxShadow: "0px 2px 12px rgba(0,0,0,0.1)",
+            }}
+          >
+            {/* ⭐ NOW THIS STARTS EXACTLY AFTER SIDEBAR */}
+            <h4 className="fw-bold mb-4" style={{ color: "#333" }}>
+              Job prep requests
+            </h4>
 
-          <DataTable
-            columns={columns}
-            rows={tableRows}
-            headerBg="#EDEDED"
-            headerColor="#333"
-          />
+            <DataTable
+              columns={columns}
+              rows={tableRows}
+              headerBg="#EDEDED"
+              headerColor="#333"
+            />
+          </div>
         </div>
       </div>
     </>

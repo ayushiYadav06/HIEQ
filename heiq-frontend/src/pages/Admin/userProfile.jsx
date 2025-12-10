@@ -93,7 +93,7 @@ const UserProfile = () => {
         {/* PERSONAL INFORMATION BOX — CENTER MIDDLE AREA */}
         <Container
           fluid
-          className="px-4"
+          className="px-3"
           style={{ maxWidth: "1330px", marginLeft: "200px" }} // ⭐ middle content width
         >
           <PersonalInformationBox

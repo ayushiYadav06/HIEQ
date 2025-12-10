@@ -81,11 +81,12 @@ const AdminDash = () => {
 
   return (
     <div style={{ width: "100%", minHeight: "100vh", background: "#f7f7f7" }}>
+      
       {/* SIDEBAR */}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* TOP NAVBAR */}
-      <TopNavbar onMenuClick={() => setSidebarOpen(true)} />
+      <TopNavbar />
 
       {/* BACK BUTTON */}
       <div style={{ marginTop: "1rem" }}>
@@ -93,13 +94,7 @@ const AdminDash = () => {
       </div>
 
       {/* MINI NAVBAR + PROFILE BOX */}
-      <div
-        style={{
-          position: "relative",
-          marginTop: "1rem",
-          paddingBottom: "120px",
-        }}
-      >
+      <div style={{ position: "relative", marginTop: "1rem", paddingBottom: "120px" }}>
         <ProfileMiniNavbar
           email="admin@heiq.com"
           phone="9876543210"
@@ -110,7 +105,7 @@ const AdminDash = () => {
         <div
           style={{
             position: "absolute",
-            left: "calc(210px + 40%)",
+            left: "calc(210px + 30%)",
             transform: "translateX(-50%)",
             top: "-25px",
           }}
@@ -142,17 +137,12 @@ const AdminDash = () => {
             boxSizing: "border-box",
           }}
         >
-          <Tabs
-            active={active}
-            setActive={setActive}
-            tabs={["Jobs", "Internships"]}
-          />
+          <Tabs active={active} setActive={setActive} tabs={["Jobs", "Internships"]} />
 
           {/* FILTER BAR */}
           <div
             style={{
               display: "flex",
-              justifyContent: "flex-start",
               alignItems: "center",
               gap: "10px",
               marginTop: "20px",
@@ -193,11 +183,7 @@ const AdminDash = () => {
               <StatBox label="Awaiting" value="15" color={colors.awaiting} />
             </div>
             <div style={{ flex: 1 }}>
-              <StatBox
-                label="In Progress"
-                value="05"
-                color={colors.inProgress}
-              />
+              <StatBox label="In Progress" value="05" color={colors.inProgress} />
             </div>
             <div style={{ flex: 1 }}>
               <StatBox label="Selected" value="05" color={colors.selected} />
@@ -211,16 +197,10 @@ const AdminDash = () => {
           </div>
 
           {/* TABLE */}
-          <div
-            style={{
-              overflowX: "auto",
-              marginTop: "20px",
-              width: "100%",
-              paddingRight: "1px",
-            }}
-          >
+          <div style={{ overflowX: "auto", marginTop: "20px", width: "100%" }}>
             <DataTable columns={columns} rows={rows} />
           </div>
+
         </CardContainer>
       </div>
     </div>

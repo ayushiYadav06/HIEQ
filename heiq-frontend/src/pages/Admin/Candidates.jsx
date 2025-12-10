@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 
 import TopNavbar from "../../components/layout/TopNavbar";
-import Sidebar from "../../components/layout/Sidebar"; // ⭐ ADD
+import Sidebar from "../../components/layout/Sidebar";
 import BackButton from "../../components/layout/BackButton";
 import Tabs from "../../components/ui/Tabs";
 import SearchInput from "../../components/ui/SearchInput";
@@ -16,7 +16,6 @@ const Candidates = () => {
   const [activeTab, setActiveTab] = useState("Candidates");
   const [filterBy, setFilterBy] = useState("Email ID");
 
-  // ⭐ SIDEBAR STATE
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const columns = [
@@ -84,13 +83,14 @@ const Candidates = () => {
 
   return (
     <>
-      {/* ⭐ SIDEBAR */}
+      {/* SIDEBAR */}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      {/* ⭐ TOP NAVBAR WITH MENU CLICK */}
+      {/* TOP NAVBAR */}
       <TopNavbar onMenuClick={() => setSidebarOpen(true)} />
 
-      <Container fluid className="mt-4 px-4">
+      {/* BACK BUTTON (NOT SHIFTED) */}
+      <Container fluid className="mt-4 px-1">
         <div
           style={{
             marginTop: "1rem",
@@ -100,9 +100,20 @@ const Candidates = () => {
         >
           <BackButton label="Back" />
         </div>
+      </Container>
 
+      {/* MAIN CONTENT—SHIFTED AFTER SIDEBAR */}
+      <div
+        style={{
+          paddingLeft: "215px", // ⭐ start exactly after sidebar
+          paddingRight: "20px",
+          marginTop: "20px",
+        }}
+      >
+        {/* TITLE */}
         <PageTitle title="Users List" />
 
+        {/* TABS */}
         <div className="mb-4">
           <Tabs
             tabs={["Candidates", "Employers"]}
@@ -112,31 +123,33 @@ const Candidates = () => {
           />
         </div>
 
+        {/* FILTER BAR */}
         <Row className="g-3 align-items-center mb-4">
-          <Col xs={12} md={3} lg={2}>
+          <Col xs={12} md={6} lg={2}>
             <ExportButton />
           </Col>
 
-          <Col xs={12} md={4} lg={4}>
+          <Col xs={12} md={6} lg={4}>
             <SearchInput placeholder="Enter search here..." />
           </Col>
 
-          <Col xs={12} md={3} lg={3}>
+          <Col xs={12} md={6} lg={3}>
             <FilterDropdown value={filterBy} setValue={setFilterBy} />
           </Col>
 
-          <Col xs={12} md={2} lg={3}>
+          <Col xs={12} md={6} lg={3}>
             <DateTabs />
           </Col>
         </Row>
 
+        {/* TABLE */}
         <DataTable
           columns={columns}
           rows={rows}
           headerColor="#666666"
           headerBg="#D9D9D95C"
         />
-      </Container>
+      </div>
     </>
   );
 };

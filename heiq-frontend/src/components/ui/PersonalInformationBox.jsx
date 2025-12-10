@@ -2,30 +2,28 @@ import React from "react";
 import { Form, Row, Col } from "react-bootstrap";
 import CameraIcon from "../../assets/Group_163.png";
 
-const PersonalInformationBox = ({
-  profileImage,
-  onUpload,
-  values = {},
-  onChange,
-}) => {
+const PersonalInformationBox = ({ profileImage, onUpload, values = {}, onChange }) => {
   return (
-    <div className="bg-white rounded border p-4 mt-4">
+    <div className="bg-white rounded border p-4 mt-4" style={{ maxWidth: "1500px", margin: "0 auto" }}>
       <h4 className="fw-semibold mb-4">1. Personal Information</h4>
 
-      <Row>
-        {/* LEFT SIDE FORM */}
-        <Col md={9}>
-          <Form.Label>Full Name *</Form.Label>
-          <Form.Control
-            type="text"
-            name="name"
-            placeholder="Enter full name"
-            value={values.name}
-            onChange={onChange}
-          />
+      <Row className="g-4 align-items-start">
 
-          <Row className="mt-3">
-            <Col md={6}>
+        {/* LEFT FORM — WIDER NOW */}
+        <Col xs={12} md={7} lg={8}>
+          <Form.Group className="mb-3">
+            <Form.Label>Full Name *</Form.Label>
+            <Form.Control
+              type="text"
+              name="name"
+              placeholder="Enter full name"
+              value={values.name}
+              onChange={onChange}
+            />
+          </Form.Group>
+
+          <Row>
+            <Col xs={12} md={6} className="mb-3">
               <Form.Label>Email Address *</Form.Label>
               <Form.Control
                 type="email"
@@ -36,7 +34,7 @@ const PersonalInformationBox = ({
               />
             </Col>
 
-            <Col md={6}>
+            <Col xs={12} md={6} className="mb-3">
               <Form.Label>Contact Number *</Form.Label>
               <Form.Control
                 type="text"
@@ -48,42 +46,32 @@ const PersonalInformationBox = ({
             </Col>
           </Row>
 
-          <Row className="mt-3">
-            <Col md={6}>
+          <Row>
+            <Col xs={12} md={6} className="mb-3">
               <Form.Label>Gender *</Form.Label>
-              <Form.Select
-                name="gender"
-                value={values.gender}
-                onChange={onChange}
-              >
+              <Form.Select name="gender" value={values.gender} onChange={onChange}>
                 <option>Male</option>
                 <option>Female</option>
                 <option>Other</option>
               </Form.Select>
             </Col>
 
-            <Col md={6}>
+            <Col xs={12} md={6} className="mb-3">
               <Form.Label>Date of Birth *</Form.Label>
-              <Form.Control
-                type="date"
-                name="dob"
-                value={values.dob}
-                onChange={onChange}
-              />
+              <Form.Control type="date" name="dob" value={values.dob} onChange={onChange} />
             </Col>
           </Row>
         </Col>
 
-        {/* RIGHT SIDE IMAGE + CAMERA BUTTON */}
-        <Col md={3} className="text-center mt-3">
+        {/* RIGHT AVATAR — PROPER SIZE */}
+        <Col xs={12} md={5} lg={4} className="text-center d-flex flex-column align-items-center">
           <div
             style={{
-              width: "150px",
-              height: "150px",
+              width: 180,
+              height: 180,
               borderRadius: "50%",
               overflow: "hidden",
               border: "2px solid #ccc",
-              margin: "0 auto",
               position: "relative",
             }}
           >
@@ -97,7 +85,7 @@ const PersonalInformationBox = ({
               onClick={onUpload}
               style={{
                 position: "absolute",
-                bottom: "-18px",
+                bottom: -20,
                 left: "50%",
                 transform: "translateX(-50%)",
                 border: "none",
@@ -105,15 +93,15 @@ const PersonalInformationBox = ({
                 cursor: "pointer",
               }}
             >
-              <img src={CameraIcon} alt="Upload" style={{ width: "55px" }} />
+              <img src={CameraIcon} alt="Upload" style={{ width: 60 }} />
             </button>
           </div>
         </Col>
       </Row>
 
-      {/* 🔥 FULL WIDTH PROFILE SUMMARY */}
+      {/* SUMMARY — ALWAYS FULL WIDTH */}
       <Row className="mt-4">
-        <Col md={12}>
+        <Col xs={12}>
           <Form.Label>Profile Summary *</Form.Label>
           <Form.Control
             as="textarea"

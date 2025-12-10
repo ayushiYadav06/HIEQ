@@ -28,7 +28,7 @@ const ProfileCenterBox = ({
               position: "absolute",
               top: "70px",
               left: "50%", // ⭐ This is YOUR custom position
-              transform: "translateX(-50%)",
+              transform: "translateX(15%)",
               zIndex: 20,
             }}
           />
@@ -40,7 +40,7 @@ const ProfileCenterBox = ({
             marginTop: "240px",
             position: "absolute",
             left: "80%", // ⭐ SAME CENTER AS IMAGE
-            transform: "translateX(-50%)",
+            transform: "translateX(-18%)",
             textAlign: "center",
             width: "300px",
           }}

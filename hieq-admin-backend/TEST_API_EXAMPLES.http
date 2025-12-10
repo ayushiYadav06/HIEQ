@@ -1,0 +1,85 @@
+### Assessment API Test Examples
+### Use this file with REST Client extension in VS Code or similar tools
+
+@baseUrl = http://localhost:4000
+@token = YOUR_ACCESS_TOKEN_HERE
+
+### 1. Create Skill
+POST {{baseUrl}}/api/admin/assessment/Skills
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "JavaScript",
+  "status": true
+}
+
+### 2. Create College
+POST {{baseUrl}}/api/admin/assessment/College
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "MIT",
+  "status": true
+}
+
+### 3. Create Job
+POST {{baseUrl}}/api/admin/assessment/Jobs
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Software Engineer",
+  "status": true
+}
+
+### 4. Create Industry
+POST {{baseUrl}}/api/admin/assessment/Industries
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Technology",
+  "status": true
+}
+
+### 5. Get All Skills
+GET {{baseUrl}}/api/admin/assessment/Skills
+Authorization: Bearer {{token}}
+
+### 6. Get All Skills with Search
+GET {{baseUrl}}/api/admin/assessment/Skills?search=java
+Authorization: Bearer {{token}}
+
+### 7. Get All Active Skills
+GET {{baseUrl}}/api/admin/assessment/Skills?status=true
+Authorization: Bearer {{token}}
+
+### 8. Get Single Skill by ID (replace ID)
+GET {{baseUrl}}/api/admin/assessment/Skills/507f1f77bcf86cd799439011
+Authorization: Bearer {{token}}
+
+### 9. Update Skill (replace ID)
+PATCH {{baseUrl}}/api/admin/assessment/Skills/507f1f77bcf86cd799439011
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "JavaScript ES6",
+  "status": true
+}
+
+### 10. Toggle Status (replace ID)
+PATCH {{baseUrl}}/api/admin/assessment/Skills/507f1f77bcf86cd799439011/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": false
+}
+
+### 11. Delete Skill (replace ID)
+DELETE {{baseUrl}}/api/admin/assessment/Skills/507f1f77bcf86cd799439011
+Authorization: Bearer {{token}}
+

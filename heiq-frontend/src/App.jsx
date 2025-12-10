@@ -14,6 +14,7 @@ import ReportedOpportunities from "./pages/Admin/ReportedOpportunities.jsx";
 import CmpyDeactivate from "./pages/Admin/CmpyDeactivate.jsx";
 import CmpyActivate from "./pages/Admin/CmpyActivate.jsx";
 import JobPrepReq from "./pages/Admin/JobPrepReq.jsx";
+import AssessmentList from "./pages/Admin/Assessment_module/AssessmentList.jsx";
 
 // Public route wrapper (redirects to dashboard if already logged in)
 const PublicRoute = ({ children }) => {
@@ -122,6 +123,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/assessment"
+          element={
+            <ProtectedRoute>
+              <AssessmentList />
             </ProtectedRoute>
           }
         />

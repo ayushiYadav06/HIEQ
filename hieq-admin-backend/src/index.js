@@ -13,6 +13,7 @@ const adminRoutes = require('./routes/admin.routes');
 const userRoutes = require('./routes/user.routes');
 const ticketRoutes = require('./routes/ticket.routes');
 const adminTicketRoutes = require('./routes/admin.ticket.routes');
+const adminAssessmentRoutes = require('./routes/admin.assessment.routes');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -43,6 +44,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/admin/tickets', adminTicketRoutes);
+app.use('/api/admin/assessment', adminAssessmentRoutes);
 
 
 // health

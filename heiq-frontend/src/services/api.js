@@ -67,6 +67,55 @@ export const authAPI = {
   },
 };
 
+// Assessment API
+export const assessmentAPI = {
+  // GET /api/admin/assessment/:type
+  getByType: async (type, params = {}) => {
+    const response = await apiClient.get(`/api/admin/assessment/${type}`, {
+      params,
+    });
+    return response.data;
+  },
+
+  // GET /api/admin/assessment/:type/:id
+  getById: async (type, id) => {
+    const response = await apiClient.get(`/api/admin/assessment/${type}/${id}`);
+    return response.data;
+  },
+
+  // POST /api/admin/assessment/:type
+  create: async (type, data) => {
+    const response = await apiClient.post(`/api/admin/assessment/${type}`, data);
+    return response.data;
+  },
+
+  // PATCH /api/admin/assessment/:type/:id
+  update: async (type, id, data) => {
+    const response = await apiClient.patch(
+      `/api/admin/assessment/${type}/${id}`,
+      data
+    );
+    return response.data;
+  },
+
+  // DELETE /api/admin/assessment/:type/:id
+  delete: async (type, id) => {
+    const response = await apiClient.delete(
+      `/api/admin/assessment/${type}/${id}`
+    );
+    return response.data;
+  },
+
+  // PATCH /api/admin/assessment/:type/:id/status
+  toggleStatus: async (type, id, status) => {
+    const response = await apiClient.patch(
+      `/api/admin/assessment/${type}/${id}/status`,
+      { status }
+    );
+    return response.data;
+  },
+};
+
 // Generic API call function for future use
 export const apiCall = async (method, endpoint, data = null, config = {}) => {
   try {

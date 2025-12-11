@@ -52,12 +52,29 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ message: 'Missing fields' });
 
-    const user = await User.findOne({ email });
+    // Case-insensitive email lookup (escape special regex characters)
+    const escapedEmail = email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const user = await User.findOne({ email: { $regex: new RegExp(`^${escapedEmail}$`, 'i') } });
     if (!user) return res.status(401).json({ message: 'Invalid credentials' });
+
+    // Check if user is blocked
+    if (user.blocked) return res.status(401).json({ message: 'Account is blocked' });
+
+    // Check if user is deleted
+    if (user.deleted) return res.status(401).json({ message: 'Account is deleted' });
+
+    // Check if user has password (not social login only)
     if (!user.passwordHash) return res.status(401).json({ message: 'Use social login' });
 
+    // Verify password
     const match = await bcrypt.compare(password, user.passwordHash);
     if (!match) return res.status(401).json({ message: 'Invalid credentials' });
+
+    // Check JWT secrets are configured
+    if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
+      console.error('JWT secrets not configured');
+      return res.status(500).json({ message: 'Server configuration error' });
+    }
 
     const payload = { sub: user._id.toString(), role: user.role, email: user.email };
     const accessToken = createAccessToken(payload);
@@ -77,7 +94,7 @@ exports.login = async (req, res) => {
       user: { id: user._id, email: user.email, name: user.name, role: user.role }
     });
   } catch (err) {
-    console.error(err);
+    console.error('Login error:', err);
     return res.status(500).json({ message: 'Server error' });
   }
 };

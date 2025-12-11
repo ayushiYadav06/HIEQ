@@ -2,11 +2,15 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { authAPI } from '../../services/api';
 import { storage } from '../../utils/storage';
 
-// Initial state
+// Initial state - restore from storage but don't auto-authenticate
+// Token will be validated on first API call
+const storedToken = storage.getToken();
+const storedUser = storage.getUser();
+
 const initialState = {
-  user: storage.getUser(),
-  token: storage.getToken(),
-  isAuthenticated: !!storage.getToken(),
+  user: storedUser,
+  token: storedToken,
+  isAuthenticated: false, // Start as false - token needs to be validated via API call
   isLoading: false,
   error: null,
 };

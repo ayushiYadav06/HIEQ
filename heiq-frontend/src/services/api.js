@@ -35,10 +35,19 @@ apiClient.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid - clear storage and redirect to login
-      localStorage.removeItem(TOKEN_STORAGE_KEY);
-      localStorage.removeItem(import.meta.env.VITE_USER_STORAGE_KEY || 'hieq_user_data');
-      window.location.href = '/login';
+      // Don't redirect for login/refresh endpoints to avoid loops
+      const isAuthEndpoint = error.config?.url?.includes('/api/auth/login') || 
+                            error.config?.url?.includes('/api/auth/refresh');
+      
+      // Don't redirect if already on login page
+      const isLoginPage = window.location.pathname === '/login';
+      
+      if (!isAuthEndpoint && !isLoginPage) {
+        // Token expired or invalid - clear storage and redirect to login
+        localStorage.removeItem(TOKEN_STORAGE_KEY);
+        localStorage.removeItem(import.meta.env.VITE_USER_STORAGE_KEY || 'hieq_user_data');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

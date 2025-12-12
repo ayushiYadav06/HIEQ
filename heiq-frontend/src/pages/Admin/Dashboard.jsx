@@ -1,5 +1,6 @@
 import React from "react";
 import { Row, Col, Card, Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import AdminLayout from "../../components/layout/AdminLayout";
 import { useTheme } from "../../contexts/ThemeContext";
 import { colors } from "../../theme/colors";
@@ -18,6 +19,8 @@ const Dashboard = () => {
   const { isDark } = useTheme();
   const themeColors = isDark ? colors.dark : colors.light;
 
+  const navigate = useNavigate();
+
   // Support table sample data
   const tableData = [
     { id: "TKT-1023", category: "Login Issue", agent: "Sarah M.", status: "Open", age: 52 },
@@ -26,6 +29,19 @@ const Dashboard = () => {
     { id: "TKT-1026", category: "Job Posting", agent: "Emma L.", status: "Waiting", age: 12 },
     { id: "TKT-1027", category: "Profile", agent: "Sarah M.", status: "Open", age: 36 },
   ];
+
+  // ───────────────────────────────────────────────
+  // WRAPPER FUNCTION → makes any StatBox clickable
+  // ───────────────────────────────────────────────
+  const ClickableStatBox = ({ children }) => (
+    <div
+      onClick={() => navigate("/admin/candidates")}
+      style={{ cursor: "pointer" }}
+      className="hover-scale"
+    >
+      {children}
+    </div>
+  );
 
   return (
     <AdminLayout>
@@ -37,77 +53,85 @@ const Dashboard = () => {
         Welcome back, Admin. Here's what's happening today.
       </p>
 
-      {/* ───────────────────────────── */}
       {/* METRICS */}
-      {/* ───────────────────────────── */}
       <Row className="g-4 mt-2">
+        
         <Col lg={2} md={4} sm={6}>
-          <StatBox
-            title="Total Users"
-            value="1,247"
-            change="+12%"
-            icon={<FiUsers />}
-            theme={themeColors}
-          />
+          <ClickableStatBox>
+            <StatBox
+              title="Total Users"
+              value="1,247"
+              change="+12%"
+              icon={<FiUsers />}
+              theme={themeColors}
+            />
+          </ClickableStatBox>
         </Col>
 
         <Col lg={2} md={4} sm={6}>
-          <StatBox
-            title="Active User "
-            value="892"
-            change="+8%"
-            icon={<FiUsers />}
-            theme={themeColors}
-          />
+          <ClickableStatBox>
+            <StatBox
+              title="Active User"
+              value="892"
+              change="+8%"
+              icon={<FiUsers />}
+              theme={themeColors}
+            />
+          </ClickableStatBox>
         </Col>
 
         <Col lg={2} md={4} sm={6}>
-          <StatBox
-            title="Total User"
-            value="8,543"
-            change="+8%"
-            icon={<FiBriefcase />}
-            theme={themeColors}
-          />
+          <ClickableStatBox>
+            <StatBox
+              title="Total User"
+              value="8,543"
+              change="+8%"
+              icon={<FiBriefcase />}
+              theme={themeColors}
+            />
+          </ClickableStatBox>
         </Col>
 
         <Col lg={2} md={4} sm={6}>
-          <StatBox
-            title="Active Job Listings"
-            value="342"
-            change="+3%"
-            icon={<FiFileText />}
-            theme={themeColors}
-          />
+          <ClickableStatBox>
+            <StatBox
+              title="Active Job Listings"
+              value="342"
+              change="+3%"
+              icon={<FiFileText />}
+              theme={themeColors}
+            />
+          </ClickableStatBox>
         </Col>
 
         <Col lg={2} md={4} sm={6}>
-          <StatBox
-            title="Open Tickets"
-            value="47"
-            change="-5%"
-            icon={<FiBarChart />}
-            theme={themeColors}
-          />
+          <ClickableStatBox>
+            <StatBox
+              title="Open Tickets"
+              value="47"
+              change="-5%"
+              icon={<FiBarChart />}
+              theme={themeColors}
+            />
+          </ClickableStatBox>
         </Col>
 
         <Col lg={2} md={4} sm={6}>
-          <StatBox
-            title="Pending Assessments"
-            value="128"
-            change="+2%"
-            icon={<FiFileText />}
-            theme={themeColors}
-          />
+          <ClickableStatBox>
+            <StatBox
+              title="Pending Assessments"
+              value="128"
+              change="+2%"
+              icon={<FiFileText />}
+              theme={themeColors}
+            />
+          </ClickableStatBox>
         </Col>
       </Row>
 
-      {/* ───────────────────────────── */}
-      {/* ALERTS + GRAPH SIDE BY SIDE */}
-      {/* ───────────────────────────── */}
+      {/* ALERTS + GRAPH */}
       <Row className="mt-4 g-4">
         
-        {/* LEFT: ALERTS */}
         <Col lg={6}>
           <AlertsContainer theme={themeColors}>
             <AlertBox
@@ -116,28 +140,24 @@ const Dashboard = () => {
               title="5 Tickets > 48 hours old"
               description="Requires immediate attention"
             />
-
-             <AlertBox
+            <AlertBox
               borderColor="#ffcccc"
               dotColor="red"
               title="10 Employer with expired job plan"
               description="Subscription renewal needed"
             />
-
             <AlertBox
               borderColor="#ffe9a6"
               dotColor="#f7c600"
               title="2 Employers waiting approval"
               description="Pending verification"
             />
-
             <AlertBox
               borderColor="#ffd8b1"
               dotColor="#ff8d3a"
               title="14 Candidates stuck at assessment"
               description="Technical issues reported"
             />
-
             <AlertBox
               borderColor="#ffcccc"
               dotColor="red"
@@ -147,7 +167,7 @@ const Dashboard = () => {
           </AlertsContainer>
         </Col>
 
-        {/* RIGHT: GRAPH */}
+        {/* RIGHT Chart */}
         <Col lg={6}>
           <Card
             className="shadow-sm border-0 h-100"
@@ -160,12 +180,9 @@ const Dashboard = () => {
             <SystemActivityChart theme={themeColors} />
           </Card>
         </Col>
-
       </Row>
 
-      {/* ───────────────────────────── */}
       {/* SUPPORT TABLE */}
-      {/* ───────────────────────────── */}
       <Card
         className="mt-4 border-0 shadow-sm"
         style={{

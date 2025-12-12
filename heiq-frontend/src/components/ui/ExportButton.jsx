@@ -9,7 +9,7 @@ const ExportButton = ({ onClick }) => {
       variant="success"
       className="d-flex align-items-center gap-2 px-3 py-2 w-100"
     >
-      <img src={ExcelIcon} alt="excel" width={20} height={20} />
+      <img src={ExcelIcon} alt="excel" width={35} height={20} />
       EXPORT
     </Button>
   );

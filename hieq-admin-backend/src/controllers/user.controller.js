@@ -8,7 +8,9 @@ const { sendPasswordResetEmail, sendEmailVerificationEmail } = require('../utils
 // GET /api/users
 exports.getAllUsers = async (req, res) => {
   try {
-    const { role, search } = req.query;
+    const { role, search, page = 1, limit = 10 } = req.query;
+    const pageNum = Math.max(1, Number(page) || 1);
+    const limitNum = Math.max(1, Math.min(100, Number(limit) || 10)); // Max 100 per page
     const filter = {};
 
     if (role) filter.role = role;
@@ -18,13 +20,31 @@ exports.getAllUsers = async (req, res) => {
         { email: new RegExp(search, 'i') }
       ];
 
+    // Calculate pagination using sanitized values
+    const skip = (pageNum - 1) * limitNum;
+
+    // Get total count
+    const total = await User.countDocuments(filter);
+
+    // Get paginated users - IMPORTANT: skip and limit must be applied
     const users = await User.find(filter)
       .select('-passwordHash -refreshTokens')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(Number(skip))
+      .limit(Number(limitNum));
 
-    res.json(users);
+    // Log for debugging
+    console.log(`[getAllUsers] Page: ${pageNum}, Limit: ${limitNum}, Skip: ${skip}, Total: ${total}, Returned: ${users.length}`);
+
+    res.json({
+      users,
+      total,
+      page: pageNum,
+      limit: limitNum,
+      totalPages: Math.ceil(total / limitNum)
+    });
   } catch (err) {
-    console.error(err);
+    console.error('getAllUsers error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };

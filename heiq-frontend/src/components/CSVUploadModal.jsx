@@ -22,12 +22,11 @@ const CSVUploadModal = ({ isOpen, onClose, onUpload, isUploading = false, upload
   }, [isOpen]);
 
   const handleFileSelect = (event) => {
-    const file = event.target.files[0];
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const file = event.target.files?.[0];
     setFileError("");
-    // Clear previous upload status when selecting a new file
-    if (uploadStatus) {
-      // This will be handled by parent component
-    }
     
     if (!file) {
       setSelectedFile(null);
@@ -38,6 +37,9 @@ const CSVUploadModal = ({ isOpen, onClose, onUpload, isUploading = false, upload
     if (!file.name.endsWith(".csv")) {
       setFileError("Please select a CSV file");
       setSelectedFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
       return;
     }
 
@@ -45,17 +47,27 @@ const CSVUploadModal = ({ isOpen, onClose, onUpload, isUploading = false, upload
     if (file.size > 5 * 1024 * 1024) {
       setFileError("File size must be less than 5MB");
       setSelectedFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
       return;
     }
 
     setSelectedFile(file);
   };
 
-  const handleFileButtonClick = () => {
-    fileInputRef.current?.click();
+  const handleFileButtonClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
   };
 
-  const handleUpload = () => {
+  const handleUpload = (e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    
     if (!selectedFile) {
       setFileError("Please select a CSV file first");
       return;
@@ -66,6 +78,8 @@ const CSVUploadModal = ({ isOpen, onClose, onUpload, isUploading = false, upload
       target: {
         files: [selectedFile],
       },
+      preventDefault: () => {},
+      stopPropagation: () => {},
     };
 
     onUpload(syntheticEvent);
@@ -81,9 +95,22 @@ const CSVUploadModal = ({ isOpen, onClose, onUpload, isUploading = false, upload
   };
 
   return (
-    <Modal show={isOpen} onHide={handleClose} centered size="lg">
+    <Modal 
+      show={isOpen} 
+      onHide={handleClose} 
+      centered 
+      size="lg"
+      onClick={(e) => {
+        // Prevent modal from closing when clicking inside modal content
+        if (e.target === e.currentTarget) {
+          // Only close if clicking the backdrop
+          handleClose();
+        }
+      }}
+    >
       <Modal.Header
         closeButton
+        onClick={(e) => e.stopPropagation()}
         style={{
           backgroundColor: themeColors.surface,
           borderColor: themeColors.border,
@@ -93,7 +120,10 @@ const CSVUploadModal = ({ isOpen, onClose, onUpload, isUploading = false, upload
           Upload CSV File
         </Modal.Title>
       </Modal.Header>
-      <Modal.Body style={{ backgroundColor: themeColors.surface }}>
+      <Modal.Body 
+        style={{ backgroundColor: themeColors.surface }}
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Upload Status Alert */}
         {uploadStatus && (
           <Alert
@@ -136,6 +166,7 @@ const CSVUploadModal = ({ isOpen, onClose, onUpload, isUploading = false, upload
           accept=".csv"
           ref={fileInputRef}
           onChange={handleFileSelect}
+          onClick={(e) => e.stopPropagation()}
           style={{ display: "none" }}
         />
 
@@ -159,6 +190,23 @@ const CSVUploadModal = ({ isOpen, onClose, onUpload, isUploading = false, upload
               e.currentTarget.style.borderColor = themeColors.border;
               e.currentTarget.style.backgroundColor = themeColors.inputBackground;
             }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                const file = e.dataTransfer.files[0];
+                if (file.name.endsWith(".csv") && file.size <= 5 * 1024 * 1024) {
+                  setSelectedFile(file);
+                  setFileError("");
+                } else {
+                  setFileError("Please drop a valid CSV file (max 5MB)");
+                }
+              }
+            }}
           >
             {selectedFile ? (
               <div>
@@ -179,8 +227,10 @@ const CSVUploadModal = ({ isOpen, onClose, onUpload, isUploading = false, upload
                   variant="link"
                   size="sm"
                   onClick={(e) => {
+                    e.preventDefault();
                     e.stopPropagation();
                     setSelectedFile(null);
+                    setFileError("");
                     if (fileInputRef.current) {
                       fileInputRef.current.value = "";
                     }
@@ -231,6 +281,7 @@ const CSVUploadModal = ({ isOpen, onClose, onUpload, isUploading = false, upload
         </div>
       </Modal.Body>
       <Modal.Footer
+        onClick={(e) => e.stopPropagation()}
         style={{
           backgroundColor: themeColors.surface,
           borderColor: themeColors.border,
@@ -240,7 +291,10 @@ const CSVUploadModal = ({ isOpen, onClose, onUpload, isUploading = false, upload
           <>
             <Button
               variant="secondary"
-              onClick={handleClose}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleClose();
+              }}
               style={{
                 backgroundColor: themeColors.buttonSecondaryBackground,
                 borderColor: themeColors.border,
@@ -251,7 +305,10 @@ const CSVUploadModal = ({ isOpen, onClose, onUpload, isUploading = false, upload
             </Button>
             <Button
               variant="primary"
-              onClick={handleClose}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleClose();
+              }}
               style={{
                 backgroundColor: colors.primaryGreen,
                 borderColor: colors.primaryGreen,
@@ -266,7 +323,10 @@ const CSVUploadModal = ({ isOpen, onClose, onUpload, isUploading = false, upload
           <>
             <Button
               variant="secondary"
-              onClick={handleClose}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleClose();
+              }}
               disabled={isUploading}
               style={{
                 backgroundColor: themeColors.buttonSecondaryBackground,
@@ -278,7 +338,10 @@ const CSVUploadModal = ({ isOpen, onClose, onUpload, isUploading = false, upload
             </Button>
             <Button
               variant="primary"
-              onClick={handleUpload}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleUpload(e);
+              }}
               disabled={!selectedFile || isUploading}
               style={{
                 backgroundColor: colors.primaryGreen,

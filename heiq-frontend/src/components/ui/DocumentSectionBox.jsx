@@ -12,8 +12,11 @@ const DocumentSectionBox = ({ title, items = [], onUploadNew }) => {
       {/* SECTION TITLE */}
       <h6 className="fw-bold mb-3">{title}</h6>
 
-      {items.map((item, index) => (
-        <div key={index} className="p-3 bg-light rounded border mb-3">
+      {items.map((item, index) => {
+        // Use a more unique key to ensure all items render
+        const uniqueKey = item.documentName ? `${item.documentName}-${index}` : `item-${index}`;
+        return (
+        <div key={uniqueKey} className="p-3 bg-light rounded border mb-3">
           <Row className="align-items-center gy-3">
 
             {/* LEFT: ICON + NAME + DATE + EYE/CLOUD BUTTONS */}
@@ -32,25 +35,30 @@ const DocumentSectionBox = ({ title, items = [], onUploadNew }) => {
                 </small>
 
                 {/* EYE + CLOUD AS BOOTSTRAP BUTTONS */}
-                <div className="btn-group" role="group">
-                  <Button
-                    variant="light"
-                    size="sm"
-                    className="d-flex align-items-center justify-content-center"
-                    onClick={item.onView}
-                  >
-                    <img src={EyeIcon} width={18} height={18} alt="view" />
-                  </Button>
+                {item.hasFile !== false && (
+                  <div className="btn-group" role="group">
+                    <Button
+                      variant="light"
+                      size="sm"
+                      className="d-flex align-items-center justify-content-center"
+                      onClick={item.onView}
+                    >
+                      <img src={EyeIcon} width={18} height={18} alt="view" />
+                    </Button>
 
-                  <Button
-                    variant="light"
-                    size="sm"
-                    className="d-flex align-items-center justify-content-center"
-                    onClick={item.onDownload}
-                  >
-                    <img src={CloudIcon} width={20} height={20} alt="download" />
-                  </Button>
-                </div>
+                    <Button
+                      variant="light"
+                      size="sm"
+                      className="d-flex align-items-center justify-content-center"
+                      onClick={item.onDownload}
+                    >
+                      <img src={CloudIcon} width={20} height={20} alt="download" />
+                    </Button>
+                  </div>
+                )}
+                {item.hasFile === false && (
+                  <small className="text-muted text-italic">No document uploaded</small>
+                )}
               </div>
             </Col>
 
@@ -83,7 +91,8 @@ const DocumentSectionBox = ({ title, items = [], onUploadNew }) => {
 
           </Row>
         </div>
-      ))}
+        );
+      })}
 
       {/* UPLOAD DOCUMENT — BOOTSTRAP LINK BUTTON */}
       <Button

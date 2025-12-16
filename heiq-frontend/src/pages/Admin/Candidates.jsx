@@ -1,22 +1,21 @@
 // pages/Admin/Candidates.jsx
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { Button, Alert, Badge, Spinner } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Button, Spinner, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../contexts/ThemeContext";
 import { colors } from "../../theme/colors";
 import AdminLayout from "../../components/layout/AdminLayout";
 import BackButton from "../../components/layout/BackButton";
 import Tabs from "../../components/ui/Tabs";
-import SearchInput from "../../components/ui/SearchInput";
 import PageTitle from "../../components/ui/PageTitle";
-import ExportButton from "../../components/ui/ExportButton";
-import DateTabs from "../../components/ui/DateTabs";
-import FilterDropdown from "../../components/ui/FilterDropdown";
-import DataTable from "../../components/ui/DataTable";
 import Pagination from "../../components/ui/Pagination";
 import CSVUploadModal from "../../components/CSVUploadModal";
-import { userAPI } from "../../services/api";
+import FilterBar from "../../components/userManagement/FilterBar";
+import UserTable from "../../components/userManagement/UserTable";
 import usePagination from "../../hooks/usePagination";
+import useUserManagement from "../../hooks/useUserManagement";
+import useCSVOperations from "../../hooks/useCSVOperations";
+import { candidateAPI, employerAPI, userAPI } from "../../services/api";
 
 const Candidates = () => {
   const navigate = useNavigate();
@@ -27,6 +26,12 @@ const Candidates = () => {
   const [filterBy, setFilterBy] = useState("Email ID");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
+  const [verificationStatus, setVerificationStatus] = useState(null);
+  const [accountStatus, setAccountStatus] = useState(null);
+  const [isCSVModalOpen, setIsCSVModalOpen] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Use pagination hook
   const {
@@ -41,359 +46,122 @@ const Candidates = () => {
     setPageSize,
   } = usePagination(1, 10);
 
-  const [users, setUsers] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [uploadStatus, setUploadStatus] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isCSVModalOpen, setIsCSVModalOpen] = useState(false);
+  // Use user management hook
+  const { users, isLoading, error, refetch: fetchUsers } = useUserManagement(
+    activeTab,
+    filterBy,
+    searchQuery,
+    selectedDate,
+    verificationStatus,
+    accountStatus,
+    currentPage,
+    pageSize,
+    updateTotalItems
+  );
 
-  // Fetch Users
-  const fetchUsers = useCallback(async () => {
-    setIsLoading(true);
-    setError("");
-
-    try {
-      const role = activeTab === "Candidates" ? "STUDENT" : "EMPLOYER";
-
-      const params = {
-        role,
-        search: searchQuery || undefined,
-        filterBy: filterBy,
-        date: selectedDate ? selectedDate.toISOString() : undefined,
-        page: currentPage,
-        limit: pageSize,
-      };
-
-      console.log('[Candidates] Fetching users with params:', params);
-      const response = await userAPI.getAll(params);
-      console.log('[Candidates] Response:', { 
-        isArray: Array.isArray(response),
-        usersCount: Array.isArray(response) ? response.length : response.users?.length,
-        total: Array.isArray(response) ? response.length : response.total,
-        page: response.page,
-        totalPages: response.totalPages
-      });
-      
-      // Handle both old format (array) and new format (object with pagination)
-      if (Array.isArray(response)) {
-        // Fallback: backend returned full array. Slice client-side so pagination still works.
-        const total = response.length;
-        const start = (currentPage - 1) * pageSize;
-        const end = start + pageSize;
-        const sliced = response.slice(start, end);
-        console.warn('[Candidates] Received array format instead of paginated object, slicing on client', { total, start, end });
-        setUsers(sliced);
-        updateTotalItems(total);
-      } else {
-        // New format - paginated object
-        setUsers(response.users || []);
-        updateTotalItems(response.total || 0);
-      }
-    } catch (err) {
-      setError("Failed to load users. Please try again.");
-      setUsers([]);
-      updateTotalItems(0);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [activeTab, searchQuery, filterBy, selectedDate, currentPage, pageSize, updateTotalItems]);
-
-  useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+  // Use CSV operations hook
+  const {
+    uploadStatus,
+    isUploading,
+    setUploadStatus,
+    handleCSVUpload,
+    handleExportCSV
+  } = useCSVOperations(activeTab, searchQuery, filterBy, selectedDate, fetchUsers);
 
   // Reset pagination when filters change; reset page size to default when switching tab
   useEffect(() => {
     resetPagination();
-    if (activeTab === "Candidates" || activeTab === "Employers") {
+    if (activeTab === "Candidates" || activeTab === "Employers" || activeTab === "Admins") {
       setPageSize(10);
     }
-  }, [activeTab, searchQuery, filterBy, selectedDate, resetPagination, setPageSize]);
-
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-GB");
-  };
-
-  const getRoleBadgeColor = (role) => {
-    const roleColors = {
-      ADMIN: "danger",
-      SUPER_ADMIN: "danger",
-      EMPLOYER: "info",
-      STUDENT: "success",
-      CONTENT_ADMIN: "warning",
-      VERIFICATION_ADMIN: "warning",
-      SUPPORT_ADMIN: "warning",
-    };
-    return roleColors[role] || "secondary";
-  };
-
-  const handleNameClick = (id) => navigate(`/profile/${id}`);
-
-  const columns = [
-    "Name",
-    "Email ID",
-    "Phone",
-    "Role",
-    "Verification Status",
-    "Account Status",
-    "Registered on",
-  ];
-
-  const rows = useMemo(
-    () =>
-      users.map((u) => ({
-        Name: (
-          <span
-            style={{
-              color: colors.primaryGreen,
-              cursor: "pointer",
-              textDecoration: "underline",
-              fontWeight: 500,
-            }}
-            onClick={() => handleNameClick(u._id)}
-          >
-            {u.name}
-          </span>
-        ),
-        "Email ID": u.email,
-        Phone: u.phone || u.contact,
-        Role: <Badge bg={getRoleBadgeColor(u.role)}>{u.role}</Badge>,
-        "Verification Status": u.blocked ? (
-          <span style={{ color: "red" }}>Blocked</span>
-        ) : (
-          <span style={{ color: "green" }}>Active</span>
-        ),
-        "Account Status": u.deleted ? (
-          <span style={{ color: "red" }}>Deleted</span>
-        ) : u.blocked ? (
-          <span style={{ color: "orange" }}>Blocked</span>
-        ) : (
-          <span style={{ color: "green" }}>Active</span>
-        ),
-        "Registered on": formatDate(u.createdAt),
-        _id: u._id,
-      })),
-    [users]
-  );
-
-  const handleExportCSV = async () => {
-    /* original export logic remains unchanged */
-  };
-
-  // Handle CSV file upload
-  const handleCSVUpload = async (event) => {
-    const file = event.target.files?.[0];
-    if (!file) {
-      setUploadStatus({
-        type: "danger",
-        message: "No file selected",
-      });
-      return;
+    // Clear status filters when filter type changes
+    if (filterBy !== "Verification Status") {
+      setVerificationStatus(null);
     }
+    if (filterBy !== "Account Status") {
+      setAccountStatus(null);
+    }
+    // Clear search query and date when tab changes
+    setSearchQuery("");
+    setSelectedDate(null);
+  }, [activeTab, filterBy, resetPagination, setPageSize]);
 
-    setIsUploading(true);
-    setUploadStatus(null);
-    setError("");
-
+  // Handle CSV export
+  const handleExport = async () => {
     try {
-      // Read CSV file
-      const text = await file.text();
-      const lines = text.split("\n").filter((line) => line.trim() !== "");
-      
-      if (lines.length < 2) {
-        throw new Error("CSV file must have at least a header row and one data row");
-      }
+      await handleExportCSV();
+    } catch (err) {
+      // Error is already handled in the hook
+    }
+  };
 
-      // Parse CSV header - handle quoted values
-      const parseCSVLine = (line) => {
-        const result = [];
-        let current = "";
-        let inQuotes = false;
-        
-        for (let i = 0; i < line.length; i++) {
-          const char = line[i];
-          
-          if (char === '"') {
-            inQuotes = !inQuotes;
-          } else if (char === ',' && !inQuotes) {
-            result.push(current.trim());
-            current = "";
-          } else {
-            current += char;
-          }
-        }
-        result.push(current.trim());
-        return result;
-      };
-
-      const headers = parseCSVLine(lines[0]).map((h) => 
-        h.replace(/^"|"$/g, "").trim().toLowerCase()
-      );
-      
-      // Required columns - check for variations
-      const hasFullName = headers.some(h => 
-        h === "fullname" || h === "full name" || h === "fullname"
-      );
-      const hasEmail = headers.includes("email");
-      const hasPassword = headers.includes("password");
-      
-      const missingColumns = [];
-      if (!hasFullName) missingColumns.push("Full Name");
-      if (!hasEmail) missingColumns.push("Email");
-      if (!hasPassword) missingColumns.push("Password");
-
-      if (missingColumns.length > 0) {
-        throw new Error(
-          `Missing required columns: ${missingColumns.join(", ")}`
-        );
-      }
-
-      // Helper function to parse education from pipe-separated format
-      const parseEducation = (eduString) => {
-        if (!eduString || !eduString.trim()) return [];
-        
-        try {
-          // Try JSON first
-          return JSON.parse(eduString);
-        } catch {
-          // Parse pipe-separated format: "Degree|University|Year;Degree2|University2|Year2"
-          const entries = eduString.split(";").filter(e => e.trim());
-          return entries.map(entry => {
-            const parts = entry.split("|").map(p => p.trim());
-            return {
-              degree: parts[0] || "",
-              university: parts[1] || "",
-              year: parts[2] || "",
-              degreeFile: null,
-              status: "Pending"
-            };
-          });
-        }
-      };
-
-      // Helper function to parse experience from pipe-separated format
-      const parseExperience = (expString) => {
-        if (!expString || !expString.trim()) return [];
-        
-        try {
-          // Try JSON first
-          return JSON.parse(expString);
-        } catch {
-          // Parse pipe-separated format: "Company|Role|Years;Company2|Role2|Years2"
-          const entries = expString.split(";").filter(e => e.trim());
-          return entries.map(entry => {
-            const parts = entry.split("|").map(p => p.trim());
-            return {
-              company: parts[0] || "",
-              role: parts[1] || "",
-              years: parts[2] || ""
-            };
-          });
-        }
-      };
-
-      // Parse CSV data
-      const users = [];
-      const role = activeTab === "Candidates" ? "STUDENT" : "EMPLOYER";
-
-      for (let i = 1; i < lines.length; i++) {
-        if (!lines[i].trim()) continue; // Skip empty lines
-        
-        const values = parseCSVLine(lines[i]).map((v) => 
-          v.replace(/^"|"$/g, "").trim()
-        );
-        const user = {};
-
-        headers.forEach((header, index) => {
-          const value = values[index] || "";
-          
-          // Map CSV columns to user object
-          if (header === "fullname" || header === "full name") {
-            user.fullName = value;
-          } else if (header === "email") {
-            user.email = value;
-          } else if (header === "password") {
-            user.password = value;
-          } else if (header === "contact" || header === "phone") {
-            user.contact = value;
-          } else if (header === "gender") {
-            user.gender = value;
-          } else if (header === "dob" || header === "date of birth") {
-            user.dob = value;
-          } else if (header === "summary") {
-            user.summary = value;
-          } else if (header === "role") {
-            user.role = value || role;
-          } else if (header === "education" && value) {
-            user.education = parseEducation(value);
-          } else if (header === "experience" && value) {
-            user.experience = parseExperience(value);
-          } else if (header === "skills" && value) {
-            try {
-              user.skills = JSON.parse(value);
-            } catch {
-              user.skills = value.split(";").filter((s) => s.trim());
-            }
-          } else if (header === "companyexperience" || header === "company experience") {
-            try {
-              user.companyExperience = JSON.parse(value);
-            } catch {
-              user.companyExperience = [];
-            }
-          }
-        });
-
-        // Set default role if not provided
-        if (!user.role) {
-          user.role = role;
-        }
-
-        // Only add user if required fields are present
-        if (user.fullName && user.email && user.password) {
-          users.push(user);
-        }
-      }
-
-      if (users.length === 0) {
-        throw new Error("No valid users found in CSV file");
-      }
-
-      // Call bulk create API
-      const response = await userAPI.bulkCreate(users);
-
-      // Set upload status
-      setUploadStatus({
-        type: "success",
-        message: response.message || `Successfully uploaded ${response.results?.success?.length || 0} users`,
-        details: response.results,
-      });
-
-      // Refresh user list after successful upload
-      if (response.results?.success?.length > 0) {
-        setTimeout(() => {
-          fetchUsers();
-        }, 1000);
-      }
-
+  // Handle CSV upload with modal management
+  const handleUpload = async (event) => {
+    try {
+      const response = await handleCSVUpload(event);
       // Close modal after 3 seconds if successful
-      if (response.results?.success?.length > 0) {
+      if (response?.results?.success?.length > 0) {
         setTimeout(() => {
           setIsCSVModalOpen(false);
           setUploadStatus(null);
         }, 3000);
       }
     } catch (err) {
-      console.error("CSV upload error:", err);
-      setUploadStatus({
-        type: "danger",
-        message: err.message || "Failed to upload CSV file. Please check the file format.",
-      });
-    } finally {
-      setIsUploading(false);
+      // Error is already handled in the hook
     }
+  };
+
+  // Handle edit user
+  const handleEdit = (userId) => {
+    navigate(`/create-user?edit=${userId}`);
+  };
+
+  // Handle delete user
+  const handleDeleteClick = (userId) => {
+    setUserToDelete(userId);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!userToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      // Determine which API to use based on active tab
+      let api;
+      let deleteMethod;
+      
+      if (activeTab === "Candidates") {
+        api = candidateAPI;
+        deleteMethod = api.delete;
+      } else if (activeTab === "Employers") {
+        api = employerAPI;
+        deleteMethod = api.delete;
+      } else if (activeTab === "Admins") {
+        api = userAPI;
+        // Use hard delete for admin users (complete deletion from DB)
+        deleteMethod = api.hardDelete;
+      } else {
+        api = candidateAPI;
+        deleteMethod = api.delete;
+      }
+
+      await deleteMethod(userToDelete);
+      alert("User deleted successfully!");
+      setShowDeleteModal(false);
+      setUserToDelete(null);
+      fetchUsers(); // Refresh the list
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+      alert(error.response?.data?.message || "Failed to delete user. Please try again.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setUserToDelete(null);
   };
 
   return (
@@ -428,35 +196,31 @@ const Candidates = () => {
         </div>
 
         <Tabs
-          tabs={["Candidates", "Employers"]}
+          tabs={["Candidates", "Employers", "Admins"]}
           active={activeTab}
           setActive={setActiveTab}
           fullWidth
         />
 
-        <div className="d-flex flex-wrap gap-3 mt-4 mb-3 align-items-center">
-          <div style={{ width: "180px" }}>
-            <ExportButton onClick={handleExportCSV} />
-          </div>
+        <FilterBar
+          filterBy={filterBy}
+          setFilterBy={setFilterBy}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          verificationStatus={verificationStatus}
+          setVerificationStatus={setVerificationStatus}
+          accountStatus={accountStatus}
+          setAccountStatus={setAccountStatus}
+          onExport={handleExport}
+        />
 
-          <div style={{ flex: 1, minWidth: "260px" }}>
-            <SearchInput
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+        {error && (
+          <div className="alert alert-danger" role="alert">
+            {error}
           </div>
-
-          <div style={{ width: "220px", minWidth: "180px" }}>
-            <FilterDropdown value={filterBy} setValue={setFilterBy} />
-          </div>
-
-          <div style={{ flex: 1, minWidth: "260px" }}>
-            <DateTabs selected={selectedDate} onChange={setSelectedDate} />
-          </div>
-        </div>
-
-        {error && <div className="alert alert-danger">{error}</div>}
+        )}
 
         {isLoading ? (
           <div className="d-flex justify-content-center p-5">
@@ -471,10 +235,13 @@ const Candidates = () => {
                 borderColor: themeColors.border,
               }}
             >
-              <DataTable columns={columns} rows={rows} emptyText="No users found" />
+              <UserTable 
+                users={users} 
+                onEdit={handleEdit}
+                onDelete={handleDeleteClick}
+              />
             </div>
 
-            {/* Reusable Pagination Component */}
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
@@ -493,12 +260,33 @@ const Candidates = () => {
         onClose={() => {
           setIsCSVModalOpen(false);
           setUploadStatus(null);
-          setIsUploading(false);
         }}
-        onUpload={handleCSVUpload}
+        onUpload={handleUpload}
         isUploading={isUploading}
         uploadStatus={uploadStatus}
       />
+
+      {/* Delete Confirmation Modal */}
+      <Modal show={showDeleteModal} onHide={handleCancelDelete}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Delete</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete this user? This action cannot be undone.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCancelDelete} disabled={isDeleting}>
+            Cancel
+          </Button>
+          <Button 
+            variant="danger" 
+            onClick={handleConfirmDelete} 
+            disabled={isDeleting}
+          >
+            {isDeleting ? "Deleting..." : "Delete"}
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </AdminLayout>
   );
 };

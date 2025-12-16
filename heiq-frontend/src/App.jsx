@@ -18,6 +18,7 @@ import Settings from "./pages/Admin/Settings";
 
 import ListManagement from "./pages/Admin/ListManagement_module/ListManagement.jsx";
 import UserProfile from "./pages/Admin/userProfile.jsx";
+import VerifyEmail from "./pages/VerifyEmail";
 
 // Public route wrapper (redirects to dashboard if already logged in)
 const PublicRoute = ({ children }) => {
@@ -37,6 +38,7 @@ const App = () => {
 
   {/* Public Routes */}
   <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+  <Route path="/verify-email" element={<VerifyEmail />} />
 
         {/* Protected Routes */}
         <Route

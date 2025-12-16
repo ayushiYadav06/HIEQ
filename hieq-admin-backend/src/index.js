@@ -11,6 +11,8 @@ const authRoutes = require('./routes/auth.routes');
 const adminRoutes = require('./routes/admin.routes');
 
 const userRoutes = require('./routes/user.routes');
+const candidateRoutes = require('./routes/candidate.routes');
+const employerRoutes = require('./routes/employer.routes');
 const ticketRoutes = require('./routes/ticket.routes');
 const adminTicketRoutes = require('./routes/admin.ticket.routes');
 const adminListManagementRoutes = require('./routes/admin.listmanagement.routes');
@@ -46,7 +48,9 @@ app.use(limiter);
 // routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/users', userRoutes);
+app.use('/api/users', userRoutes); // For admin users only
+app.use('/api/candidates', candidateRoutes); // For candidates
+app.use('/api/employers', employerRoutes); // For employers
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/admin/tickets', adminTicketRoutes);
 app.use('/api/admin/listmanagement', adminListManagementRoutes);

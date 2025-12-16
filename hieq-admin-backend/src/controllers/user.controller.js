@@ -8,17 +8,114 @@ const { sendPasswordResetEmail, sendEmailVerificationEmail } = require('../utils
 // GET /api/users
 exports.getAllUsers = async (req, res) => {
   try {
-    const { role, search, page = 1, limit = 10 } = req.query;
+    const { 
+      role, 
+      search, 
+      filterBy,
+      verificationStatus,
+      accountStatus,
+      dateFrom,
+      dateTo,
+      page = 1, 
+      limit = 10 
+    } = req.query;
     const pageNum = Math.max(1, Number(page) || 1);
     const limitNum = Math.max(1, Math.min(100, Number(limit) || 10)); // Max 100 per page
     const filter = {};
 
+    // Role filter
     if (role) filter.role = role;
-    if (search)
+
+    // Search filter - based on filterBy type
+    if (search && filterBy) {
+      if (filterBy === "Name") {
+        filter.name = new RegExp(search, 'i');
+      } else if (filterBy === "Email ID") {
+        filter.email = new RegExp(search, 'i');
+      } else if (filterBy === "Phone") {
+        // Handle phone/contact search - search in both phone and contact fields
+        const searchPattern = String(search).trim();
+        
+        // Build OR condition for phone and contact fields
+        const phoneConditions = [];
+        
+        // Search in phone field (handle null/undefined)
+        phoneConditions.push({ phone: { $regex: searchPattern, $options: 'i' } });
+        
+        // Search in contact field (handle null/undefined)
+        phoneConditions.push({ contact: { $regex: searchPattern, $options: 'i' } });
+        
+        // Also try exact match if it's a number (convert to string for comparison)
+        const phoneNumber = parseInt(searchPattern);
+        if (!isNaN(phoneNumber) && searchPattern.length <= 15) {
+          const phoneStr = String(phoneNumber);
+          phoneConditions.push({ phone: phoneStr });
+          phoneConditions.push({ contact: phoneStr });
+        }
+        
+        filter.$or = phoneConditions;
+      } else {
+        // Default: search in name and email
+        filter.$or = [
+          { name: new RegExp(search, 'i') },
+          { email: new RegExp(search, 'i') }
+        ];
+      }
+    } else if (search) {
+      // If search provided but no filterBy, search in name and email
       filter.$or = [
         { name: new RegExp(search, 'i') },
         { email: new RegExp(search, 'i') }
       ];
+    }
+
+    // Verification Status filter
+    if (verificationStatus) {
+      if (verificationStatus === "Active") {
+        filter.blocked = { $ne: true };
+      } else if (verificationStatus === "Blocked") {
+        filter.blocked = true;
+      }
+    }
+
+    // Account Status filter
+    if (accountStatus) {
+      if (accountStatus === "Active") {
+        filter.deleted = { $ne: true };
+        filter.blocked = { $ne: true };
+      } else if (accountStatus === "Deleted") {
+        filter.deleted = true;
+      } else if (accountStatus === "Blocked") {
+        filter.blocked = true;
+        filter.deleted = { $ne: true };
+      }
+    }
+
+    // Date filter - exact date (from start of day to end of day)
+    // Frontend sends UTC ISO strings, use them directly
+    if (dateFrom && dateTo) {
+      // Parse the ISO date strings (already in UTC format from frontend)
+      const startOfDay = new Date(dateFrom);
+      const endOfDay = new Date(dateTo);
+      
+      // Ensure dates are valid
+      if (!isNaN(startOfDay.getTime()) && !isNaN(endOfDay.getTime())) {
+        filter.createdAt = {
+          $gte: startOfDay,
+          $lte: endOfDay
+        };
+      }
+    } else if (dateFrom) {
+      const startOfDay = new Date(dateFrom);
+      if (!isNaN(startOfDay.getTime())) {
+        filter.createdAt = { $gte: startOfDay };
+      }
+    } else if (dateTo) {
+      const endOfDay = new Date(dateTo);
+      if (!isNaN(endOfDay.getTime())) {
+        filter.createdAt = { $lte: endOfDay };
+      }
+    }
 
     // Calculate pagination using sanitized values
     const skip = (pageNum - 1) * limitNum;
@@ -298,7 +395,9 @@ exports.createUser = async (req, res) => {
       education: educationData,
       experience: experience || [],
       skills: skills || [],
-      companyExperience: companyExperience || []
+      companyExperience: companyExperience || [],
+      emailVerified: false, // Explicitly set to false
+      emailVerificationStatus: 'Pending' // Set initial status to Pending
     });
 
     await user.save();
@@ -339,6 +438,32 @@ exports.updateUser = async (req, res) => {
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if role is changing to non-admin - if so, migrate user
+    if (role && role !== user.role) {
+      const adminRoles = ['SUPER_ADMIN', 'ADMIN', 'CONTENT_ADMIN', 'VERIFICATION_ADMIN', 'SUPPORT_ADMIN'];
+      const needsMigration = !adminRoles.includes(role);
+      
+      if (needsMigration) {
+        const { migrateUser } = require('../utils/userMigration');
+        const result = await migrateUser(
+          req.params.id,
+          'admin',
+          role,
+          { name, email, password, phone, contact, gender, dob, summary, aadharStatus, education, experience, skills, companyExperience, permissions },
+          req.files
+        );
+        
+        if (result.migrated) {
+          return res.json({ 
+            message: 'User updated and migrated successfully', 
+            user: result.user,
+            migrated: true,
+            newId: result.newId
+          });
+        }
+      }
     }
 
     // Update basic fields
@@ -530,6 +655,8 @@ exports.bulkCreateUsers = async (req, res) => {
           dob: dobDate,
           summary: summary || '',
           role: role || 'STUDENT',
+          emailVerified: false, // Explicitly set to false
+          emailVerificationStatus: 'Pending' // Set initial status to Pending
         };
 
         // Add role-specific data
@@ -647,7 +774,20 @@ exports.sendPasswordResetEmail = async (req, res) => {
       res.json({ message: 'Password reset email sent successfully' });
     } catch (emailError) {
       console.error('Error sending email:', emailError);
-      res.status(500).json({ message: 'Failed to send email. Please try again later.' });
+      // Check if it's a credentials error
+      if (emailError.message && emailError.message.includes('Email credentials are missing')) {
+        res.status(500).json({ 
+          message: 'Email service is not configured. Please contact administrator.',
+          error: 'Email credentials missing'
+        });
+      } else if (emailError.code === 'EAUTH') {
+        res.status(500).json({ 
+          message: 'Email authentication failed. Please check email configuration.',
+          error: 'Email authentication error'
+        });
+      } else {
+        res.status(500).json({ message: 'Failed to send email. Please try again later.' });
+      }
     }
   } catch (err) {
     console.error(err);
@@ -665,7 +805,7 @@ exports.sendEmailVerificationLink = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    if (user.emailVerified) {
+    if (user.emailVerificationStatus === 'Verified' || user.emailVerified) {
       return res.status(400).json({ message: 'Email is already verified' });
     }
 
@@ -687,7 +827,20 @@ exports.sendEmailVerificationLink = async (req, res) => {
       res.json({ message: 'Verification email sent successfully' });
     } catch (emailError) {
       console.error('Error sending email:', emailError);
-      res.status(500).json({ message: 'Failed to send email. Please try again later.' });
+      // Check if it's a credentials error
+      if (emailError.message && emailError.message.includes('Email credentials are missing')) {
+        res.status(500).json({ 
+          message: 'Email service is not configured. Please contact administrator.',
+          error: 'Email credentials missing'
+        });
+      } else if (emailError.code === 'EAUTH') {
+        res.status(500).json({ 
+          message: 'Email authentication failed. Please check email configuration.',
+          error: 'Email authentication error'
+        });
+      } else {
+        res.status(500).json({ message: 'Failed to send email. Please try again later.' });
+      }
     }
   } catch (err) {
     console.error(err);
@@ -695,11 +848,12 @@ exports.sendEmailVerificationLink = async (req, res) => {
   }
 };
 
-// VERIFY EMAIL
+// VERIFY EMAIL (Public endpoint - no auth required)
 exports.verifyEmail = async (req, res) => {
   try {
     const { id } = req.params;
-    const { token } = req.body;
+    // Accept token from query params (for email links) or body
+    const token = req.query.token || req.body.token;
 
     if (!token) {
       return res.status(400).json({ message: 'Verification token is required' });
@@ -710,7 +864,8 @@ exports.verifyEmail = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    if (user.emailVerified) {
+    // Check if already verified
+    if (user.emailVerificationStatus === 'Verified' || user.emailVerified) {
       return res.status(400).json({ message: 'Email is already verified' });
     }
 
@@ -722,14 +877,23 @@ exports.verifyEmail = async (req, res) => {
       return res.status(400).json({ message: 'Verification token has expired' });
     }
 
-    // Verify email
+    // Verify email - update both status fields
     user.emailVerified = true;
+    user.emailVerificationStatus = 'Verified';
     user.emailVerificationToken = undefined;
     user.emailVerificationTokenExpiry = undefined;
     user.updatedAt = new Date();
     await user.save();
 
-    res.json({ message: 'Email verified successfully', user });
+    res.json({ 
+      message: 'Email verified successfully', 
+      user: {
+        _id: user._id,
+        email: user.email,
+        emailVerified: user.emailVerified,
+        emailVerificationStatus: user.emailVerificationStatus
+      }
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error', error: err.message });

@@ -37,8 +37,8 @@ router.post('/:id/send-reset-password', auth.verifyToken, auth.requireRole('SUPE
 // Send email verification link
 router.post('/:id/send-verification', auth.verifyToken, auth.requireRole('SUPER_ADMIN', 'ADMIN'), userController.sendEmailVerificationLink);
 
-// Verify email
-router.post('/:id/verify-email', auth.verifyToken, auth.requireRole('SUPER_ADMIN', 'ADMIN'), userController.verifyEmail);
+// Verify email (Public endpoint - users click from email)
+router.post('/:id/verify-email', userController.verifyEmail);
 
 // Update document status
 router.patch('/:id/document-status', auth.verifyToken, auth.requireRole('SUPER_ADMIN', 'ADMIN'), userController.updateDocumentStatus);

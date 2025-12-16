@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const UserSchema = new Schema(
+const CandidateSchema = new Schema(
   {
     email: { type: String, required: true, index: true, unique: true },
-    emailVerified: { type: Boolean, default: false }, // Keep for backward compatibility
+    emailVerified: { type: Boolean, default: false },
     emailVerificationStatus: {
       type: String,
       enum: ['Pending', 'Verified'],
@@ -14,27 +14,10 @@ const UserSchema = new Schema(
     emailVerificationTokenExpiry: { type: Date },
     passwordResetToken: { type: String },
     passwordResetTokenExpiry: { type: Date },
-    passwordHash: { type: String },
+    passwordHash: { type: String, required: true },
     name: { type: String, required: true },
     blocked: { type: Boolean, default: false },
     deleted: { type: Boolean, default: false },
-
-    role: {
-      type: String,
-      enum: [
-        "SUPER_ADMIN",
-        "ADMIN",
-        "CONTENT_ADMIN",
-        "VERIFICATION_ADMIN",
-        "SUPPORT_ADMIN",
-      ],
-      required: true,
-      index: true,
-    },
-    permissions: [{
-      type: String,
-      trim: true
-    }],
     phone: String,
     contact: String,
     gender: String,
@@ -48,6 +31,23 @@ const UserSchema = new Schema(
     },
     profileImage: String, // Profile image file path
     profile: Schema.Types.Mixed,
+    // Candidate-specific fields
+    education: [{
+      degree: String,
+      university: String,
+      year: String,
+      degreeFile: String, // File path
+      status: {
+        type: String,
+        enum: ['Pending', 'Approve', 'Reject'],
+        default: 'Pending'
+      }
+    }],
+    experience: [{
+      company: String,
+      role: String,
+      years: String
+    }],
     refreshTokens: [{ token: String, createdAt: Date }],
     createdAt: { type: Date, default: Date.now },
     updatedAt: Date,
@@ -55,4 +55,5 @@ const UserSchema = new Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.models.User || mongoose.model("User", UserSchema);
+module.exports = mongoose.models.Candidate || mongoose.model("Candidate", CandidateSchema);
+

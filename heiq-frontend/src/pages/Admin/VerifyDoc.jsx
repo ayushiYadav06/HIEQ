@@ -9,7 +9,7 @@ import ProfileCenterBox from "../../components/layout/ProfileCenterBox";
 import Tabs from "../../components/ui/Tabs";
 import DocumentSectionBox from "../../components/ui/DocumentSectionBox";
 import UploadModal from "../../components/layout/UploadModal";
-import { userAPI } from "../../services/api";
+import { userAPI, candidateAPI, employerAPI } from "../../services/api";
 import { Spinner } from "react-bootstrap";
 import UserImage from "../../assets/user.jpg";
 
@@ -20,6 +20,7 @@ const VerifyDoc = () => {
   const themeColors = isDark ? colors.dark : colors.light;
   const [activeTab, setActiveTab] = useState("Verify Documents");
   const [user, setUser] = useState(null);
+  const [userAPIInstance, setUserAPIInstance] = useState(userAPI); // Store which API to use
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [openPopup, setOpenPopup] = useState(false);
@@ -42,8 +43,33 @@ const VerifyDoc = () => {
       setIsLoading(true);
       setError("");
       try {
-        const userData = await userAPI.getById(userId);
-        setUser(userData);
+        // Try to fetch from candidateAPI first, then employerAPI, then userAPI
+        let userData = null;
+        
+        let apiInstance = userAPI;
+        
+        // Try candidate API
+        try {
+          userData = await candidateAPI.getById(userId);
+          apiInstance = candidateAPI;
+        } catch (err) {
+          // Try employer API
+          try {
+            userData = await employerAPI.getById(userId);
+            apiInstance = employerAPI;
+          } catch (err2) {
+            // Try user API (for admin users)
+            userData = await userAPI.getById(userId);
+            apiInstance = userAPI;
+          }
+        }
+        
+        if (userData) {
+          setUser(userData);
+          setUserAPIInstance(apiInstance); // Store the API instance for future operations
+        } else {
+          throw new Error("User not found");
+        }
       } catch (error) {
         console.error("Failed to fetch user:", error);
         setError("Failed to load user data. Please try again.");
@@ -142,18 +168,23 @@ const VerifyDoc = () => {
       } else if (uploadingDocType === "education") {
         // Append multiple education files
         if (files.length > 0) {
-          files.forEach((f) => {
+          console.log('[handleUpload] Uploading', files.length, 'education files');
+          files.forEach((f, index) => {
+            console.log(`[handleUpload] Appending file ${index + 1}:`, f.name);
             formData.append("degreeFile", f);
           });
         } else if (file) {
+          console.log('[handleUpload] Uploading single education file:', file.name);
           formData.append("degreeFile", file);
         }
       }
 
-      await userAPI.update(targetUserId, formData);
+      console.log('[handleUpload] FormData prepared, sending to API...');
+      await userAPIInstance.update(targetUserId, formData);
+      console.log('[handleUpload] Upload successful');
       
       // Refresh user data to show updated documents
-      const updatedUser = await userAPI.getById(targetUserId);
+      const updatedUser = await userAPIInstance.getById(targetUserId);
       setUser(updatedUser);
       
       alert("Document(s) uploaded successfully");
@@ -213,7 +244,7 @@ const VerifyDoc = () => {
     setIsProcessing(true);
     try {
       // Call API to update document status
-      await userAPI.updateDocumentStatus(
+      await userAPIInstance.updateDocumentStatus(
         targetUserId,
         docType,
         statusUpdate.status,
@@ -221,7 +252,7 @@ const VerifyDoc = () => {
       );
       
       // Refresh user data to show updated status
-      const updatedUser = await userAPI.getById(targetUserId);
+      const updatedUser = await userAPIInstance.getById(targetUserId);
       setUser(updatedUser);
       
       // Remove from statusUpdates
@@ -260,21 +291,45 @@ const VerifyDoc = () => {
 
   const getEducationItems = () => {
     if (!user?.education || user.education.length === 0) return [];
-    return user.education.map((edu, index) => {
+    
+    console.log('[getEducationItems] Full education array:', JSON.stringify(user.education, null, 2));
+    console.log('[getEducationItems] Education array length:', user.education.length);
+    
+    const items = user.education.map((edu, index) => {
       const statusKey = `education_${index}`;
       const pendingStatus = statusUpdates[statusKey]?.status;
       const currentStatus = pendingStatus || edu.status || "Pending";
       
+      // Show all education entries, even if they don't have a file yet
+      const hasFile = !!edu.degreeFile;
+      
+      const documentName = edu.degree 
+        ? `${edu.degree}${edu.university ? ` - ${edu.university}` : ''}${edu.year ? ` (${edu.year})` : ''}`
+        : `Education ${index + 1}`;
+      
+      console.log(`[getEducationItems] Processing education ${index}:`, { 
+        degree: edu.degree, 
+        university: edu.university, 
+        year: edu.year,
+        hasFile,
+        degreeFile: edu.degreeFile,
+        documentName
+      });
+      
       return {
-        documentName: edu.degree || `Education ${index + 1}`,
+        documentName: documentName,
         uploadedDate: formatDate(user.updatedAt || user.createdAt),
         status: currentStatus,
+        hasFile: hasFile,
         onStatusChange: (e) => handleStatusChange("education", index, e.target.value),
-        onView: () => handleView(edu.degreeFile),
-        onDownload: () => handleDownload(edu.degreeFile),
+        onView: hasFile ? () => handleView(edu.degreeFile) : () => alert("No document file available for this education entry"),
+        onDownload: hasFile ? () => handleDownload(edu.degreeFile) : () => alert("No document file available for this education entry"),
         onUpdate: () => handleUpdate("education", index),
       };
     });
+    
+    console.log('[getEducationItems] Returning items:', items.length);
+    return items;
   };
 
   if (isLoading) {

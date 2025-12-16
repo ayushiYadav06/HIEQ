@@ -11,7 +11,7 @@ import AccountStatusBox from "../../components/ui/AccountStatusBox";
 import ChangePasswordBox from "../../components/ui/ChangePasswordBox";
 import ResetPasswordBox from "../../components/ui/ResetPasswordBox";
 import EmailVerificationBox from "../../components/ui/EmailVerificationBox";
-import { userAPI } from "../../services/api";
+import { userAPI, candidateAPI, employerAPI } from "../../services/api";
 import { Spinner } from "react-bootstrap";
 import UserImage from "../../assets/user.jpg";
 
@@ -22,6 +22,7 @@ const AccountSetting = () => {
   const themeColors = isDark ? colors.dark : colors.light;
   const [activeTab, setActiveTab] = useState("Account Settings");
   const [user, setUser] = useState(null);
+  const [userAPIInstance, setUserAPIInstance] = useState(userAPI); // Store which API to use
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -39,8 +40,33 @@ const AccountSetting = () => {
       setIsLoading(true);
       setError("");
       try {
-        const userData = await userAPI.getById(userId);
-        setUser(userData);
+        // Try to fetch from candidateAPI first, then employerAPI, then userAPI
+        let userData = null;
+        
+        let apiInstance = userAPI;
+        
+        // Try candidate API
+        try {
+          userData = await candidateAPI.getById(userId);
+          apiInstance = candidateAPI;
+        } catch (err) {
+          // Try employer API
+          try {
+            userData = await employerAPI.getById(userId);
+            apiInstance = employerAPI;
+          } catch (err2) {
+            // Try user API (for admin users)
+            userData = await userAPI.getById(userId);
+            apiInstance = userAPI;
+          }
+        }
+        
+        if (userData) {
+          setUser(userData);
+          setUserAPIInstance(apiInstance); // Store the API instance for future operations
+        } else {
+          throw new Error("User not found");
+        }
       } catch (error) {
         console.error("Failed to fetch user:", error);
         setError("Failed to load user data. Please try again.");
@@ -112,9 +138,9 @@ const AccountSetting = () => {
 
     setIsProcessing(true);
     try {
-      await userAPI.block(targetUserId);
+      await userAPIInstance.block(targetUserId);
       // Refresh user data
-      const updatedUser = await userAPI.getById(targetUserId);
+      const updatedUser = await userAPIInstance.getById(targetUserId);
       setUser(updatedUser);
       alert("User deactivated successfully");
     } catch (error) {
@@ -133,9 +159,9 @@ const AccountSetting = () => {
 
     setIsProcessing(true);
     try {
-      await userAPI.unblock(targetUserId);
+      await userAPIInstance.unblock(targetUserId);
       // Refresh user data
-      const updatedUser = await userAPI.getById(targetUserId);
+      const updatedUser = await userAPIInstance.getById(targetUserId);
       setUser(updatedUser);
       alert("User activated successfully");
     } catch (error) {
@@ -154,7 +180,7 @@ const AccountSetting = () => {
 
     setIsProcessing(true);
     try {
-      await userAPI.delete(targetUserId);
+      await userAPIInstance.delete(targetUserId);
       alert("User deleted successfully");
       navigate("/admin/candidates");
     } catch (error) {
@@ -172,10 +198,10 @@ const AccountSetting = () => {
 
     setIsProcessing(true);
     try {
-      await userAPI.changePassword(targetUserId, newPassword, confirmPassword);
+      await userAPIInstance.changePassword(targetUserId, newPassword, confirmPassword);
       alert("Password changed successfully");
       // Refresh user data
-      const updatedUser = await userAPI.getById(targetUserId);
+      const updatedUser = await userAPIInstance.getById(targetUserId);
       setUser(updatedUser);
     } catch (error) {
       console.error("Failed to change password:", error);
@@ -193,10 +219,10 @@ const AccountSetting = () => {
 
     setIsProcessing(true);
     try {
-      await userAPI.sendPasswordResetEmail(targetUserId);
+      await userAPIInstance.sendPasswordResetEmail(targetUserId);
       alert("Password reset email sent successfully");
       // Refresh user data
-      const updatedUser = await userAPI.getById(targetUserId);
+      const updatedUser = await userAPIInstance.getById(targetUserId);
       setUser(updatedUser);
     } catch (error) {
       console.error("Failed to send reset email:", error);
@@ -214,10 +240,10 @@ const AccountSetting = () => {
 
     setIsProcessing(true);
     try {
-      await userAPI.sendEmailVerificationLink(targetUserId);
+      await userAPIInstance.sendEmailVerificationLink(targetUserId);
       alert("Verification email sent successfully");
       // Refresh user data to get updated emailVerified status
-      const updatedUser = await userAPI.getById(targetUserId);
+      const updatedUser = await userAPIInstance.getById(targetUserId);
       setUser(updatedUser);
     } catch (error) {
       console.error("Failed to send verification email:", error);

@@ -4,12 +4,28 @@ import "react-datepicker/dist/react-datepicker.css";
 import CalendarIcon from "../../assets/clarity_date-line.svg";
 
 const DateTabs = ({ selected, onChange }) => {
-  const [selectedDate, setSelectedDate] = useState(selected || new Date());
+  const [selectedDate, setSelectedDate] = useState(selected ? new Date(selected) : null);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (selected) setSelectedDate(new Date(selected));
+    if (selected) {
+      setSelectedDate(new Date(selected));
+    } else {
+      setSelectedDate(null);
+    }
   }, [selected]);
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+    onChange?.(date);
+    setOpen(false);
+  };
+
+  const handleClear = (e) => {
+    e.stopPropagation();
+    setSelectedDate(null);
+    onChange?.(null);
+  };
 
   return (
     <div style={{ position: "relative", maxWidth: "450px" }} className="w-100">
@@ -21,11 +37,27 @@ const DateTabs = ({ selected, onChange }) => {
           height: "40px",
           cursor: "pointer",
           background: "#fff",
-          gap: "15px", // ⭐ increased gap between icon and date
+          gap: "15px",
         }}
       >
         <img src={CalendarIcon} width={20} alt="" />
-        <span className="flex-grow-1">{selectedDate.toDateString()}</span>
+        <span className="flex-grow-1">
+          {selectedDate ? selectedDate.toDateString() : "Select Date"}
+        </span>
+        {selectedDate && (
+          <span
+            onClick={handleClear}
+            style={{
+              cursor: "pointer",
+              color: "#666",
+              fontSize: "18px",
+              padding: "0 5px",
+            }}
+            title="Clear date"
+          >
+            ×
+          </span>
+        )}
       </div>
 
       {/* Calendar popup */}
@@ -41,11 +73,7 @@ const DateTabs = ({ selected, onChange }) => {
         >
           <DatePicker
             selected={selectedDate}
-            onChange={(date) => {
-              setSelectedDate(date);
-              onChange?.(date);
-              setOpen(false);
-            }}
+            onChange={handleDateChange}
             inline
           />
         </div>

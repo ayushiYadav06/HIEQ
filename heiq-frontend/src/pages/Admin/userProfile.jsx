@@ -8,7 +8,7 @@ import ProfileMiniNavbar from "../../components/layout/ProfileMiniNavbar";
 import ProfileCenterBox from "../../components/layout/ProfileCenterBox";
 import Tabs from "../../components/ui/Tabs";
 import PersonalInformationBox from "../../components/ui/PersonalInformationBox";
-import { userAPI } from "../../services/api";
+import { userAPI, candidateAPI, employerAPI } from "../../services/api";
 import { Card, Row, Col, Badge, Spinner, Table } from "react-bootstrap";
 import UserImage from "../../assets/user.jpg";
 
@@ -43,11 +43,37 @@ const UserProfile = () => {
       setError("");
 
       try {
-        const userData = await userAPI.getById(userId);
-        setUser(userData);
+        // Try to fetch from candidateAPI first, then employerAPI, then userAPI
+        let userData = null;
+        let lastError = null;
 
-        // ⭐ Every time user loads, force refresh
-        setImageRefreshKey(Date.now());
+        // Try candidate API
+        try {
+          userData = await candidateAPI.getById(userId);
+        } catch (err) {
+          lastError = err;
+          // Try employer API
+          try {
+            userData = await employerAPI.getById(userId);
+          } catch (err2) {
+            lastError = err2;
+            // Try user API (for admin users)
+            try {
+              userData = await userAPI.getById(userId);
+            } catch (err3) {
+              lastError = err3;
+              throw new Error("User not found in any collection");
+            }
+          }
+        }
+
+        if (userData) {
+          setUser(userData);
+          // ⭐ Every time user loads, force refresh
+          setImageRefreshKey(Date.now());
+        } else {
+          throw new Error("User data is null");
+        }
       } catch (error) {
         console.error("Failed to fetch user:", error);
         setError("Failed to load user data. Please try again.");
@@ -110,10 +136,22 @@ const UserProfile = () => {
       const formData = new FormData();
       formData.append("profileImage", file);
 
-      await userAPI.update(user._id, formData);
+      // Determine which API to use based on user role
+      let updateAPI = userAPI;
+      let getByIdAPI = userAPI;
+      
+      if (user.role === "STUDENT" || user.role === "JOB_SEEKER") {
+        updateAPI = candidateAPI;
+        getByIdAPI = candidateAPI;
+      } else if (user.role === "EMPLOYER") {
+        updateAPI = employerAPI;
+        getByIdAPI = employerAPI;
+      }
+
+      await updateAPI.update(user._id, formData);
 
       // Fetch updated user
-      const updatedUser = await userAPI.getById(user._id);
+      const updatedUser = await getByIdAPI.getById(user._id);
       setUser(updatedUser);
 
       // ⭐ Force both images to refresh

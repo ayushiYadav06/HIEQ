@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { store } from '../store/store';
+import { clearAuth } from '../store/slices/authSlice';
 
 // Get environment variables
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
@@ -43,10 +45,12 @@ apiClient.interceptors.response.use(
       const isLoginPage = window.location.pathname === '/login';
       
       if (!isAuthEndpoint && !isLoginPage) {
-        // Token expired or invalid - clear storage and redirect to login
-        localStorage.removeItem(TOKEN_STORAGE_KEY);
-        localStorage.removeItem(import.meta.env.VITE_USER_STORAGE_KEY || 'hieq_user_data');
-        window.location.href = '/login';
+        // Token expired or invalid - clear Redux state and storage, then redirect to login
+        store.dispatch(clearAuth());
+        // Small delay to ensure state is cleared before redirect
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 100);
       }
     }
     return Promise.reject(error);
@@ -125,9 +129,203 @@ export const listManagementAPI = {
   },
 };
 
-// User API
+// Candidate API
+export const candidateAPI = {
+  // GET all candidates
+  getAll: async (params = {}) => {
+    const response = await apiClient.get('/api/candidates', { params });
+    return response.data;
+  },
+
+  // GET candidate by ID
+  getById: async (id) => {
+    const response = await apiClient.get(`/api/candidates/${id}`);
+    return response.data;
+  },
+
+  // CREATE candidate (with file uploads)
+  create: async (formData) => {
+    const response = await apiClient.post('/api/candidates', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  // UPDATE candidate (with file uploads)
+  update: async (id, formData) => {
+    const response = await apiClient.patch(`/api/candidates/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  // POST /api/candidates/bulk - Bulk create candidates from CSV
+  bulkCreate: async (users) => {
+    const response = await apiClient.post('/api/candidates/bulk', { users });
+    return response.data;
+  },
+
+  // DELETE candidate (soft delete)
+  delete: async (id) => {
+    const response = await apiClient.delete(`/api/candidates/${id}`);
+    return response.data;
+  },
+
+  // Block candidate
+  block: async (id) => {
+    const response = await apiClient.patch(`/api/candidates/${id}/block`);
+    return response.data;
+  },
+
+  // Unblock candidate
+  unblock: async (id) => {
+    const response = await apiClient.patch(`/api/candidates/${id}/unblock`);
+    return response.data;
+  },
+
+  // Change password
+  changePassword: async (id, newPassword, confirmPassword) => {
+    const response = await apiClient.patch(`/api/candidates/${id}/change-password`, {
+      newPassword,
+      confirmPassword,
+    });
+    return response.data;
+  },
+
+  // Send password reset email
+  sendPasswordResetEmail: async (id) => {
+    const response = await apiClient.post(`/api/candidates/${id}/send-reset-password`);
+    return response.data;
+  },
+
+  // Send email verification link
+  sendEmailVerificationLink: async (id) => {
+    const response = await apiClient.post(`/api/candidates/${id}/send-verification`);
+    return response.data;
+  },
+
+  // Verify email
+  verifyEmail: async (id, token) => {
+    // Send token as query param (backend accepts both query and body)
+    const response = await apiClient.post(`/api/candidates/${id}/verify-email?token=${token}`);
+    return response.data;
+  },
+
+  // Update document status
+  updateDocumentStatus: async (id, documentType, status, educationIndex = null) => {
+    const response = await apiClient.patch(`/api/candidates/${id}/document-status`, {
+      documentType,
+      status,
+      educationIndex,
+    });
+    return response.data;
+  },
+};
+
+// Employer API
+export const employerAPI = {
+  // GET all employers
+  getAll: async (params = {}) => {
+    const response = await apiClient.get('/api/employers', { params });
+    return response.data;
+  },
+
+  // GET employer by ID
+  getById: async (id) => {
+    const response = await apiClient.get(`/api/employers/${id}`);
+    return response.data;
+  },
+
+  // CREATE employer (with file uploads)
+  create: async (formData) => {
+    const response = await apiClient.post('/api/employers', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  // UPDATE employer (with file uploads)
+  update: async (id, formData) => {
+    const response = await apiClient.patch(`/api/employers/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  // POST /api/employers/bulk - Bulk create employers from CSV
+  bulkCreate: async (users) => {
+    const response = await apiClient.post('/api/employers/bulk', { users });
+    return response.data;
+  },
+
+  // DELETE employer (soft delete)
+  delete: async (id) => {
+    const response = await apiClient.delete(`/api/employers/${id}`);
+    return response.data;
+  },
+
+  // Block employer
+  block: async (id) => {
+    const response = await apiClient.patch(`/api/employers/${id}/block`);
+    return response.data;
+  },
+
+  // Unblock employer
+  unblock: async (id) => {
+    const response = await apiClient.patch(`/api/employers/${id}/unblock`);
+    return response.data;
+  },
+
+  // Change password
+  changePassword: async (id, newPassword, confirmPassword) => {
+    const response = await apiClient.patch(`/api/employers/${id}/change-password`, {
+      newPassword,
+      confirmPassword,
+    });
+    return response.data;
+  },
+
+  // Send password reset email
+  sendPasswordResetEmail: async (id) => {
+    const response = await apiClient.post(`/api/employers/${id}/send-reset-password`);
+    return response.data;
+  },
+
+  // Send email verification link
+  sendEmailVerificationLink: async (id) => {
+    const response = await apiClient.post(`/api/employers/${id}/send-verification`);
+    return response.data;
+  },
+
+  // Verify email
+  verifyEmail: async (id, token) => {
+    // Send token as query param (backend accepts both query and body)
+    const response = await apiClient.post(`/api/employers/${id}/verify-email?token=${token}`);
+    return response.data;
+  },
+
+  // Update document status
+  updateDocumentStatus: async (id, documentType, status, educationIndex = null) => {
+    const response = await apiClient.patch(`/api/employers/${id}/document-status`, {
+      documentType,
+      status,
+      educationIndex,
+    });
+    return response.data;
+  },
+};
+
+// User API (for admin users only - kept for backward compatibility)
 export const userAPI = {
-  // GET all users
+  // GET all users (admin only)
   getAll: async (params = {}) => {
     const response = await apiClient.get('/api/users', { params });
     return response.data;
@@ -218,7 +416,8 @@ export const userAPI = {
 
   // Verify email
   verifyEmail: async (id, token) => {
-    const response = await apiClient.post(`/api/users/${id}/verify-email`, { token });
+    // Send token as query param (backend accepts both query and body)
+    const response = await apiClient.post(`/api/users/${id}/verify-email?token=${token}`);
     return response.data;
   },
 

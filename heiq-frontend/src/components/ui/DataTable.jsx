@@ -43,7 +43,7 @@ const DataTable = ({
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="text-center py-3">
+                <td colSpan={columns.length} className="text-center py-3" style={{ color: "#dc3545", fontWeight: 500 }}>
                   {emptyText}
                 </td>
               </tr>
@@ -86,7 +86,7 @@ const DataTable = ({
       {/* 📱 MOBILE CARD VIEW */}
       <div className="d-block d-md-none mt-3">
         {rows.length === 0 ? (
-          <p className="text-center text-muted">{emptyText}</p>
+          <p className="text-center" style={{ color: "#dc3545", fontWeight: 500 }}>{emptyText}</p>
         ) : (
           rows.map((row, index) => (
             <div

@@ -4,7 +4,9 @@ const ApplicationTabs = ({ active, setActive }) => {
   return (
     <div
       style={{
+
         width: "100%",
+        
         display: "flex",
         borderRadius: "4px",
         overflow: "hidden",

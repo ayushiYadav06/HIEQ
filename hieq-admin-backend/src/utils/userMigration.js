@@ -3,6 +3,7 @@ const Employer = require('../models/Employer');
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const path = require('path');
+console.log("User Migration Utility Loaded");
 
 /**
  * Migrate user from one model to another based on role change

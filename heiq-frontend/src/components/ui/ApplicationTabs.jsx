@@ -1,6 +1,6 @@
-import React from "react";
 
 const ApplicationTabs = ({ active, setActive }) => {
+  console.log("Active Tab:", active);
   return (
     <div
       style={{
